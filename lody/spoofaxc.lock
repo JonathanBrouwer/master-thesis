@@ -1,0 +1,6 @@
+shared.defaultArtifactId=lody
+shared.defaultClassPrefix=Lody
+shared.defaultGroupId=org.metaborg
+shared.defaultPackageId=mb.lody
+shared.defaultVersion=0.1.0
+stratego.source.files.languageStrategyAffix=lody

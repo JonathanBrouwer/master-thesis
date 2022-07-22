@@ -1,0 +1,3 @@
+let x: y = t
+let y: t = b
+(s: x) -> y -> x

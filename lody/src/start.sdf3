@@ -1,0 +1,55 @@
+module start
+
+context-free start-symbols
+
+  Start
+
+context-free sorts
+
+  Start Expr FunArg
+
+context-free syntax
+
+  Start.Program = Expr
+  
+  Expr.Type = "Type"
+  Expr.Var = ID
+  Expr.Let = [
+	  let [name:ID]: [type:Expr] = [val:Expr]
+	  [body:Expr]
+  ] {layout(align "let" body && single-line "let" val)}
+  Expr.FunType = [
+  	[arg:FunArg] -> [rtrn:Expr]
+  ] {left, layout(single-line arg rtrn)}
+  Expr.FunConstruct = [
+	  / {[arg:FunArg] ","}+ . [body:Expr]
+  ] {left}
+  Expr.FunDestruct = [
+	  [Expr] [Expr]
+  ] {left}
+  
+  FunArg.Named = [([name:ID] : [type:Expr])] {layout(single-line name type)}
+  FunArg.Anon = [[expr:Expr]] {layout(single-line expr expr)}
+  
+context-free priorities
+  Expr.Type > Expr.Var > Expr.FunType > Expr.FunConstruct > Expr.FunDestruct > Expr.Let
+  
+context-free restrictions
+
+  LAYOUT? -/- [\ \n\t\v\f\r]
+  
+lexical sorts
+  ID
+
+lexical syntax
+
+  LAYOUT = [\ \n\t\v\f\r]
+  
+  ID = [a-zA-Z\_] [a-zA-Z0-9\_]*
+  ID = "Type" {reject}
+  
+lexical restrictions
+
+  ID -/- [a-zA-Z0-9\_]
+
+

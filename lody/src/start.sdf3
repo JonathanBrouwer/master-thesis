@@ -14,25 +14,17 @@ context-free syntax
   
   Expr.Type = "Type"
   Expr.Var = ID
-  Expr.Let = [
-	  let [name:ID]: [type:Expr] = [val:Expr]
-	  [body:Expr]
-  ] {layout(align "let" body && single-line "let" val)}
-  Expr.FunType = [
-  	[arg:FunArg] -> [rtrn:Expr]
-  ] {left, layout(single-line arg rtrn)}
-  Expr.FunConstruct = [
-	  / {[arg:FunArg] ","}+ . [body:Expr]
-  ] {left}
-  Expr.FunDestruct = [
-	  [Expr] [Expr]
-  ] {left}
+  Expr.FunType = FunArg "->" Expr {right}
+  Expr.FunConstruct = "/" {FunArg ","}+ "." Expr
+  Expr.FunDestruct = Expr Expr {left}
   
-  FunArg.Named = [([name:ID] : [type:Expr])] {layout(single-line name type)}
-  FunArg.Anon = [[expr:Expr]] {layout(single-line expr expr)}
+  Expr = "(" Expr ")" {bracket}
+  
+  FunArg.Named = ID ":" Expr
+  FunArg.Anon = Expr
   
 context-free priorities
-  Expr.Type > Expr.Var > Expr.FunType > Expr.FunConstruct > Expr.FunDestruct > Expr.Let
+  Expr.Type > Expr.Var > Expr.FunType > Expr.FunDestruct > Expr.FunConstruct
   
 context-free restrictions
 

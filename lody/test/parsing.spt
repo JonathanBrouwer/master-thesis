@@ -1,0 +1,89 @@
+module test
+
+test parse type [[
+Type
+]] parse succeeds
+
+test parse var [[
+x
+]] parse succeeds
+
+test parse fun type 1 [[
+X -> Y
+]] parse succeeds
+
+test parse fun type 2a [[
+X -> Y -> Z
+]] parse succeeds
+
+test parse fun type 2b [[
+X -> Y -> Z
+]] parse to [[
+X -> (Y -> Z)
+]]
+
+test parse fun construct 1 [[
+/ x : T. x
+]] parse succeeds
+
+test parse fun construct 2 [[
+/ T. x
+]] parse succeeds
+
+test parse fun construct 3a [[
+/ x : T, y : T. x
+]] parse succeeds
+
+test parse fun construct 3b [[
+/x : T. /y : T. x
+]] parse succeeds
+
+test parse fun construct 3c [[
+/x : T. /y : T. x
+]] parse to [[
+/x : T. (/y : T. x)
+]]
+
+test parse fun construct 4 [[
+/ x : T, y : T, z : T. x
+]] parse succeeds
+
+test parse fun construct 5 [[
+/ T, y : X, Z. x
+]] parse succeeds
+
+test parse fun destruct 1 [[
+a b
+]] parse succeeds
+
+test parse fun destruct 2a [[
+a b c
+]] parse succeeds
+
+test parse fun destruct 2b [[
+a b c
+]] parse to [[
+(a b) c
+]]
+
+test parse fun destruct 3 [[
+a b c d e f g
+]] parse succeeds
+
+test parse fun destruct 4 [[
+/x:T. x y
+]] parse to [[
+/x:T. (x y)
+]]
+
+test parse complex 1 [[
+(/x : T. x) Type
+]] parse succeeds
+
+
+
+
+
+
+
+

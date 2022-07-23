@@ -5,10 +5,8 @@ imports
   signatures/start-sig
   
 signature
-constructors
-  InternalChangeScope : scope * Expr -> Expr
 relations
-  name : ID -> (scope * Expr)
+  name : ID -> Expr
 name-resolution
   labels P
 
@@ -17,11 +15,9 @@ rules
   programOk : Start
   programOk(Program(stmts, expr)).
   
-  
   typeOfExpr : scope * Expr -> Expr
   typeOfExpr(s, Type()) = Type().
-  typeOfExpr(s, Var(id)) = InternalChangeScope(s', e') :- 
-  	resolveName(s, id) == (s', e').
+  typeOfExpr(s, Var(id)) = resolveName(s, id).
   	
   typeOfExpr(s, FunType(arg, rtrn)) = Type() :- {s'}
     // The "type of the argument" must be a type
@@ -39,7 +35,11 @@ rules
   	typeOfExpr(s', FunConstruct(args, body)) == body_type.
   typeOfExpr(s, FunConstruct([], body)) = typeOfExpr(s, body).
   
-  typeOfExpr(s, FunDestruct(fun, arg)) = _.
+  typeOfExpr(s, FunDestruct(fun, arg)) = subst(fun_body_type, fun_arg_type, arg) :- { s' }
+  	betaReduceHead(s, typeOfExpr(s, fun)) == (s', FunType(fun_arg_type, fun_body_type)),
+  	expectBetaEq((s, typeOfExpr(s, arg)), (s', funArgTypePart(fun_arg_type))).
+  	
+  subst : Expr * FunArg * Expr -> Expr
   
   funArgTypePart : FunArg -> Expr
   funArgTypePart(Named(_, t)) = t.
@@ -49,14 +49,14 @@ rules
   funArgBringInScope(Anon(_), s) = s.
   funArgBringInScope(Named(id, T), s) = s' :-
   	new s', s'-P->s,
-  	!name[id, (s, T)] in s',
+  	!name[id, T] in s',
   	@id.type := T.
   
   expectBetaEq : (scope * Expr) * (scope * Expr)	
   
-  betaReduceHead : Expr -> Expr
+  betaReduceHead : scope * Expr -> (scope * Expr)
   
-  resolveName : scope * ID -> (scope * Expr)
+  resolveName : scope * ID -> Expr
   resolveName(s, id) = T :- {id'}
     queryNames(s, id) == [(_, (id', T))|_]
         | error $[Variable [id] not defined],
@@ -64,6 +64,6 @@ rules
     @id.type := T.
   
   
-  queryNames : scope * ID -> list((path * (ID * (scope * Expr))))
+  queryNames : scope * ID -> list((path * (ID * Expr)))
   queryNames(s, id) = ps :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> ps.

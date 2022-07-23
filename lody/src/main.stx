@@ -13,48 +13,67 @@ name-resolution
 rules
 
   programOk : Start
-  programOk(Program(stmts, expr)).
+  programOk(Program(stmts, expr)) :- {s}
+  	new s,
+  	typeOfExpr(s, expr) == _.
   
   typeOfExpr : scope * Expr -> Expr
   typeOfExpr(s, Type()) = Type().
   typeOfExpr(s, Var(id)) = resolveName(s, id).
   	
-  typeOfExpr(s, FunType(arg, rtrn)) = Type() :- {s'}
+  typeOfExpr(s, FnType(arg_name, arg_type, rtrn)) = Type() :- {s'}
     // The "type of the argument" must be a type
-  	expectBetaEq((s, typeOfExpr(s, funArgTypePart(arg))), (s, Type())),
+  	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// The "type of the body" must be a type, but with the argument name is in scope
   	// because the return type may the depend on the value of the argument
-  	funArgBringInScope(arg, s) == s',
-  	expectBetaEq((s', typeOfExpr(s', funArgTypePart(arg))), (s', Type())).
+  	scopeAddFnArg(arg_name, arg_type, s) == s',
+  	expectBetaEq(typeOfExpr(s', arg_type), Type()).
   	
-  typeOfExpr(s, FunConstruct([arg | args], body)) = FunType(arg, body_type) :- {s'}
-	// The "type of the argument" must be a type
-  	expectBetaEq((s, typeOfExpr(s, funArgTypePart(arg))), (s, Type())),
-  	// Now typecheck the rest of the function with the args in scope
-  	funArgBringInScope(arg, s) == s',
-  	typeOfExpr(s', FunConstruct(args, body)) == body_type.
-  typeOfExpr(s, FunConstruct([], body)) = typeOfExpr(s, body).
+  typeOfExpr(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :- {s'}
+	// The arg type must be a type
+  	expectBetaEq(typeOfExpr(s, arg_type), Type()),
+  	// Now typecheck the body with the arg in scope
+  	typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), body) == body_type.
   
-  typeOfExpr(s, FunDestruct(fun, arg)) = subst(fun_body_type, fun_arg_type, arg) :- { s' }
-  	betaReduceHead(s, typeOfExpr(s, fun)) == (s', FunType(fun_arg_type, fun_body_type)),
-  	expectBetaEq((s, typeOfExpr(s, arg)), (s', funArgTypePart(fun_arg_type))).
-  	
-  subst : Expr * FunArg * Expr -> Expr
+  typeOfExpr(s, FnDestruct(fn, arg)) = subst(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
+  	betaReduceHead(typeOfExpr(s, fn)) == FnType(fn_arg_name, fn_arg_type, fn_body_type),
+  	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
   
-  funArgTypePart : FunArg -> Expr
-  funArgTypePart(Named(_, t)) = t.
-  funArgTypePart(Anon(t)) = t.
-  
-  funArgBringInScope : FunArg * scope -> scope
-  funArgBringInScope(Anon(_), s) = s.
-  funArgBringInScope(Named(id, T), s) = s' :-
+  scopeAddFnArg : ID * Expr * scope -> scope
+  scopeAddFnArg(id, T, s) = s' :-
   	new s', s'-P->s,
   	!name[id, T] in s',
   	@id.type := T.
   
-  expectBetaEq : (scope * Expr) * (scope * Expr)	
+  expectBetaEq : Expr * Expr
+  expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
   
-  betaReduceHead : scope * Expr -> (scope * Expr)
+  expectBetaEq_ : Expr * Expr
+  expectBetaEq_(Type(), Type()).
+  expectBetaEq_(Var(n), Var(n)).
+  expectBetaEq_(FnType(arg_name1, arg_type1, body1), FnType(arg_name2, arg_type2, body2)) :-
+  	expectBetaEq(arg_type1, arg_type2). //TODO combine vars
+  
+  betaReduceHead : Expr -> Expr
+  betaReduceHead(e@Type()) = e.
+  betaReduceHead(e@Var(_)) = e.
+  betaReduceHead(e@FnType(_, _, _)) = e.
+  betaReduceHead(e@FnConstruct(_, _, _)) = e.
+  
+  betaReduceHead(FnDestruct(fn, arg)) = betaReduceHeadFn(FnDestruct(betaReduceHead(fn), arg)).
+  betaReduceHeadFn : Expr -> Expr
+  betaReduceHeadFn(FnDestruct(FnConstruct(arg_name, arg_type, body), arg)) = betaReduceHead(subst(body, arg_name, arg)).
+  betaReduceHeadFn(e@FnDestruct(_, _)) = e.
+  
+  subst : Expr * ID * Expr -> Expr
+  subst(Type(), _, _) = Type().
+  subst(Var(n), n, with) = with.
+  subst(Var(n), _, _) = Var(n).
+  subst(FnType(n, t, b), n, _) = FnType(n, subst(t, n, with), b).
+  subst(FnType(n1, t, b), n2, _) = FnType(n1, subst(t, n2, with), subst(b, n2, with)).
+  subst(FnConstruct(n, t, b), n, _) = FnConstruct(n, subst(t, n, with), b).
+  subst(FnConstruct(n1, t, b), n2, _) = FnConstruct(n1, subst(t, n2, with), subst(b, n2, with)).
+  subst(FnDestruct(a, b), n, with) = FnDestruct(subst(a, n, with), subst(b, n, with)).
   
   resolveName : scope * ID -> Expr
   resolveName(s, id) = T :- {id'}

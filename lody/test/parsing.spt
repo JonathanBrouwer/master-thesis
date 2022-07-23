@@ -30,10 +30,6 @@ test parse fun construct 2 [[
 / T. x
 ]] parse succeeds
 
-test parse fun construct 3a [[
-/ x : T, y : T. x
-]] parse succeeds
-
 test parse fun construct 3b [[
 /x : T. /y : T. x
 ]] parse succeeds
@@ -43,14 +39,6 @@ test parse fun construct 3c [[
 ]] parse to [[
 /x : T. (/y : T. x)
 ]]
-
-test parse fun construct 4 [[
-/ x : T, y : T, z : T. x
-]] parse succeeds
-
-test parse fun construct 5 [[
-/ T, y : X, Z. x
-]] parse succeeds
 
 test parse fun destruct 1 [[
 a b

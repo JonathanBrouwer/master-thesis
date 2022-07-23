@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Stmt Expr FunArg
+  Start Stmt Expr FnArg
 
 context-free syntax
 
@@ -16,17 +16,14 @@ context-free syntax
   
   Expr.Type = "Type"
   Expr.Var = ID
-  Expr.FunType = FunArg "->" Expr {right}
-  Expr.FunConstruct = "/" {FunArg ","}+ "." Expr
-  Expr.FunDestruct = Expr Expr {left}
+  Expr.FnType = ID ":" Expr "->" Expr {right}
+  Expr.FnConstruct = "/" ID ":" Expr "." Expr
+  Expr.FnDestruct = Expr Expr {left}
   
   Expr = "(" Expr ")" {bracket}
   
-  FunArg.Named = ID ":" Expr
-  FunArg.Anon = Expr
-  
 context-free priorities
-  Expr.Type > Expr.Var > Expr.FunType > Expr.FunDestruct > Expr.FunConstruct
+  Expr.Type > Expr.Var > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct
   
 context-free restrictions
 

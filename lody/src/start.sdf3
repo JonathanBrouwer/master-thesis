@@ -6,11 +6,13 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Expr FunArg
+  Start Stmt Expr FunArg
 
 context-free syntax
 
-  Start.Program = Expr
+  Start.Program = Stmt* Expr
+  
+  Stmt.StmtLet = [let [ID] : [Expr] = [Expr];]
   
   Expr.Type = "Type"
   Expr.Var = ID
@@ -39,6 +41,7 @@ lexical syntax
   
   ID = [a-zA-Z\_] [a-zA-Z0-9\_]*
   ID = "Type" {reject}
+  ID = "let" {reject}
   
 lexical restrictions
 

@@ -3,8 +3,67 @@ module main
 imports
 
   signatures/start-sig
+  
+signature
+constructors
+  InternalChangeScope : scope * Expr -> Expr
+relations
+  name : ID -> (scope * Expr)
+name-resolution
+  labels P
 
 rules
 
   programOk : Start
-  programOk(_).
+  programOk(Program(stmts, expr)).
+  
+  
+  typeOfExpr : scope * Expr -> Expr
+  typeOfExpr(s, Type()) = Type().
+  typeOfExpr(s, Var(id)) = InternalChangeScope(s', e') :- 
+  	resolveName(s, id) == (s', e').
+  	
+  typeOfExpr(s, FunType(arg, rtrn)) = Type() :- {s'}
+    // The "type of the argument" must be a type
+  	expectBetaEq((s, typeOfExpr(s, funArgTypePart(arg))), (s, Type())),
+  	// The "type of the body" must be a type, but with the argument name is in scope
+  	// because the return type may the depend on the value of the argument
+  	funArgBringInScope(arg, s) == s',
+  	expectBetaEq((s', typeOfExpr(s', funArgTypePart(arg))), (s', Type())).
+  	
+  typeOfExpr(s, FunConstruct([arg | args], body)) = FunType(arg, body_type) :- {s'}
+	// The "type of the argument" must be a type
+  	expectBetaEq((s, typeOfExpr(s, funArgTypePart(arg))), (s, Type())),
+  	// Now typecheck the rest of the function with the args in scope
+  	funArgBringInScope(arg, s) == s',
+  	typeOfExpr(s', FunConstruct(args, body)) == body_type.
+  typeOfExpr(s, FunConstruct([], body)) = typeOfExpr(s, body).
+  
+  typeOfExpr(s, FunDestruct(fun, arg)) = _.
+  
+  funArgTypePart : FunArg -> Expr
+  funArgTypePart(Named(_, t)) = t.
+  funArgTypePart(Anon(t)) = t.
+  
+  funArgBringInScope : FunArg * scope -> scope
+  funArgBringInScope(Anon(_), s) = s.
+  funArgBringInScope(Named(id, T), s) = s' :-
+  	new s', s'-P->s,
+  	!name[id, (s, T)] in s',
+  	@id.type := T.
+  
+  expectBetaEq : (scope * Expr) * (scope * Expr)	
+  
+  betaReduceHead : Expr -> Expr
+  
+  resolveName : scope * ID -> (scope * Expr)
+  resolveName(s, id) = T :- {id'}
+    queryNames(s, id) == [(_, (id', T))|_]
+        | error $[Variable [id] not defined],
+    @id.ref := id',
+    @id.type := T.
+  
+  
+  queryNames : scope * ID -> list((path * (ID * (scope * Expr))))
+  queryNames(s, id) = ps :-
+  	query name filter P* and { id' :- id' == id } min $ < P in s |-> ps.

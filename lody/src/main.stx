@@ -3,14 +3,14 @@ module main
 imports
 
   signatures/start-sig
+  subst
+  beta_eq
   
 signature
 relations
   name : ID -> Expr
 name-resolution
   labels P
-constructors
-  AlphaEqVars : ID * ID -> Expr
 
 rules
 
@@ -29,13 +29,11 @@ rules
   typeOfExpr_(s, Type()) = Type().
   typeOfExpr_(s, Var(id)) = resolveName(s, id).
   	
-  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :- {s'}
-    // The "type of the argument" must be a type
+  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :-
+	// The arg type must be a type
   	expectBetaEq(typeOfExpr(s, arg_type), Type()),
-  	// The "type of the body" must be a type, but with the argument name is in scope
-  	// because the return type may the depend on the value of the argument
-  	scopeAddFnArg(arg_name, arg_type, s) == s',
-  	expectBetaEq(typeOfExpr(s', rtrn), Type()).
+  	// Now typecheck the type of the body with the arg in scope
+  	expectBetaEq(typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), rtrn), Type()).
   	
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :- {s'}
 	// The arg type must be a type
@@ -44,7 +42,9 @@ rules
   	typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), body) == body_type.
   
   typeOfExpr_(s, FnDestruct(fn, arg)) = subst(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
+  	// After beta reduction, the type of fn must be FnType
   	betaReduceHead(typeOfExpr(s, fn)) == FnType(fn_arg_name, fn_arg_type, fn_body_type),
+  	// And the type of arg must be beta eq to the declared arg type
   	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
   
   scopeAddFnArg : ID * Expr * scope -> scope
@@ -53,50 +53,12 @@ rules
   	!name[id, T] in s',
   	@id.type := T.
   
-  expectBetaEq : Expr * Expr
-  expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
-  
-  expectBetaEq_ : Expr * Expr
-  expectBetaEq_(Type(), Type()).
-  expectBetaEq_(AlphaEqVars(a, b), AlphaEqVars(a, b)).
-  expectBetaEq_(Var(n), Var(n)).
-  expectBetaEq_(FnType(arg_name1, arg_type1, body1), FnType(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2),
-  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
-  expectBetaEq_(FnConstruct(arg_name1, arg_type1, body1), FnConstruct(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2),
-  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
-  expectBetaEq(FnDestruct(fn1, arg1), FnDestruct(fn2, arg2)) :-
-  	expectBetaEq(fn1, fn2), expectBetaEq(arg1, arg2).
-  
-  betaReduceHead : Expr -> Expr
-  betaReduceHead(e@Type()) = e.
-  betaReduceHead(e@Var(_)) = e.
-  betaReduceHead(e@FnType(_, _, _)) = e.
-  betaReduceHead(e@FnConstruct(_, _, _)) = e.
-  
-  betaReduceHead(FnDestruct(fn, arg)) = betaReduceHeadFn(FnDestruct(betaReduceHead(fn), arg)).
-  betaReduceHeadFn : Expr -> Expr
-  betaReduceHeadFn(FnDestruct(FnConstruct(arg_name, arg_type, body), arg)) = betaReduceHead(subst(body, arg_name, arg)).
-  betaReduceHeadFn(e@FnDestruct(_, _)) = e.
-  
-  subst : Expr * ID * Expr -> Expr
-  subst(Type(), _, _) = Type().
-  subst(Var(n), n, with) = with.
-  subst(Var(n), _, _) = Var(n).
-  subst(FnType(n, t, b), n, with) = FnType(n, subst(t, n, with), b).
-  subst(FnType(n1, t, b), n2, with) = FnType(n1, subst(t, n2, with), subst(b, n2, with)).
-  subst(FnConstruct(n, t, b), n, with) = FnConstruct(n, subst(t, n, with), b).
-  subst(FnConstruct(n1, t, b), n2, with) = FnConstruct(n1, subst(t, n2, with), subst(b, n2, with)).
-  subst(FnDestruct(a, b), n, with) = FnDestruct(subst(a, n, with), subst(b, n, with)).
-  
   resolveName : scope * ID -> Expr
   resolveName(s, id) = T :- {id'}
     queryNames(s, id) == [(_, (id', T))|_]
         | error $[Variable [id] not defined],
     @id.ref := id',
     @id.type := T.
-  
   
   queryNames : scope * ID -> list((path * (ID * Expr)))
   queryNames(s, id) = ps :-

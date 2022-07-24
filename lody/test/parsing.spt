@@ -9,17 +9,17 @@ x
 ]] parse succeeds
 
 test parse fun type 1 [[
-X -> Y
+_: X -> Y
 ]] parse succeeds
 
 test parse fun type 2a [[
-X -> Y -> Z
+_: X -> _: Y -> Z
 ]] parse succeeds
 
 test parse fun type 2b [[
-X -> Y -> Z
+_: X -> _: Y -> Z
 ]] parse to [[
-X -> (Y -> Z)
+_: X -> (_: Y -> Z)
 ]]
 
 test parse fun construct 1 [[
@@ -27,7 +27,7 @@ test parse fun construct 1 [[
 ]] parse succeeds
 
 test parse fun construct 2 [[
-/ T. x
+/ x : T. x
 ]] parse succeeds
 
 test parse fun construct 3b [[

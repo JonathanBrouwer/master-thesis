@@ -1,1 +1,1 @@
-x. f y. z
+/x : (_: Type -> Type). x

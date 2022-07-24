@@ -5,9 +5,13 @@ imports
   statixruntime
   statix/api
   injections/-
-  signatures/start-sig
+  signatures/-
   pp
   completion
+  strategolib
+  libstratego-gpp
+  libspoofax/sdf/pp
+  
 
 rules // Analysis
 
@@ -17,3 +21,17 @@ rules // Analysis
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
   editor-resolve = stx-editor-resolve
   editor-hover   = stx-editor-hover
+  
+  
+  get-type: expr -> type // Defines a rule which matches on node and returns type'
+    with <debug(!"CHECKING: ")> <strip-annos> expr
+    where
+      // Assigns variable a to be the result of the Statix analysis of the entire program (or throws an error)
+      a := <stx-get-ast-analysis <+ fail-msg(|$[no analysis on node [<strip-annos;write-to-string> expr]])>;
+      // Gets the type of the given node (or throws an error)
+      type := <stx-get-ast-type(|a) <+ fail-msg(|$[no type on node [<strip-annos;write-to-string> expr]])> expr
+    with <debug(!"RESULT: ")> <strip-annos> type
+      
+  fail-msg(|msg) = err-msg(|$[get-type: [msg]]); fail
+  
+  

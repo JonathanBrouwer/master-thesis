@@ -9,33 +9,41 @@ relations
   name : ID -> Expr
 name-resolution
   labels P
+constructors
+  AlphaEqVars : ID * ID -> Expr
 
 rules
 
   programOk : Start
-  programOk(Program(stmts, expr)) :- {s}
+  programOk(p@Program(stmts, expr)) :- {s T}
   	new s,
-  	typeOfExpr(s, expr) == _.
-  
-  typeOfExpr : scope * Expr -> Expr
-  typeOfExpr(s, Type()) = Type().
-  typeOfExpr(s, Var(id)) = resolveName(s, id).
+  	typeOfExpr(s, expr) == T,
+  	@p.type := T.
   	
-  typeOfExpr(s, FnType(arg_name, arg_type, rtrn)) = Type() :- {s'}
+  typeOfExpr : scope * Expr -> Expr
+  typeOfExpr(s, e) = T :-
+    typeOfExpr_(s, e) == T,
+    @e.type := T.
+  
+  typeOfExpr_ : scope * Expr -> Expr
+  typeOfExpr_(s, Type()) = Type().
+  typeOfExpr_(s, Var(id)) = resolveName(s, id).
+  	
+  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :- {s'}
     // The "type of the argument" must be a type
   	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// The "type of the body" must be a type, but with the argument name is in scope
   	// because the return type may the depend on the value of the argument
   	scopeAddFnArg(arg_name, arg_type, s) == s',
-  	expectBetaEq(typeOfExpr(s', arg_type), Type()).
+  	expectBetaEq(typeOfExpr(s', rtrn), Type()).
   	
-  typeOfExpr(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :- {s'}
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :- {s'}
 	// The arg type must be a type
   	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// Now typecheck the body with the arg in scope
   	typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), body) == body_type.
   
-  typeOfExpr(s, FnDestruct(fn, arg)) = subst(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = subst(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
   	betaReduceHead(typeOfExpr(s, fn)) == FnType(fn_arg_name, fn_arg_type, fn_body_type),
   	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
   
@@ -50,9 +58,16 @@ rules
   
   expectBetaEq_ : Expr * Expr
   expectBetaEq_(Type(), Type()).
+  expectBetaEq_(AlphaEqVars(a, b), AlphaEqVars(a, b)).
   expectBetaEq_(Var(n), Var(n)).
   expectBetaEq_(FnType(arg_name1, arg_type1, body1), FnType(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2). //TODO combine vars
+  	expectBetaEq(arg_type1, arg_type2),
+  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
+  expectBetaEq_(FnConstruct(arg_name1, arg_type1, body1), FnConstruct(arg_name2, arg_type2, body2)) :-
+  	expectBetaEq(arg_type1, arg_type2),
+  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
+  expectBetaEq(FnDestruct(fn1, arg1), FnDestruct(fn2, arg2)) :-
+  	expectBetaEq(fn1, fn2), expectBetaEq(arg1, arg2).
   
   betaReduceHead : Expr -> Expr
   betaReduceHead(e@Type()) = e.

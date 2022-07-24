@@ -84,10 +84,10 @@ rules
   subst(Type(), _, _) = Type().
   subst(Var(n), n, with) = with.
   subst(Var(n), _, _) = Var(n).
-  subst(FnType(n, t, b), n, _) = FnType(n, subst(t, n, with), b).
-  subst(FnType(n1, t, b), n2, _) = FnType(n1, subst(t, n2, with), subst(b, n2, with)).
-  subst(FnConstruct(n, t, b), n, _) = FnConstruct(n, subst(t, n, with), b).
-  subst(FnConstruct(n1, t, b), n2, _) = FnConstruct(n1, subst(t, n2, with), subst(b, n2, with)).
+  subst(FnType(n, t, b), n, with) = FnType(n, subst(t, n, with), b).
+  subst(FnType(n1, t, b), n2, with) = FnType(n1, subst(t, n2, with), subst(b, n2, with)).
+  subst(FnConstruct(n, t, b), n, with) = FnConstruct(n, subst(t, n, with), b).
+  subst(FnConstruct(n1, t, b), n2, with) = FnConstruct(n1, subst(t, n2, with), subst(b, n2, with)).
   subst(FnDestruct(a, b), n, with) = FnDestruct(subst(a, n, with), subst(b, n, with)).
   
   resolveName : scope * ID -> Expr

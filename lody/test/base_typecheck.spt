@@ -19,3 +19,19 @@ test id fn 1 [[
 test id fn 2 [[
 [[/x : (_: Type -> Type). x Type]]
 ]] 0 errors run get-type on #1 to FnType("x", FnType("_", Type(), Type()), Type())
+
+test id fn 3 [[
+[[/T : Type. /x : T. x]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("x", Var("T"), Var("T")))
+
+test id fn 4 [[
+[[(/T : Type. /x : T. x) (_: Type -> Type)]]
+]] 0 errors run get-type on #1 to FnType("x", FnType("_", Type(), Type()), FnType("_", Type(), Type()))
+
+test id fn 5 [[
+[[(/T : Type. /x : T. x) (_: Type -> Type) (/t:Type. t)]]
+]] 0 errors run get-type on #1 to FnType("_", Type(), Type())
+
+test id fn 6 [[
+[[(/x : (_: Type -> Type). x) (/t:Type. t)]]
+]] 0 errors run get-type on #1 to FnType("_", Type(), Type())

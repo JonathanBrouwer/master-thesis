@@ -39,13 +39,13 @@ rules
   	
   // substitutions * stmt -> new substitutions
   stmtOk : scope * Stmt -> scope
-  stmtOk(s, StmtLet(id, val)) = scopePutSubst(s, id, (s, val)).
+  stmtOk(s, StmtLet(id, val)) = scopePutSubst(s, id, (s, val, typeOfExpr(se, e))).
   	
-  scopePutSubst : scope * ID * (scope * Expr) -> scope
-  scopePutSubst(s, id, (se, e)) = s' :-
+  scopePutSubst : scope * ID * (scope * Expr * Expr) -> scope
+  scopePutSubst(s, id, (se, e, te)) = s' :-
   	scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
   	new s', s' -P-> s,
-  	!name[id, NameSubst(se, e, typeOfExpr(se, e))] in s'.
+  	!name[id, NameSubst(se, e, te)] in s'.
   	
   scopePutType : scope * ID * (scope * Expr) -> scope
   scopePutType(s, id,  (st, t)) = s' :-
@@ -96,10 +96,10 @@ rules
   	// And the type of arg must be beta eq to the declared arg type
   	expectBetaEq((s, typeOfExpr(s, arg)), (fn_scope, fn_arg_type)).
   
-  substExpr2 : (scope * Expr) * ID * (scope * Expr) -> (scope * Expr)
-  substExpr2((s1, e1), id, (s2, e2)) = (s1', e1) :-
-  	new s1', s1'-P->s1,
-  	!name[id, NameSubst(s2, e2, typeOfExpr(s2, e2))] in s1'.
+//  substExpr2 : (scope * Expr) * ID * (scope * Expr) -> (scope * Expr)
+//  substExpr2((s1, e1), id, (s2, e2)) = (s1', e1) :-
+//  	new s1', s1'-P->s1,
+//  	!name[id, NameSubst(s2, e2, typeOfExpr(s2, e2))] in s1'.
   	
   substExpr1 : Expr * ID * (scope * Expr) -> Expr
   substExpr1(e1, id, (s2, e2)) = WithSubstitution(e1, id, (s2, e2)).
@@ -113,13 +113,13 @@ rules
 //  expectBetaEq_((_, Var(n)), (_, Var(n))).
   expectBetaEq_((s1, FnType(arg_name1, arg_type1, body1)), (s2, FnType(arg_name2, arg_type2, body2))) :-
   	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
-  	expectBetaEq(substExpr2((s1, body1), arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), 
-  					substExpr2((s2, body2), arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2)))).
+  	expectBetaEq((scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body1),
+  				 (scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body2)).
   					
   expectBetaEq_((s1, FnConstruct(arg_name1, arg_type1, body1)), (s2, FnConstruct(arg_name2, arg_type2, body2))) :-
   	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
-  	expectBetaEq(substExpr2((s1, body1), arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), 
-  					substExpr2((s2, body2), arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2)))).
+  	expectBetaEq((scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body1),
+  				 (scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body2)).
   	
   expectBetaEq_((s1, FnDestruct(fn1, arg1)), (s2, FnDestruct(fn2, arg2))) :-
   	expectBetaEq((s1, fn1), (s2, fn2)), expectBetaEq((s1, arg1), (s2, arg2)).
@@ -145,11 +145,11 @@ rules
   betaReduceHead((s, FnDestruct(fn, arg))) = betaReduceHeadFn(betaReduceHead((s, fn)), (s, fn, arg)).
   // (fn head reduced) * (scope original * fn original * arg original)
   betaReduceHeadFn : (scope * Expr) * (scope * Expr * Expr) -> (scope * Expr)
-  betaReduceHeadFn((s_fun, FnConstruct(arg_name, _, body)), (s_arg, _, arg)) = betaReduceHead(substExpr2((s_fun, body), arg_name, (s_arg, arg))).
+  betaReduceHeadFn((s_fun, FnConstruct(arg_name, _, body)), (s_arg, _, arg)) = betaReduceHead((scopePutSubst(s_fun, arg_name, (s_arg, arg, _)), body)).  
   betaReduceHeadFn(_, (s, fn, arg)) = (s, FnDestruct(fn, arg)).
   
   betaReduceHead((_, ChangeContext(s, e))) = betaReduceHead((s, e)).
-  betaReduceHead((s, WithSubstitution(e, id, (s_with, with)))) = (s', e) :-
+  betaReduceHead((s, WithSubstitution(e, id, (s_with, with)))) = betaReduceHead((s', e)) :-
   	new s', s' -P-> s,
     !name[id, NameSubst(s_with, with, typeOfExpr(s_with, with))] in s'.
   

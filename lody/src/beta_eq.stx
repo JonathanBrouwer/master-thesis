@@ -10,29 +10,29 @@ signature constructors
 
 rules
   
-  expectBetaEq : Expr * Expr
-  expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
-  
-  expectBetaEq_ : Expr * Expr
-  expectBetaEq_(Type(), Type()).
-  expectBetaEq_(AlphaEqVars(a, b), AlphaEqVars(a, b)).
-  expectBetaEq_(Var(n), Var(n)).
-  expectBetaEq_(FnType(arg_name1, arg_type1, body1), FnType(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2),
-  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
-  expectBetaEq_(FnConstruct(arg_name1, arg_type1, body1), FnConstruct(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2),
-  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
-  expectBetaEq(FnDestruct(fn1, arg1), FnDestruct(fn2, arg2)) :-
-  	expectBetaEq(fn1, fn2), expectBetaEq(arg1, arg2).
-  
-  betaReduceHead : Expr -> Expr
-  betaReduceHead(e@Type()) = e.
-  betaReduceHead(e@Var(_)) = e.
-  betaReduceHead(e@FnType(_, _, _)) = e.
-  betaReduceHead(e@FnConstruct(_, _, _)) = e.
-  
-  betaReduceHead(FnDestruct(fn, arg)) = betaReduceHeadFn(FnDestruct(betaReduceHead(fn), arg)).
-  betaReduceHeadFn : Expr -> Expr
-  betaReduceHeadFn(FnDestruct(FnConstruct(arg_name, arg_type, body), arg)) = betaReduceHead(subst(body, arg_name, arg)).
-  betaReduceHeadFn(e@FnDestruct(_, _)) = e.
+//  expectBetaEq : Expr * Expr
+//  expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
+//  
+//  expectBetaEq_ : Expr * Expr
+//  expectBetaEq_(Type(), Type()).
+//  expectBetaEq_(AlphaEqVars(a, b), AlphaEqVars(a, b)).
+//  expectBetaEq_(Var(n), Var(n)).
+//  expectBetaEq_(FnType(arg_name1, arg_type1, body1), FnType(arg_name2, arg_type2, body2)) :-
+//  	expectBetaEq(arg_type1, arg_type2),
+//  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
+//  expectBetaEq_(FnConstruct(arg_name1, arg_type1, body1), FnConstruct(arg_name2, arg_type2, body2)) :-
+//  	expectBetaEq(arg_type1, arg_type2),
+//  	expectBetaEq(subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
+//  expectBetaEq(FnDestruct(fn1, arg1), FnDestruct(fn2, arg2)) :-
+//  	expectBetaEq(fn1, fn2), expectBetaEq(arg1, arg2).
+//  
+//  betaReduceHead : Expr -> Expr
+//  betaReduceHead(e@Type()) = e.
+//  betaReduceHead(e@Var(_)) = e.
+//  betaReduceHead(e@FnType(_, _, _)) = e.
+//  betaReduceHead(e@FnConstruct(_, _, _)) = e.
+//  
+//  betaReduceHead(FnDestruct(fn, arg)) = betaReduceHeadFn(FnDestruct(betaReduceHead(fn), arg)).
+//  betaReduceHeadFn : Expr -> Expr
+//  betaReduceHeadFn(FnDestruct(FnConstruct(arg_name, arg_type, body), arg)) = betaReduceHead(subst(body, arg_name, arg)).
+//  betaReduceHeadFn(e@FnDestruct(_, _)) = e.

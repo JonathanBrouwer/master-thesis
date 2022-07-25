@@ -7,59 +7,147 @@ imports
   beta_eq
   
 signature
+sorts
+  NameEntry
+constructors
+  // Scope * Type
+  NameType : scope * Expr -> NameEntry
+  // Scope * With * Type
+  NameSubst : scope * Expr * Expr -> NameEntry
+  
+  // WithContext expr
+  WithContext : scope * Expr -> Expr
+
 relations
-  name : ID -> Expr
+  name : ID -> NameEntry
 name-resolution
   labels P
 
 rules
 
   programOk : Start
-  programOk(p@Program(stmts, expr)) :- {s T}
+  programOk(p@Program(stmts, expr)) :- {s s' T}
   	new s,
-  	typeOfExpr(s, expr) == T,
-  	@p.type := T.
+  	stmtsOk(s, stmts) == s',
+  	typeOfExpr(s', expr) == T,
+  	@p.type := betaReduce((s', T)).
   	
+  // substitutions * stmts -> new substitutions
+  stmtsOk : scope * list(Stmt) -> scope
+  stmtsOk(substs, [s | ss]) = stmtsOk(stmtOk(substs, s), ss).
+  stmtsOk(substs, []) = substs.
+  	
+  // substitutions * stmt -> new substitutions
+  stmtOk : scope * Stmt -> scope
+  stmtOk(substs, StmtLet(id, val)) = substs' :-
+  	new substs', substs'-P->substs,
+  	!name[id, NameSubst(substs, val, typeOfExpr(substs, val))] in substs'.
+  	
+  // scope * expr -> type of expr
   typeOfExpr : scope * Expr -> Expr
   typeOfExpr(s, e) = T :-
     typeOfExpr_(s, e) == T,
-    @e.type := T.
+    @e.type := betaReduce((s, T)).
   
   typeOfExpr_ : scope * Expr -> Expr
   typeOfExpr_(s, Type()) = Type().
-  typeOfExpr_(s, Var(id)) = resolveName(s, id).
+  
+  typeOfExpr_(s, Var(id)) = typeOfNameEntry(res) :- {id_final}
+  	query name filter P* and { id' :- id' == id } min $ < P in s |-> [(_, (id_final, res)) | _],
+  	@id.ref := id_final.
+  typeOfNameEntry : NameEntry -> Expr
+  typeOfNameEntry(NameType(s, e)) = WithContext(s, e).
+  typeOfNameEntry(NameSubst(s, with, t)) = WithContext(s, t).
   	
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :-
 	// The arg type must be a type
-  	expectBetaEq(typeOfExpr(s, arg_type), Type()),
+  	expectBetaEqNew((s, typeOfExpr(s, arg_type)), (empty_scope(), Type())),
   	// Now typecheck the type of the body with the arg in scope
-  	expectBetaEq(typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), rtrn), Type()).
+  	expectBetaEqNew((s, typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), rtrn)), (empty_scope(), Type())).
   	
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :- {s'}
 	// The arg type must be a type
-  	expectBetaEq(typeOfExpr(s, arg_type), Type()),
+  	expectBetaEqNew((s, typeOfExpr(s, arg_type)), (empty_scope(), Type())),
   	// Now typecheck the body with the arg in scope
   	typeOfExpr(scopeAddFnArg(arg_name, arg_type, s), body) == body_type.
   
-  typeOfExpr_(s, FnDestruct(fn, arg)) = subst(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = substExpr1((fn_scope, fn_body_type), fn_arg_name, (s, arg)) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
-  	betaReduceHead(typeOfExpr(s, fn)) == FnType(fn_arg_name, fn_arg_type, fn_body_type),
+  	betaReduceHeadNew((s, typeOfExpr(s, fn))) == (fn_scope, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
-  	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
+  	expectBetaEqNew((s, typeOfExpr(s, arg)), (fn_scope, fn_arg_type)).
   
+  // Add ID : Type to the scope. Type must be valid in context scope.
   scopeAddFnArg : ID * Expr * scope -> scope
   scopeAddFnArg(id, T, s) = s' :-
   	new s', s'-P->s,
-  	!name[id, T] in s',
-  	@id.type := T.
+  	!name[id, NameType(s, T)] in s'.
+  	
+  // Subst in the first (s,expr), id with the second (s,expr).
+  substExpr1 : (scope * Expr) * ID * (scope * Expr) -> Expr
+  substExpr1((s1, e1), id, (s2, e2)) = WithContext(s1', e1) :-
+  	new s1', s1'-P->s1,
+  	!name[id, NameSubst(s2, e2, typeOfExpr(s2, e2))] in s1'.
+ 
+  substExpr2 : (scope * Expr) * ID * (scope * Expr) -> (scope * Expr)
+  substExpr2((s1, e1), id, (s2, e2)) = (s1', e1) :-
+  	new s1', s1'-P->s1,
+  	!name[id, NameSubst(s2, e2, typeOfExpr(s2, e2))] in s1'.
+  	
+  expectBetaEqNew : (scope * Expr) * (scope * Expr)
+  expectBetaEqNew(se1, se2) :- expectBetaEqNew_(betaReduceHeadNew(se1), betaReduceHeadNew(se2)).
   
-  resolveName : scope * ID -> Expr
-  resolveName(s, id) = T :- {id'}
-    queryNames(s, id) == [(_, (id', T))|_]
-        | error $[Variable [id] not defined],
-    @id.ref := id',
-    @id.type := T.
+  expectBetaEqNew_ : (scope * Expr) * (scope * Expr)
+  expectBetaEqNew_((_, Type()), (_, Type())).
+  expectBetaEqNew_((_, AlphaEqVars(a, b)), (_, AlphaEqVars(a, b))).
+//  expectBetaEqNew_((_, Var(n)), (_, Var(n))).
+  expectBetaEqNew_((s1, FnType(arg_name1, arg_type1, body1)), (s2, FnType(arg_name2, arg_type2, body2))) :-
+  	expectBetaEqNew((s1, arg_type1), (s2, arg_type2)),
+  	expectBetaEqNew(substExpr2((s1, body1), arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), 
+  					substExpr2((s2, body2), arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2)))).
+  					
+  expectBetaEqNew_((s1, FnConstruct(arg_name1, arg_type1, body1)), (s2, FnConstruct(arg_name2, arg_type2, body2))) :-
+  	expectBetaEqNew((s1, arg_type1), (s2, arg_type2)),
+  	expectBetaEqNew(substExpr2((s1, body1), arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), 
+  					substExpr2((s2, body2), arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2)))).
+  	
+  expectBetaEqNew_((s1, FnDestruct(fn1, arg1)), (s2, FnDestruct(fn2, arg2))) :-
+  	expectBetaEqNew((s1, fn1), (s2, fn2)), expectBetaEqNew((s1, arg1), (s2, arg2)).
   
-  queryNames : scope * ID -> list((path * (ID * Expr)))
-  queryNames(s, id) = ps :-
-  	query name filter P* and { id' :- id' == id } min $ < P in s |-> ps.
+  betaReduceHeadNew : (scope * Expr) -> (scope * Expr)
+  
+  betaReduceHeadNew((s, e@Type())) = (s, e). 
+  
+  betaReduceHeadNew((s, e@Var(id))) = betaReduceHeadNewVar((s, e), results) :-
+  	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
+  betaReduceHeadNewVar : (scope * Expr) * list((path * (ID * NameEntry))) -> (scope * Expr)
+  // If there is a result, take that one
+  betaReduceHeadNewVar(_, [(_, (_, NameSubst(with_scope, with, _))) | _]) = (with_scope, with).
+  // If there isn't, take the default
+//  betaReduceHeadNewVar(default, [(_, (_, NameType(_, _))) | _]) = default.
+  betaReduceHeadNewVar(default, _) = default.
+  
+  betaReduceHeadNew((s, e@AlphaEqVars(_, _))) = (s, e).
+  
+  betaReduceHeadNew((s, e@FnType(_, _, _))) = (s, e).
+  betaReduceHeadNew((s, e@FnConstruct(_, _, _))) = (s, e).
+  
+  betaReduceHeadNew((s, FnDestruct(fn, arg))) = betaReduceHeadNewFn(betaReduceHeadNew((s, fn)), (s, fn, arg)).
+  // (fn head reduced) * (scope original * fn original * arg original)
+  betaReduceHeadNewFn : (scope * Expr) * (scope * Expr * Expr) -> (scope * Expr)
+  betaReduceHeadNewFn((s_fun, FnConstruct(arg_name, _, body)), (s_arg, _, arg)) = betaReduceHeadNew(substExpr2((s_fun, body), arg_name, (s_arg, arg))).
+  betaReduceHeadNewFn(_, (s, fn, arg)) = (s, FnDestruct(fn, arg)).
+  
+  betaReduceHeadNew((_, WithContext(s, e))) = betaReduceHeadNew((s, e)).
+  
+  betaReduce : (scope * Expr) -> Expr
+  betaReduce(se) = betaReduce_(betaReduceHeadNew(se)).
+  
+  betaReduce_ : (scope * Expr) -> Expr
+  betaReduce_((_, e@Type())) = e.
+  betaReduce_((_, e@Var(id))) = e.
+  betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
+  
+  empty_scope : -> scope
+  empty_scope() = s :- new s.
+  

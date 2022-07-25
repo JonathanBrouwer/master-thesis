@@ -70,21 +70,21 @@ test parse complex 1 [[
 
 
 test parse let 1 [[
-let x : int = a;
+let x = a;
 s
 ]] parse succeeds
 
 test parse let 2 [[
-let x : int = a;
-let x : int = a;
-let x : int = a;
+let x = a;
+let x = a;
+let x = a;
 hey
 ]] parse succeeds
 
 test parse let 3 [[
-let x : int = a;
-let x : int = a;
-let x : int = a;
+let x = a;
+let x = a;
+let x = a;
 ]] parse fails
 
 

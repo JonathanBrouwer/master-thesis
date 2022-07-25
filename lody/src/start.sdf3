@@ -10,10 +10,9 @@ context-free sorts
 
 context-free syntax
 
-  Start.Program = Stmt* Expr
+  Start.Program = Expr
   
-  Stmt.StmtLet = [let [ID] = [Expr];]
-  
+  Expr.Let = [let [ID] = [Expr]; [Expr]]
   Expr.Type = "Type"
   Expr.Var = ID
   Expr.FnType = ID ":" Expr "->" Expr {right}

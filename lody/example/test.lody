@@ -1,1 +1,2 @@
-(/T : Type. /x : T. x) Type
+let x = Type;
+/z:x. z

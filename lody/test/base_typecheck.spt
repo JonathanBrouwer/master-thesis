@@ -49,9 +49,32 @@ test id fn 6 [[
 ]] 0 errors run get-type on #1 to FnType("_", Type(), Type())
 
 
-test tricky type [[
+test shadow 1 [[
 (/T : Type. /T : T. T)
 ]] >=1 errors
+
+test shadow 2 [[
+let x = Type;
+let y = x;
+let x = _: Type -> Type;
+y
+]] 0 errors
+
+test shadow 3 [[
+let x = Type;
+([[/z:x. z]])
+]] 0 errors run get-type on #1 to FnType("z", Type(), Type())
+
+test shadow 4 [[
+let x = (/y:Type. y) Type;
+([[/z:x. z]])
+]] 0 errors run get-type on #1 to FnType("z", Type(), Type())
+
+test shadow 4a [[
+let x = (/y:Type. y) Type;
+let y = _: Type -> Type;
+/z:x. z
+]] 0 errors
 
 test tricky type 2 [[
 [[(/y : (/x : Type. x) Type. y)]]

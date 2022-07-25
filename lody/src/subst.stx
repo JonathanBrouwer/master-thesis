@@ -5,12 +5,14 @@ imports
   signatures/start-sig
   
 rules
-//  subst : Expr * ID * Expr -> Expr
-//  subst(Type(), _, _) = Type().
-//  subst(Var(n), n, with) = with.
-//  subst(Var(n), _, _) = Var(n).
-//  subst(FnType(n, t, b), n, with) = FnType(n, subst(t, n, with), b).
-//  subst(FnType(n1, t, b), n2, with) = FnType(n1, subst(t, n2, with), subst(b, n2, with)).
-//  subst(FnConstruct(n, t, b), n, with) = FnConstruct(n, subst(t, n, with), b).
-//  subst(FnConstruct(n1, t, b), n2, with) = FnConstruct(n1, subst(t, n2, with), subst(b, n2, with)).
-//  subst(FnDestruct(a, b), n, with) = FnDestruct(subst(a, n, with), subst(b, n, with)).
+  substExpr : Expr * ID * Expr -> Expr
+  substExpr(Type(), _, _) = Type().
+  substExpr(Var(n), n, with) = with.
+  substExpr(Var(n), _, _) = Var(n).
+  substExpr(FnType(n, t, b), n, with) = FnType(n, substExpr(t, n, with), b).
+  substExpr(FnType(n1, t, b), n2, with) = FnType(n1, substExpr(t, n2, with), substExpr(b, n2, with)).
+  substExpr(FnConstruct(n, t, b), n, with) = FnConstruct(n, substExpr(t, n, with), b).
+  substExpr(FnConstruct(n1, t, b), n2, with) = FnConstruct(n1, substExpr(t, n2, with), substExpr(b, n2, with)).
+  substExpr(FnDestruct(a, b), n, with) = FnDestruct(substExpr(a, n, with), substExpr(b, n, with)).
+  substExpr(Let(n, v, b), n, with) = Let(n, substExpr(v, n, with), b).
+  substExpr(Let(n1, v, b), n2, with) = Let(n1, substExpr(v, n2, with), substExpr(b, n2, with)).

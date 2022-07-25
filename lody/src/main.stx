@@ -7,160 +7,65 @@ imports
   beta_eq
   
 signature
-sorts
-  NameEntry
-constructors
-  // Scope * Type
-  NameType : scope * Expr -> NameEntry
-  // Scope * With * Type
-  NameSubst : scope * Expr * Expr -> NameEntry
-  
-  ChangeContext : scope * Expr -> Expr
-  
-  WithSubstitution : Expr * ID * (scope * Expr) -> Expr
-
 relations
-  name : ID -> NameEntry
+  name : ID -> Expr
 name-resolution
   labels P
 
 rules
 
   programOk : Start
-  programOk(p@Program(stmts, expr)) :- {s s'}
-  	new s,
-  	stmtsOk(s, stmts) == s',
-  	typeOfExpr(s', expr) == _.
-  	
-  // substitutions * stmts -> new substitutions
-  stmtsOk : scope * list(Stmt) -> scope
-  stmtsOk(substs, [s | ss]) = stmtsOk(stmtOk(substs, s), ss).
-  stmtsOk(substs, []) = substs.
-  	
-  // substitutions * stmt -> new substitutions
-  stmtOk : scope * Stmt -> scope
-  stmtOk(s, StmtLet(id, val)) = scopePutSubst(s, id, (s, val, typeOfExpr(se, e))).
-  	
-  scopePutSubst : scope * ID * (scope * Expr * Expr) -> scope
-  scopePutSubst(s, id, (se, e, te)) = s' :-
-  	scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
+  programOk(Program(expr)) :- typeOfExpr(empty_scope(), expr) == _.
+
+  scopePutType : scope * ID * Expr -> scope
+  scopePutType(s, id, t) = s' :-
+    scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
   	new s', s' -P-> s,
-  	!name[id, NameSubst(se, e, te)] in s'.
+  	!name[id, t] in s'.
   	
-  scopePutType : scope * ID * (scope * Expr) -> scope
-  scopePutType(s, id,  (st, t)) = s' :-
-  	scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
-  	new s', s' -P-> s,
-  	!name[id, NameType(st, t)] in s'.
-  	
-  scopeGetName : scope * ID -> NameEntry
+  scopeGetName : scope * ID -> Expr
   scopeGetName(s, id) = result :- {id'}
   	scopeGetNames(s, id) == [(_, (id', result))],
   	@id.ref := id'.
   
-  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
+  scopeGetNames : scope * ID -> list((path * (ID * Expr)))
   scopeGetNames(s, id) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
-  
-  	
+
+  empty_scope : -> scope
+  empty_scope() = s :- new s.
+ 
   // scope * expr -> type of expr
   typeOfExpr : scope * Expr -> Expr
   typeOfExpr(s, e) = T :-
     typeOfExpr_(s, e) == T,
-    @e.type := betaReduce((s, T)).
-//    @e.type := (s, T).
+//    @e.type := T.
+    @e.type := betaReduce(T).
   
   typeOfExpr_ : scope * Expr -> Expr
-  typeOfExpr_(s, Type()) = Type().
+  typeOfExpr_(_, Type()) = Type().
   
-  typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
-  typeOfNameEntry : NameEntry -> Expr
-  typeOfNameEntry(NameType(s, e)) = ChangeContext(s, e).
-  typeOfNameEntry(NameSubst(s, with, t)) = ChangeContext(s, t).
-  	
+  typeOfExpr_(s, Var(id)) = scopeGetName(s, id).
+	
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :-
 	// The arg type must be a type
-  	expectBetaEq((s, typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+  	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// Now typecheck the type of the body with the arg in scope
-  	expectBetaEq((s, typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), rtrn)), (empty_scope(), Type())).
+  	expectBetaEq(typeOfExpr(scopePutType(s, arg_name, arg_type), rtrn), Type()).
   	
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :- {s'}
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :-
 	// The arg type must be a type
-  	expectBetaEq((s, typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+  	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// Now typecheck the body with the arg in scope
-  	typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), body) == body_type.
+  	typeOfExpr(scopePutType(s, arg_name, arg_type), body) == body_type.
   
-  typeOfExpr_(s, FnDestruct(fn, arg)) = substExpr1(fn_body_type, fn_arg_name, (s, arg)) :- {fn_scope fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = substExpr(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
-  	betaReduceHead((s, typeOfExpr(s, fn))) == (fn_scope, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
+  	betaReduceHead(typeOfExpr(s, fn)) == FnType(fn_arg_name, fn_arg_type, fn_body_type),
   	// And the type of arg must be beta eq to the declared arg type
-  	expectBetaEq((s, typeOfExpr(s, arg)), (fn_scope, fn_arg_type)).
-  
-//  substExpr2 : (scope * Expr) * ID * (scope * Expr) -> (scope * Expr)
-//  substExpr2((s1, e1), id, (s2, e2)) = (s1', e1) :-
-//  	new s1', s1'-P->s1,
-//  	!name[id, NameSubst(s2, e2, typeOfExpr(s2, e2))] in s1'.
+  	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
   	
-  substExpr1 : Expr * ID * (scope * Expr) -> Expr
-  substExpr1(e1, id, (s2, e2)) = WithSubstitution(e1, id, (s2, e2)).
+  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(s, substExpr(b, n, v)).
 
-  expectBetaEq : (scope * Expr) * (scope * Expr)
-  expectBetaEq(se1, se2) :- expectBetaEq_(betaReduceHead(se1), betaReduceHead(se2)).
-  
-  expectBetaEq_ : (scope * Expr) * (scope * Expr)
-  expectBetaEq_((_, Type()), (_, Type())).
-  expectBetaEq_((_, AlphaEqVars(a, b)), (_, AlphaEqVars(a, b))).
-//  expectBetaEq_((_, Var(n)), (_, Var(n))).
-  expectBetaEq_((s1, FnType(arg_name1, arg_type1, body1)), (s2, FnType(arg_name2, arg_type2, body2))) :-
-  	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
-  	expectBetaEq((scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body1),
-  				 (scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body2)).
-  					
-  expectBetaEq_((s1, FnConstruct(arg_name1, arg_type1, body1)), (s2, FnConstruct(arg_name2, arg_type2, body2))) :-
-  	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
-  	expectBetaEq((scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body1),
-  				 (scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2), _)), body2)).
-  	
-  expectBetaEq_((s1, FnDestruct(fn1, arg1)), (s2, FnDestruct(fn2, arg2))) :-
-  	expectBetaEq((s1, fn1), (s2, fn2)), expectBetaEq((s1, arg1), (s2, arg2)).
-  
-  betaReduceHead : (scope * Expr) -> (scope * Expr)
-  
-  betaReduceHead((s, e@Type())) = (s, e). 
-  
-  betaReduceHead((s, e@Var(id))) = betaReduceHeadVar((s, e), results) :-
-  	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
-  betaReduceHeadVar : (scope * Expr) * list((path * (ID * NameEntry))) -> (scope * Expr)
-  // If there is a result, take that one
-  betaReduceHeadVar(_, [(_, (_, NameSubst(with_scope, with, _))) | _]) = (with_scope, with).
-  // If there isn't, take the default
-//  betaReduceHeadVar(default, [(_, (_, NameType(_, _))) | _]) = default.
-  betaReduceHeadVar(default, _) = default.
-  
-  betaReduceHead((s, e@AlphaEqVars(_, _))) = (s, e).
-  
-  betaReduceHead((s, e@FnType(_, _, _))) = (s, e).
-  betaReduceHead((s, e@FnConstruct(_, _, _))) = (s, e).
-  
-  betaReduceHead((s, FnDestruct(fn, arg))) = betaReduceHeadFn(betaReduceHead((s, fn)), (s, fn, arg)).
-  // (fn head reduced) * (scope original * fn original * arg original)
-  betaReduceHeadFn : (scope * Expr) * (scope * Expr * Expr) -> (scope * Expr)
-  betaReduceHeadFn((s_fun, FnConstruct(arg_name, _, body)), (s_arg, _, arg)) = betaReduceHead((scopePutSubst(s_fun, arg_name, (s_arg, arg, _)), body)).  
-  betaReduceHeadFn(_, (s, fn, arg)) = (s, FnDestruct(fn, arg)).
-  
-  betaReduceHead((_, ChangeContext(s, e))) = betaReduceHead((s, e)).
-  betaReduceHead((s, WithSubstitution(e, id, (s_with, with)))) = betaReduceHead((s', e)) :-
-  	new s', s' -P-> s,
-    !name[id, NameSubst(s_with, with, typeOfExpr(s_with, with))] in s'.
-  
-  betaReduce : (scope * Expr) -> Expr
-  betaReduce(se) = betaReduce_(betaReduceHead(se)).
-  
-  betaReduce_ : (scope * Expr) -> Expr
-  betaReduce_((_, e@Type())) = e.
-  betaReduce_((_, e@Var(id))) = e.
-  betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
-  
-  empty_scope : -> scope
-  empty_scope() = s :- new s.
+
   

@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Stmt Expr FnArg
+  Start Stmt Expr
 
 context-free syntax
 
@@ -22,7 +22,7 @@ context-free syntax
   Expr = "(" Expr ")" {bracket}
   
 context-free priorities
-  Expr.Type > Expr.Var > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct
+  Expr.Type > Expr.Var > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
   
 context-free restrictions
 

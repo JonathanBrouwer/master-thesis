@@ -1,4 +1,4 @@
-module base_typecheck
+module typecheck_base
 
 test type [[
 [[Type]]
@@ -50,8 +50,8 @@ test id fn 6 [[
 
 
 test shadow 1 [[
-(/T : Type. /T : T. T)
-]] >=1 errors
+[[(/T : Type. /T : T. T)]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T", Var("T"), Var("T")))
 
 test shadow 2 [[
 let x = Type;

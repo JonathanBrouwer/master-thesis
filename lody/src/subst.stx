@@ -3,12 +3,14 @@ module subst
 imports
 
   signatures/start-sig
+  beta_eq
   
 rules
   substExpr : Expr * ID * Expr -> Expr
   substExpr(Type(), _, _) = Type().
   substExpr(Var(n), n, with) = with.
   substExpr(Var(n), _, _) = Var(n).
+  substExpr(AlphaEqVars(n1, n2), _, _) = AlphaEqVars(n1, n2).
   substExpr(FnType(n, t, b), n, with) = FnType(n, substExpr(t, n, with), b).
   substExpr(FnType(n1, t, b), n2, with) = FnType(n1, substExpr(t, n2, with), substExpr(b, n2, with)).
   substExpr(FnConstruct(n, t, b), n, with) = FnConstruct(n, substExpr(t, n, with), b).

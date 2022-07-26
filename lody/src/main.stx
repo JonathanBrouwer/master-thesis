@@ -19,14 +19,15 @@ rules
 
   scopePutType : scope * ID * Expr -> scope
   scopePutType(s, id, t) = s' :-
-    scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
+//    scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
   	new s', s' -P-> s,
   	!name[id, t] in s'.
   	
   scopeGetName : scope * ID -> Expr
   scopeGetName(s, id) = result :- {id'}
   	scopeGetNames(s, id) == [(_, (id', result))],
-  	@id.ref := id'.
+  	@id.ref := id',
+  	@id.type := result.
   
   scopeGetNames : scope * ID -> list((path * (ID * Expr)))
   scopeGetNames(s, id) = results :-
@@ -65,7 +66,8 @@ rules
   	// And the type of arg must be beta eq to the declared arg type
   	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
   	
-  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(s, substExpr(b, n, v)).
+  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(s, substExpr(b, n, v)) :-
+  	typeOfExpr(s, v) == _.
 
 
   

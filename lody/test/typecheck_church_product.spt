@@ -1,0 +1,70 @@
+module church_product
+
+test prod type [[
+[[
+let prod = /P : Type. /Q : Type. 
+	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
+prod
+]]
+]] 0 errors run get-type on #1 to FnType("P", Type(), FnType("Q", Type(), Type()))
+
+test pair fn [[
+[[
+let prod = /P : Type. /Q : Type. 
+	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
+let pair = /P : Type. /Q : Type. /p : P. /q : Q. 
+	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
+pair
+]]
+]] 0 errors
+
+test make pair [[
+[[
+let prod = /P : Type. /Q : Type. 
+	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
+let pair = /P : Type. /Q : Type. /p : P. /q : Q. 
+	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
+pair Type Type Type Type
+]]
+]] 0 errors run get-type on #1 to FnType("C",Type(),FnType("f",FnType(_,Type(),FnType(_,Type(),Var("C"))),Var("C")))
+
+test fst 1 [[
+[[
+let prod = /P : Type. /Q : Type. 
+	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
+let pair = /P : Type. /Q : Type. /p : P. /q : Q. 
+	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
+let fst = /P : Type. /Q : Type. 
+	/x: prod P Q. x P (/p: P. /q: Q. p);
+fst Type Type (pair Type Type Type Type)
+]]
+]] 0 errors run get-type on #1 to Type()
+
+test fst 2 [[
+[[
+let prod = /P : Type. /Q : Type. 
+	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
+let pair = /P : Type. /Q : Type. /p : P. /q : Q. 
+	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
+let fst = /P : Type. /Q : Type. 
+	/x: prod P Q. x P (/p: P. /q: Q. p);
+fst (_: Type -> Type) Type (pair (_: Type -> Type) Type (/b:Type. b) Type)
+]]
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+
+test snd 2 [[
+[[
+let prod = /P : Type. /Q : Type. 
+	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
+let pair = /P : Type. /Q : Type. /p : P. /q : Q. 
+	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
+let fst = /P : Type. /Q : Type. 
+	/x: prod P Q. x P (/p: P. /q: Q. p);
+let snd = /P : Type. /Q : Type. 
+	/x: prod P Q. x Q (/p: P. /q: Q. q);
+snd (_: Type -> Type) Type (pair (_: Type -> Type) Type (/b:Type. b) Type)
+]]
+]] 0 errors run get-type on #1 to Type()
+
+
+

@@ -33,6 +33,7 @@ rules
   betaReduceHead : Expr -> Expr
   betaReduceHead(e@Type()) = e.
   betaReduceHead(e@Var(_)) = e.
+  betaReduceHead(e@AlphaEqVars(_, _)) = e.
   betaReduceHead(e@FnType(_, _, _)) = e.
   betaReduceHead(e@FnConstruct(_, _, _)) = e.
   

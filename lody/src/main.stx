@@ -11,6 +11,7 @@ sorts
   NameEntry
 constructors
   NameType : Expr -> NameEntry
+  NameSubst : Expr -> NameEntry
 relations
   name : ID -> NameEntry
 name-resolution
@@ -21,14 +22,19 @@ rules
   programOk : Start
   programOk(Program(expr)) :- typeOfExpr(empty_scope(), expr) == _.
 
-  scopePutType : scope * ID * Expr -> scope
-  scopePutType(s, id, t) = s' :-
+  scopePutType : scope * ID * (scope * Expr) -> scope
+  scopePutType(s, id, (st, t)) = s' :-
   	new s', s' -P-> s,
-  	!name[id, NameType(t)] in s'.
+  	!name[id, NameType(doLazySubsts(st, t))] in s'.
+  	
+  scopePutSubst : scope * ID * (scope * Expr) -> scope
+  scopePutSubst(s, id, (sv, v)) = s' :-
+  	new s', s' -P-> s,
+  	!name[id, NameSubst(doLazySubsts(sv, v))] in s'.
   	
   scopeGetName : scope * ID -> NameEntry
   scopeGetName(s, id) = result :- {id'}
-  	scopeGetNames(s, id) == [(_, (id', result))],
+  	scopeGetNames(s, id) == [(_, (id', result))] | error $[Unknown variable [id] in [s]],
   	@id.ref := id',
   	@id.type := result.
   
@@ -44,6 +50,7 @@ rules
   typeOfExpr(s, e) = T :-
     typeOfExpr_(s, e) == T,
     @e.type := betaReduce(T).
+//    @e.type := T.
   
   typeOfExpr_ : scope * Expr -> Expr
   typeOfExpr_(_, Type()) = Type().
@@ -51,27 +58,38 @@ rules
   typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
   typeOfNameEntry : NameEntry -> Expr
   typeOfNameEntry(NameType(T)) = T.
+  typeOfNameEntry(NameSubst(v)) = typeOfExpr(empty_scope(), v).
 	
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :-
 	// The arg type must be a type
   	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// Now typecheck the type of the body with the arg in scope
-  	expectBetaEq(typeOfExpr(scopePutType(s, arg_name, arg_type), rtrn), Type()).
+  	expectBetaEq(typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), rtrn), Type()).
   	
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type, body_type) :-
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, doLazySubsts(s, arg_type), body_type) :-
 	// The arg type must be a type
   	expectBetaEq(typeOfExpr(s, arg_type), Type()),
   	// Now typecheck the body with the arg in scope
-  	typeOfExpr(scopePutType(s, arg_name, arg_type), body) == body_type.
+  	typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), body) == body_type.
   
-  typeOfExpr_(s, FnDestruct(fn, arg)) = substExpr(fn_body_type, fn_arg_name, arg) :- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = substExpr(fn_body_type, fn_arg_name, doLazySubsts(s, arg)) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
   	betaReduceHead(typeOfExpr(s, fn)) == FnType(fn_arg_name, fn_arg_type, fn_body_type),
   	// And the type of arg must be beta eq to the declared arg type
   	expectBetaEq(typeOfExpr(s, arg), fn_arg_type).
   	
-  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(s, substExpr(b, n, v)) :-
+  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(scopePutSubst(s, n, (s, v)), b) :-
   	typeOfExpr(s, v) == _.
+  	
+  doLazySubsts : scope * Expr -> Expr
+  doLazySubsts(_, Type()) = Type().
+  doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNames(s, n)).
+  doLazySubstsName : ID * list((path * (ID * NameEntry))) -> Expr
+  doLazySubstsName(n, [(_, (_, NameSubst(with))) | _]) = with.
+  doLazySubstsName(n, _) = Var(n).
+  doLazySubsts(s, FnType(arg_name, arg_type, rtrn)) = FnType(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), rtrn)).
+  doLazySubsts(s, FnConstruct(arg_name, arg_type, body)) = FnConstruct(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), body)).
+  doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
 
 
   

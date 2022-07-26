@@ -1,0 +1,7 @@
+module test
+
+test example [[
+[[
+/y:Type. y
+]]
+]] 0 errors run get-type on #1 to FnType("y", Type(), Type())

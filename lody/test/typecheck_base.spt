@@ -60,14 +60,54 @@ let x = _: Type -> Type;
 y
 ]] 0 errors
 
-test shadow 3 [[
+test simple let 1 [[
+[[
 let x = Type;
-([[/z:x. z]])
+x
+]]
+]] 0 errors run get-type on #1 to Type()
+
+test simple let 2 [[
+[[
+let x = Type;
+let y = x;
+y
+]]
+]] 0 errors run get-type on #1 to Type()
+
+test shadow 3 [[
+[[
+let x = Type;
+/z:x. z
+]]
 ]] 0 errors run get-type on #1 to FnType("z", Type(), Type())
 
-test shadow 4 [[
+test shadow 4s1 [[
+[[
+let f = /y:Type. y;
+f
+]]
+]] 0 errors run get-type on #1 to FnType("y", Type(), Type())
+
+test shadow 4s1b [[
+[[
+let f = (/y:Type. y);
+f Type
+]]
+]] 0 errors run get-type on #1 to Type()
+
+test shadow 4s2 [[
+[[
 let x = (/y:Type. y) Type;
-([[/z:x. z]])
+x
+]]
+]] 0 errors run get-type on #1 to Type()
+
+test shadow 4 [[
+[[
+let x = (/y:Type. y) Type;
+/z:x. z
+]]
 ]] 0 errors run get-type on #1 to FnType("z", Type(), Type())
 
 test shadow 4a [[

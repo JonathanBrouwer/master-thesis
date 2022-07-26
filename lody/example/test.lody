@@ -1,2 +1,2 @@
-let id = /x: Type. x;
-/x: Type. id Type
+let f = /y:Type. y;
+f

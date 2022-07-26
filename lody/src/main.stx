@@ -7,8 +7,12 @@ imports
   beta_eq
   
 signature
+sorts
+  NameEntry
+constructors
+  NameType : Expr -> NameEntry
 relations
-  name : ID -> Expr
+  name : ID -> NameEntry
 name-resolution
   labels P
 
@@ -19,17 +23,16 @@ rules
 
   scopePutType : scope * ID * Expr -> scope
   scopePutType(s, id, t) = s' :-
-//    scopeGetNames(s, id) == [] | error $[Duplicate definition of variable [id]],
   	new s', s' -P-> s,
-  	!name[id, t] in s'.
+  	!name[id, NameType(t)] in s'.
   	
-  scopeGetName : scope * ID -> Expr
+  scopeGetName : scope * ID -> NameEntry
   scopeGetName(s, id) = result :- {id'}
   	scopeGetNames(s, id) == [(_, (id', result))],
   	@id.ref := id',
   	@id.type := result.
   
-  scopeGetNames : scope * ID -> list((path * (ID * Expr)))
+  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
   scopeGetNames(s, id) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
 
@@ -40,13 +43,14 @@ rules
   typeOfExpr : scope * Expr -> Expr
   typeOfExpr(s, e) = T :-
     typeOfExpr_(s, e) == T,
-//    @e.type := T.
     @e.type := betaReduce(T).
   
   typeOfExpr_ : scope * Expr -> Expr
   typeOfExpr_(_, Type()) = Type().
   
-  typeOfExpr_(s, Var(id)) = scopeGetName(s, id).
+  typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
+  typeOfNameEntry : NameEntry -> Expr
+  typeOfNameEntry(NameType(T)) = T.
 	
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :-
 	// The arg type must be a type

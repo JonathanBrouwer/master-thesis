@@ -1,2 +1,1 @@
-let f = /y:Type. y;
-f
+/v : Type. (/x : Type. x) v

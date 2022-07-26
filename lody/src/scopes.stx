@@ -1,0 +1,44 @@
+module scopes
+
+imports
+
+  signatures/start-sig
+  main
+  
+signature
+sorts
+  NameEntry
+constructors
+  NameType : Expr -> NameEntry
+  NameSubst : Expr -> NameEntry
+relations
+  name : ID -> NameEntry
+name-resolution
+  labels P
+  
+rules
+
+  scopePutType : scope * ID * (scope * Expr) -> scope
+  scopePutType(s, id, (st, t)) = s' :-
+  	new s', s' -P-> s,
+  	!name[id, NameType(doLazySubsts(st, t))] in s'.
+  	
+  scopePutSubst : scope * ID * (scope * Expr) -> scope
+  scopePutSubst(s, id, (sv, v)) = s' :-
+  	new s', s' -P-> s,
+  	!name[id, NameSubst(doLazySubsts(sv, v))] in s'.
+  	
+  scopeGetName : scope * ID -> NameEntry
+  scopeGetName(s, id) = result :- {id'}
+  	scopeGetNames(s, id) == [(_, (id', result))] | error $[Unknown variable [id] in [s]],
+  	@id.ref := id'.
+  
+  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
+  scopeGetNames(s, id) = results :-
+  	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
+
+  empty_scope : -> scope
+  empty_scope() = s :- new s.
+  
+  
+  

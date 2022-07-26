@@ -32,6 +32,10 @@ test id fn 4b [[
 [[(/T : Type. /x : T. x) Type]]
 ]] 0 errors run get-type on #1 to FnType("x", Type(), Type())
 
+test id fn 5c [[
+[[(/T : Type. /x : T. x) Type Type]]
+]] 0 errors run get-type on #1 to Type()
+
 test id fn 4 [[
 [[(/T : Type. /x : T. x) (_: Type -> Type)]]
 ]] 0 errors run get-type on #1 to FnType("x", FnType("_", Type(), Type()), FnType("_", Type(), Type()))
@@ -127,3 +131,9 @@ let typ = Type;
 id typ
 ]]
 ]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+
+test fun arg [[
+[[
+/v : Type. (/x : Type. x) v
+]]
+]] 0 errors run get-type on #1 to FnType("v", Type(), Type())

@@ -11,7 +11,7 @@ sorts
   NameEntry
 constructors
   NameType : Expr -> NameEntry
-  NameSubst : Expr -> NameEntry
+  NameSubst : Expr * Expr -> NameEntry
 relations
   name : ID -> NameEntry
 name-resolution
@@ -30,7 +30,7 @@ rules
   scopePutSubst : scope * ID * (scope * Expr) -> scope
   scopePutSubst(s, id, (sv, v)) = s' :-
   	new s', s' -P-> s,
-  	!name[id, NameSubst(doLazySubsts(sv, v))] in s'.
+  	!name[id, NameSubst(doLazySubsts(sv, v), typeOfExpr(sv, v))] in s'.
   	
   scopeGetName : scope * ID -> NameEntry
   scopeGetName(s, id) = result :- {id'}
@@ -58,7 +58,7 @@ rules
   typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
   typeOfNameEntry : NameEntry -> Expr
   typeOfNameEntry(NameType(T)) = T.
-  typeOfNameEntry(NameSubst(v)) = typeOfExpr(empty_scope(), v).
+  typeOfNameEntry(NameSubst(_, T)) = T.
 	
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :-
 	// The arg type must be a type
@@ -85,7 +85,7 @@ rules
   doLazySubsts(_, Type()) = Type().
   doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNames(s, n)).
   doLazySubstsName : ID * list((path * (ID * NameEntry))) -> Expr
-  doLazySubstsName(n, [(_, (_, NameSubst(with))) | _]) = with.
+  doLazySubstsName(n, [(_, (_, NameSubst(with, _))) | _]) = with.
   doLazySubstsName(n, _) = Var(n).
   doLazySubsts(s, FnType(arg_name, arg_type, rtrn)) = FnType(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), rtrn)).
   doLazySubsts(s, FnConstruct(arg_name, arg_type, body)) = FnConstruct(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), body)).

@@ -5,11 +5,12 @@ imports
   signatures/start-sig
   beta_eq
   scopes
+  do_lazy_substs
   
 signature
 constructors
   
-  WithSubst : Expr * ID * Expr -> Expr
+  WithSubst : Expr * ID * (scope * Expr) -> Expr
   
 rules
 
@@ -45,7 +46,7 @@ rules
   	// Now typecheck the body with the arg in scope
   	typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), body) == body_type.
   
-  typeOfExpr_(s, FnDestruct(fn, arg)) = WithSubst(doLazySubsts(sf, fn_body_type), fn_arg_name, doLazySubsts(s, arg)) :- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = WithSubst(doLazySubsts(sf, fn_body_type), fn_arg_name, (s, arg)) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
   	betaReduceHead((empty_scope(), typeOfExpr(s, fn))) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
@@ -54,17 +55,4 @@ rules
   typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(scopePutSubst(s, n, (s, v)), b) :-
   	typeOfExpr(s, v) == _.
   	
-  doLazySubsts : scope * Expr -> Expr
-  doLazySubsts(_, Type()) = Type().
-  doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNames(s, n)).
-  doLazySubstsName : ID * list((path * (ID * NameEntry))) -> Expr
-  doLazySubstsName(n, [(_, (_, NameSubst(with))) | _]) = with.
-  doLazySubstsName(n, _) = Var(n).
-  doLazySubsts(s, e@AlphaEqVars(_, _)) = e.
-  doLazySubsts(s, FnType(arg_name, arg_type, rtrn)) = FnType(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), rtrn)).
-  doLazySubsts(s, FnConstruct(arg_name, arg_type, body)) = FnConstruct(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), body)).
-  doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
-  doLazySubsts(s, WithSubst(e, n, v)) = doLazySubsts(scopePutSubst(s, n, (empty_scope(), v)), e).
-
-
   

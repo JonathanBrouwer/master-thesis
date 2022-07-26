@@ -37,7 +37,6 @@ rules
   betaReduceHeadVar : ID * list((path * (ID * NameEntry))) -> (scope * Expr)
   betaReduceHeadVar(_, [(_, (_, NameSubst(with))) | _]) = (empty_scope(), with).
   betaReduceHeadVar(id, _) = (empty_scope(), Var(id)).
-//  betaReduceHeadVar(id, [(_, (_, NameType(_))) | _]) = (empty_scope(), Var(id)).
   
   betaReduceHead((s, e@AlphaEqVars(_, _))) = (s, e).
   betaReduceHead((s, e@FnType(_, _, _))) = (s, e).
@@ -51,7 +50,7 @@ rules
   
   betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
   
-  betaReduceHead((s, WithSubst(e, n, v))) = betaReduceHead((scopePutSubst(s, n, (empty_scope(), v)), e)).
+  betaReduceHead((s, WithSubst(e, n, v))) = betaReduceHead((scopePutSubst(s, n, v), e)).
   
   betaReduce : (scope * Expr) -> Expr
   betaReduce(e) = betaReduce_(betaReduceHead(e)).

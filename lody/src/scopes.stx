@@ -4,6 +4,7 @@ imports
 
   signatures/start-sig
   main
+  do_lazy_substs
   
 signature
 sorts

@@ -119,3 +119,11 @@ let y = _: Type -> Type;
 test tricky type 2 [[
 [[(/y : (/x : Type. x) Type. y)]]
 ]] 0 errors run get-type on #1 to FnType("y", Type(), Type())
+
+test subst fn destruct [[
+[[
+let id = /T:Type. /x:T. x;
+let typ = Type;
+id typ
+]]
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())

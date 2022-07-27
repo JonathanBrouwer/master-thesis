@@ -1,3 +1,1 @@
-let id = /T:Type. /x:T. x;
-let typ = Type;
-id typ
+(/T : Type. /x : T. x) Type

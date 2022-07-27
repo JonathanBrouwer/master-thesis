@@ -5,13 +5,12 @@ imports
   signatures/start-sig
   beta_eq
   scopes
-  do_lazy_substs
   
 signature
 constructors
   
   WithSubst : Expr * ID * (scope * Expr) -> Expr
-//  WithScope : scope * Expr -> Expr
+  WithScope : (scope * Expr) -> Expr
   
 rules
 
@@ -30,7 +29,7 @@ rules
   
   typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
   typeOfNameEntry : NameEntry -> Expr
-  typeOfNameEntry(NameType(sT, T)) = doLazySubsts(sT, T).
+  typeOfNameEntry(NameType(sT, T)) = WithScope((sT, T)).
   typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
   
   typeOfExpr(_, AlphaEqVars(_, _)) = _.
@@ -41,13 +40,13 @@ rules
   	// Now typecheck the type of the body with the arg in scope
   	expectBetaEq((empty_scope(), typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), rtrn)), (empty_scope(), Type())).
   	
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, doLazySubsts(s, arg_type), body_type) :-
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, WithScope((s, arg_type)), body_type) :-
 	// The arg type must be a type
   	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
   	// Now typecheck the body with the arg in scope
   	typeOfExpr(scopePutType(s, arg_name, (s, arg_type)), body) == body_type.
   
-  typeOfExpr_(s, FnDestruct(fn, arg)) = WithSubst(doLazySubsts(sf, fn_body_type), fn_arg_name, (s, arg)) :- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = WithSubst(WithScope((sf, fn_body_type)), fn_arg_name, (s, arg)) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
   	betaReduceHead((empty_scope(), typeOfExpr(s, fn))) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type

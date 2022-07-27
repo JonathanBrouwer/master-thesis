@@ -20,6 +20,7 @@ rules
   	FnConstruct(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, (empty_scope(), Type())), body)).
   doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
   doLazySubsts(s, WithSubst(e, n, v)) = doLazySubsts(scopePutSubst(s, n, v), e).
+  doLazySubsts(s1, WithScope(s2, e)) = doLazySubsts(s1, doLazySubsts(s2, e)).
 
   
   

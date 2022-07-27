@@ -21,7 +21,6 @@ rules
   doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
   doLazySubsts(s, Let(n, v, b)) = doLazySubsts(scopePutSubst(s, n, (s, v)), b).
   doLazySubsts(s, WithSubst(e, n, v)) = doLazySubsts(scopePutSubst(s, n, v), e).
-  doLazySubsts(s1, WithScope((s2, e))) = doLazySubsts(s1, doLazySubsts(s2, e)).
 
   
   

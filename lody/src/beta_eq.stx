@@ -53,7 +53,7 @@ rules
   betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
   
   betaReduceHead((s, WithSubst(e, n, v))) = betaReduceHead((scopePutSubst(s, n, v), e)).
-  betaReduceHead((s1, WithScope((s2, e)))) = betaReduceHead((s2, doLazySubsts(s1, e))).
+  betaReduceHead((s1, WithScope((s2, e)))) = betaReduceHead((s1, doLazySubsts(s2, e))).
   
   betaReduce : (scope * Expr) -> Expr
   betaReduce(e) = betaReduce_(betaReduceHead(e)).

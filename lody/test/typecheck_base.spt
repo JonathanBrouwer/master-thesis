@@ -137,3 +137,41 @@ test fun arg [[
 /v : Type. (/x : Type. x) v
 ]]
 ]] 0 errors run get-type on #1 to FnType("v", Type(), Type())
+
+test wrong order substs 1 [[
+[[
+let x = (let y = Type; y);
+let y = _: Type -> Type;
+/v: x. v
+]]
+]] 0 errors run get-type on #1 to FnType("v", Type(), Type())
+
+test wrong order substs 2 [[
+[[
+let y = (_: Type -> Type); /x : (let y = Type; y). x
+]]
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+
+test wrong order substs 3 [[
+[[
+/x : (let y = (_: Type -> Type); let y = Type; y). x
+]]
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+
+test wrong order substs 4 [[
+[[
+/x : (let y = Type; y). (let y = (_: Type -> Type); x)
+]]
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+
+test wrong order substs 5 [[
+[[
+/x : (let y = Type; y). (let y = (_: Type -> Type); x)
+]]
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+
+test wrong order substs 6 [[
+[[
+(/x : Type. (let y = x; let x = Type; (/ x : y. y))) (_: Type -> Type)
+]]
+]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(), Type()), Type())

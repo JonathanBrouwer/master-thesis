@@ -1,0 +1,8 @@
+module old
+
+test beta eq 1 [[
+[[
+let x = / T : Type. /x : T. x;
+x (_: Type -> Type)
+]]
+]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(), Type()), FnType(_, Type(), Type()))

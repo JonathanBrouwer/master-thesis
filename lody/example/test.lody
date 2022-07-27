@@ -1,1 +1,3 @@
-/v : Type. (/x : Type. x) v
+let id = /T:Type. /x:T. x;
+let typ = Type;
+id typ

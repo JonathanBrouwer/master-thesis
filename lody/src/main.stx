@@ -11,6 +11,7 @@ signature
 constructors
   
   WithSubst : Expr * ID * (scope * Expr) -> Expr
+//  WithScope : scope * Expr -> Expr
   
 rules
 
@@ -22,15 +23,15 @@ rules
   typeOfExpr(s, e) = T :-
     typeOfExpr_(s, e) == T,
     @e.type := betaReduce((s, T)).
-//    @e.type := T.
+//    @e.type := (s, T).
   
   typeOfExpr_ : scope * Expr -> Expr
   typeOfExpr_(_, Type()) = Type().
   
   typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
   typeOfNameEntry : NameEntry -> Expr
-  typeOfNameEntry(NameType(T)) = T.
-  typeOfNameEntry(NameSubst(e)) = typeOfExpr(empty_scope(), e).
+  typeOfNameEntry(NameType(sT, T)) = doLazySubsts(sT, T).
+  typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
   
   typeOfExpr(_, AlphaEqVars(_, _)) = _.
 	

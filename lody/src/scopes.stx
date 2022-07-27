@@ -10,8 +10,8 @@ signature
 sorts
   NameEntry
 constructors
-  NameType : Expr -> NameEntry
-  NameSubst : Expr -> NameEntry
+  NameType : scope * Expr -> NameEntry
+  NameSubst : scope * Expr -> NameEntry
 relations
   name : ID -> NameEntry
 name-resolution
@@ -22,12 +22,12 @@ rules
   scopePutType : scope * ID * (scope * Expr) -> scope
   scopePutType(s, id, (st, t)) = s' :-
   	new s', s' -P-> s,
-  	!name[id, NameType(doLazySubsts(st, t))] in s'.
+  	!name[id, NameType(st, t)] in s'.
   	
   scopePutSubst : scope * ID * (scope * Expr) -> scope
   scopePutSubst(s, id, (sv, v)) = s' :-
   	new s', s' -P-> s,
-  	!name[id, NameSubst(doLazySubsts(sv, v))] in s'.
+  	!name[id, NameSubst(sv, v)] in s'.
   	
   scopeGetName : scope * ID -> NameEntry
   scopeGetName(s, id) = result :- {id'}

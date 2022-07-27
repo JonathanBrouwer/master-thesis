@@ -11,7 +11,7 @@ rules
   doLazySubsts(_, Type()) = Type().
   doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNames(s, n)).
   doLazySubstsName : ID * list((path * (ID * NameEntry))) -> Expr
-  doLazySubstsName(n, [(_, (_, NameSubst(with))) | _]) = with.
+  doLazySubstsName(n, [(_, (_, NameSubst(sw, w))) | _]) = doLazySubsts(sw, w).
   doLazySubstsName(n, _) = Var(n).
   doLazySubsts(s, e@AlphaEqVars(_, _)) = e.
   doLazySubsts(s, FnType(arg_name, arg_type, rtrn)) = 

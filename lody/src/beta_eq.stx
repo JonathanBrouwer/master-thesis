@@ -4,6 +4,7 @@ imports
 
   signatures/start-sig
   scopes
+  do_lazy_substs
   
 signature constructors
   AlphaEqVars : ID * ID -> Expr
@@ -35,7 +36,7 @@ rules
   
   betaReduceHead((s, e@Var(id))) = betaReduceHeadVar(id, scopeGetNames(s, id)).
   betaReduceHeadVar : ID * list((path * (ID * NameEntry))) -> (scope * Expr)
-  betaReduceHeadVar(_, [(_, (_, NameSubst(with))) | _]) = (empty_scope(), with).
+  betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _]) = betaReduceHead((sw, w)).
   betaReduceHeadVar(id, _) = (empty_scope(), Var(id)).
   
   betaReduceHead((s, e@AlphaEqVars(_, _))) = (s, e).

@@ -3,55 +3,64 @@ module beta_eq
 imports
 
   signatures/start-sig
-  subst
+  scopes
+  main
   
 signature constructors
   AlphaEqVars : ID * ID -> Expr
 
 rules
   
-  expectBetaEq : Expr * Expr
+  expectBetaEq : (scope * Expr) * (scope * Expr)
   expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
   
-  expectBetaEq_ : Expr * Expr
-  expectBetaEq_(Type(), Type()).
-  expectBetaEq_(AlphaEqVars(a, b), AlphaEqVars(a, b)).
-  expectBetaEq_(Var(n), Var(n)).
-  expectBetaEq_(FnType(arg_name1, arg_type1, body1), FnType(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2),
+  expectBetaEq_ : (scope * Expr) * (scope * Expr)
+  expectBetaEq_((_, Type()), (_, Type())).
+  expectBetaEq_((_, AlphaEqVars(a, b)), (_, AlphaEqVars(a, b))).
+  expectBetaEq_((_, Var(n)), (_, Var(n))).
+  expectBetaEq_((s1, FnType(arg_name1, arg_type1, body1)), (s2, FnType(arg_name2, arg_type2, body2))) :-
+  	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
   	expectBetaEq(
-  		subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), 
-  		subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
-  expectBetaEq_(FnConstruct(arg_name1, arg_type1, body1), FnConstruct(arg_name2, arg_type2, body2)) :-
-  	expectBetaEq(arg_type1, arg_type2),
+  		(scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body1), 
+  		(scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body2)).
+  expectBetaEq_((s1, FnConstruct(arg_name1, arg_type1, body1)), (s2, FnConstruct(arg_name2, arg_type2, body2))) :-
+  	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
   	expectBetaEq(
-  		subst(body1, arg_name1, AlphaEqVars(arg_name1, arg_name2)), 
-  		subst(body2, arg_name2, AlphaEqVars(arg_name1, arg_name2))).
-  expectBetaEq(FnDestruct(fn1, arg1), FnDestruct(fn2, arg2)) :-
-  	expectBetaEq(fn1, fn2), expectBetaEq(arg1, arg2).
+  		(scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body1), 
+  		(scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body2)).
+  expectBetaEq((s1, FnDestruct(fn1, arg1)), (s2, FnDestruct(fn2, arg2))) :-
+  	expectBetaEq((s1, fn1), (s2, fn2)), expectBetaEq((s1, arg1), (s2, arg2)).
   
-  betaReduceHead : Expr -> Expr
-  betaReduceHead(e@Type()) = e.
-  betaReduceHead(e@AlphaEqVars(_, _)) = e.
-  betaReduceHead(e@Var(_)) = e.
-  betaReduceHead(e@FnType(_, _, _)) = e.
-  betaReduceHead(e@FnConstruct(_, _, _)) = e.
+  betaReduceHead : (scope * Expr) -> (scope * Expr)
+  betaReduceHead((s, e@Type())) = (s, e).
   
-  betaReduceHead(FnDestruct(fn, arg)) = betaReduceHeadFn(FnDestruct(betaReduceHead(fn), arg)).
-  betaReduceHeadFn : Expr -> Expr
-  betaReduceHeadFn(FnDestruct(FnConstruct(arg_name, arg_type, body), arg)) = betaReduceHead(subst(body, arg_name, arg)).
-  betaReduceHeadFn(e@FnDestruct(_, _)) = e.
+  betaReduceHead((s, e@Var(id))) = betaReduceHeadVar(id, scopeGetNames(s, id)).
+  betaReduceHeadVar : ID * list((path * (ID * NameEntry))) -> (scope * Expr)
+  betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _]) = betaReduceHead((sw, w)).
+  betaReduceHeadVar(id, _) = (empty_scope(), Var(id)).
   
-  betaReduceHead(Let(n, v, b)) = betaReduceHead(subst(b, n, v)).
+  betaReduceHead((s, e@AlphaEqVars(_, _))) = (s, e).
+  betaReduceHead((s, e@FnType(_, _, _))) = (s, e).
+  betaReduceHead((s, e@FnConstruct(_, _, _))) = (s, e).
   
-  betaReduce : Expr -> Expr
+  betaReduceHead((s, FnDestruct(fn, arg))) = betaReduceHeadFn(betaReduceHead((s, fn)), (s, fn, arg)).
+  // (beta reduced fn) * (original fn * arg)
+  betaReduceHeadFn : (scope * Expr) * (scope * Expr * Expr) -> (scope * Expr)
+  betaReduceHeadFn((sbf, FnConstruct(arg_name, arg_type, body)), (sfa, _, a)) = betaReduceHead((scopePutSubst(sbf, arg_name, (sfa, a)), body)).
+  betaReduceHeadFn(_, (sfa, f, a)) = (sfa, FnDestruct(f, a)).
+  
+  betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
+
+  betaReduce : (scope * Expr) -> Expr
   betaReduce(e) = betaReduce_(betaReduceHead(e)).
   
-  betaReduce_ : Expr -> Expr
-  betaReduce_(Type()) = Type().
-  betaReduce_(Var(id)) = Var(id).
-  betaReduce_(FnType(arg_name, arg_type, rtrn)) = FnType(arg_name, betaReduce(arg_type), betaReduce(rtrn)).
-  betaReduce_(FnConstruct(arg_name, arg_type, body)) = FnConstruct(arg_name, betaReduce(arg_type), betaReduce(body)).
-  betaReduce_(FnDestruct(fn, arg)) = FnDestruct(betaReduce(fn), betaReduce(arg)).
+  betaReduce_ : (scope * Expr) -> Expr
+  betaReduce_((_, Type())) = Type().
+  betaReduce_((_, Var(id))) = Var(id).
+  betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
+  betaReduce_((s, FnConstruct(arg_name, arg_type, body))) = FnConstruct(arg_name, betaReduce((s, arg_type)), betaReduce((s, body))).
+  betaReduce_((s, FnDestruct(fn, arg))) = FnDestruct(betaReduce((s, fn)), betaReduce((s, arg))).
+  
+  
   
   

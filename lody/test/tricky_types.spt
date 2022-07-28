@@ -4,9 +4,10 @@ test shadow 1 [[
 [[(/T : Type. /T : T. T)]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T", Var("T"), Var("T")))
 
+//Really supposed to be type!
 test wrong order substs 6b [[
 [[
 (/x : Type. (let y = x; (/ x : y. y)))
 ]]
-]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x", Var("x"), Var("x")))
+]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x", Var("x"), Type()))
 

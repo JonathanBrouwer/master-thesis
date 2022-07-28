@@ -3,11 +3,15 @@ module scopes
 imports
 
   signatures/start-sig
-  main
   
 signature
+sorts
+  NameEntry
+constructors
+  NameType : Expr -> NameEntry
+  NameSubst : scope * Expr -> NameEntry
 relations
-  name : ID -> Expr
+  name : ID -> NameEntry
 name-resolution
   labels P
   
@@ -16,19 +20,23 @@ rules
   scopePutType : scope * ID * Expr -> scope
   scopePutType(s, id, t) = s' :-
   	new s', s' -P-> s,
-  	!name[id, t] in s'.
-
-  scopeGetName : scope * ID -> Expr
+  	!name[id, NameType(t)] in s'.
+  	
+  scopePutSubst : scope * ID * (scope * Expr) -> scope
+  scopePutSubst(s, id, (sv, v)) = s' :-
+  	new s', s' -P-> s,
+  	!name[id, NameSubst(sv, v)] in s'.
+  	
+  scopeGetName : scope * ID -> NameEntry
   scopeGetName(s, id) = result :- {id'}
   	scopeGetNames(s, id) == [(_, (id', result))] | error $[Unknown variable [id] in [s]],
   	@id.ref := id'.
   
-  scopeGetNames : scope * ID -> list((path * (ID * Expr)))
+  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
   scopeGetNames(s, id) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
 
   empty_scope : -> scope
   empty_scope() = s :- new s.
-  
   
   

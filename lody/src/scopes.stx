@@ -6,34 +6,24 @@ imports
   main
   
 signature
-sorts
-  NameEntry
-constructors
-  NameType : scope * Expr -> NameEntry
-  NameSubst : scope * Expr -> NameEntry
 relations
-  name : ID -> NameEntry
+  name : ID -> Expr
 name-resolution
   labels P
   
 rules
 
-  scopePutType : scope * ID * (scope * Expr) -> scope
-  scopePutType(s, id, (st, t)) = s' :-
+  scopePutType : scope * ID * Expr -> scope
+  scopePutType(s, id, t) = s' :-
   	new s', s' -P-> s,
-  	!name[id, NameType(st, t)] in s'.
-  	
-  scopePutSubst : scope * ID * (scope * Expr) -> scope
-  scopePutSubst(s, id, (sv, v)) = s' :-
-  	new s', s' -P-> s,
-  	!name[id, NameSubst(sv, v)] in s'.
-  	
-  scopeGetName : scope * ID -> NameEntry
+  	!name[id, t] in s'.
+
+  scopeGetName : scope * ID -> Expr
   scopeGetName(s, id) = result :- {id'}
   	scopeGetNames(s, id) == [(_, (id', result))] | error $[Unknown variable [id] in [s]],
   	@id.ref := id'.
   
-  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
+  scopeGetNames : scope * ID -> list((path * (ID * Expr)))
   scopeGetNames(s, id) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
 

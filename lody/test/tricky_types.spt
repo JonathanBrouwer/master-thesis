@@ -2,12 +2,16 @@ module tricky_types
 
 test shadow 1 [[
 [[(/T : Type. /T : T. T)]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T", Var("T"), Var("T")))
+]] 0 errors run get-type on #1 to FnType(R("T"), Type(), FnType(Ticked(R("T")), Var(R("T")), Var(R("T"))))
+
+test shadow 2 [[
+[[(/T: Type. /T : Type. /T: T. T)]]
+]] 0 errors run get-type on #1 to FnType(R("T"), Type(), FnType(Ticked(R("T")), Type(), FnType(Ticked(Ticked(R("T"))), Var(Ticked(R("T"))), Var(Ticked(R("T"))))))
 
 //Really supposed to be type!
 test wrong order substs 6b [[
 [[
 (/x : Type. (let y = x; (/ x : y. y)))
 ]]
-]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x", Var("x"), Type()))
+]] 0 errors run get-type on #1 to FnType(R("x"), Type(), FnType(Ticked(R("x")), Var(R("x")), Type()))
 

@@ -1,1 +1,1 @@
-(/T : Type. /x : T. x) Type
+_: Type -> Type

@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Stmt Expr
+  Start Stmt Expr ID
 
 context-free syntax
 
@@ -19,6 +19,8 @@ context-free syntax
   Expr.FnConstruct = "/" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
   
+  ID.R = IDR
+  
   Expr = "(" Expr ")" {bracket}
   
 context-free priorities
@@ -29,18 +31,18 @@ context-free restrictions
   LAYOUT? -/- [\ \n\t\v\f\r]
   
 lexical sorts
-  ID
+  IDR
 
 lexical syntax
 
   LAYOUT = [\ \n\t\v\f\r]
   
-  ID = [a-zA-Z\_] [a-zA-Z0-9\_]*
-  ID = "Type" {reject}
-  ID = "let" {reject}
+  IDR = [a-zA-Z\_] [a-zA-Z0-9\_]*
+  IDR = "Type" {reject}
+  IDR = "let" {reject}
   
 lexical restrictions
 
-  ID -/- [a-zA-Z0-9\_]
+  IDR -/- [a-zA-Z0-9\_]
 
 

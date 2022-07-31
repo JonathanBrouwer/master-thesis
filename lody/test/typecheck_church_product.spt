@@ -6,7 +6,7 @@ let prod = /P : Type. /Q : Type.
 	C : Type -> _0: (_1: P -> _2 : Q -> C) -> C;
 prod
 ]]
-]] 0 errors run get-type on #1 to FnType("P", Type(), FnType("Q", Type(), Type()))
+]] 0 errors run get-type on #1 to FnType(_, Type(), FnType(_, Type(), Type()))
 
 test pair fn [[
 [[
@@ -26,7 +26,7 @@ let pair = /P : Type. /Q : Type. /p : P. /q : Q.
 	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
 pair Type Type Type Type
 ]]
-]] 0 errors run get-type on #1 to FnType("C",Type(),FnType("f",FnType(_,Type(),FnType(_,Type(),Var("C"))),Var("C")))
+]] 0 errors run get-type on #1 to FnType(R("C"),Type(),FnType(_,FnType(_,Type(),FnType(_,Type(),Var(R("C")))),Var(R("C"))))
 
 test fst 1 [[
 [[

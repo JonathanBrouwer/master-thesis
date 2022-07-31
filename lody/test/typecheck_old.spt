@@ -11,7 +11,7 @@ test test [[
 [[
 (/f: (let y = (_: Type -> _: Type -> Type); (let y = Type; /x: y. x) (_: Type -> Type)). f)
 ]]
-]] 0 errors run get-type on #1 to FnType("f", FnType("_", Type(), Type()), FnType("_", Type(), Type()))
+]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(), Type()), FnType(_, Type(), Type()))
 
 test shadow [[
 [[
@@ -20,14 +20,14 @@ let y = x;
 let x = _: Type -> Type;
 /v: y. v
 ]]
-]] 0 errors run get-type on #1 to FnType("v", Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
 
 test shadow 2 [[
 [[
 let prod = /P : Type. P;
 /R : Type. /x: prod R. x
 ]]
-]] 0 errors  run get-type on #1 to FnType("R", Type(), FnType("x", Var("R"), Var("R")))
+]] 0 errors  run get-type on #1 to FnType(R("R"), Type(), FnType(R("x"), Var(R("R")), Var(R("R"))))
 
 
 

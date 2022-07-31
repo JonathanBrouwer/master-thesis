@@ -6,8 +6,8 @@ Projects:
 [x] Implement CoC in sdf3+statix (2 weeks)
 [x] Using krivine-inspired architecture to improve performance (1 week)
     - Needed to change a rule?
+[x] Fixing name collisions (See "Tricky Types" test 1, few days)
 
-[ ] Fixing name collisions (See "Tricky Types" test 1, 1-2 weeks)
 [ ] Language-parametric services exploration (1 week?)
 [ ] Implicit arguments (not sure?)
 [ ] Fixpoints and termination checking (1-4 weeks?)

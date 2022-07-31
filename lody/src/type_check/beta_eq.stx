@@ -1,9 +1,9 @@
-module beta_eq
+module type_check/beta_eq
 
 imports
 
   signatures/start-sig
-  scopes
+  type_check/scopes
   main
   
 signature constructors

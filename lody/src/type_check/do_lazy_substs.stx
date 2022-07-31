@@ -1,0 +1,21 @@
+module type_check/do_lazy_substs
+
+imports
+  signatures/start-sig
+  type_check/scopes
+
+rules
+  // Given a scope with NameSubst items
+  // Applies the substitutions to the given expressions
+  doLazySubsts : scope * Expr -> Expr
+  doLazySubsts(_, Type()) = Type().
+  doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNames(s, n)).
+  doLazySubstsName : ID * list((path * (ID * NameEntry))) -> Expr
+  doLazySubstsName(n, [(_, (_, NameSubst(sw, w))) | _]) = doLazySubsts(sw, w).
+  doLazySubstsName(n, _) = Var(n).
+  doLazySubsts(s, FnType(arg_name, arg_type, rtrn)) = 
+  	FnType(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, Type()), rtrn)).
+  doLazySubsts(s, FnConstruct(arg_name, arg_type, body)) = 
+  	FnConstruct(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, Type()), body)).
+  doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
+  doLazySubsts(s, Let(n, v, b)) = doLazySubsts(scopePutSubst(s, n, (s, v)), b).

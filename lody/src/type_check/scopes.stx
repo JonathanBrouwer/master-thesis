@@ -1,4 +1,4 @@
-module scopes
+module type_check/scopes
 
 imports
 

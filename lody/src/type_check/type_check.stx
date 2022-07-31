@@ -1,0 +1,49 @@
+module type_check/type_check
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/do_lazy_substs
+
+rules
+
+  typeOfExpr : scope * Expr -> Expr
+  typeOfExpr(s, e) = T :-
+    typeOfExpr_(s, e) == T,
+    @e.type := betaReduce((empty_scope(), T)).
+  
+  typeOfExpr_ : scope * Expr -> Expr
+
+  typeOfExpr_(_, Type()) = Type().
+  
+  typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
+  typeOfNameEntry : NameEntry -> Expr
+  typeOfNameEntry(NameType(T)) = T.
+  typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
+  
+  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :- {arg_type_reduced}
+	// The arg type must be a type
+  	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+  	// Reduce arg_type
+  	doLazySubsts(s, arg_type) == arg_type_reduced,
+  	// Now typecheck the type of the body with the arg in scope
+  	expectBetaEq((empty_scope(), typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn)), (empty_scope(), Type())).
+  
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type_reduced, body_type) :-
+	// The arg type must be a type
+  	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+  	// Reduce arg_type
+  	doLazySubsts(s, arg_type) == arg_type_reduced,
+  	// Now typecheck the body with the arg in scope
+  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), body) == body_type.
+  
+  typeOfExpr_(s, FnDestruct(fn, arg)) = doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg)), fn_body_type):- {fn_arg_type}
+  	// After beta reduction, the type of fn must be FnType
+  	betaReduceHead((empty_scope(), typeOfExpr(s, fn))) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
+  	// And the type of arg must be beta eq to the declared arg type
+  	expectBetaEq((empty_scope(), typeOfExpr(s, arg)), (sf, fn_arg_type)).
+  	
+  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(scopePutSubst(s, n, (s, v)), b) :-
+  	typeOfExpr(s, v) == _.
+  	

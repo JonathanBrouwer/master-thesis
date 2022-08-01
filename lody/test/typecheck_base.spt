@@ -38,7 +38,7 @@ test id fn 4 [[
 
 test id fn 4a [[
 [[(/T : Type. /x : T. x)]] (_: Type -> Type)
-]] 0 errors run get-type on #1 to FnType(R("T"), Type(), FnType(R("x"), Var(R("T")), Var(R("T"))))
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("x", Var("T"), Var("T")))
 
 test id fn 5 [[
 [[(/T : Type. /x : T. x) (_: Type -> Type) (/t:Type. t)]]

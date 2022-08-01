@@ -26,7 +26,7 @@ let pair = /P : Type. /Q : Type. /p : P. /q : Q.
 	/C : Type. /f : _0: P -> _1: Q -> C. f p q;
 pair Type Type Type Type
 ]]
-]] 0 errors run get-type on #1 to FnType(R("C"),Type(),FnType(_,FnType(_,Type(),FnType(_,Type(),Var(R("C")))),Var(R("C"))))
+]] 0 errors run get-type on #1 to FnType("C",Type(),FnType(_,FnType(_,Type(),FnType(_,Type(),Var("C"))),Var("C")))
 
 test fst 1 [[
 [[

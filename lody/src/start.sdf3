@@ -19,7 +19,7 @@ context-free syntax
   Expr.FnConstruct = "/" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
   
-  ID.R = IDR
+  ID = IDR
   
   Expr = "(" Expr ")" {bracket}
   

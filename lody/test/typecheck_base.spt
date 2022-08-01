@@ -22,7 +22,7 @@ test id fn 2 [[
 
 test id fn 3 [[
 [[/T : Type. /x : T. x]]
-]] 0 errors run get-type on #1 to FnType(R("T"), Type(), FnType(R("x"), Var(R("T")), Var(R("T"))))
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("x", Var("T"), Var("T")))
 
 test id fn 4b [[
 [[(/T : Type. /x : T. x) Type]]

@@ -9,6 +9,7 @@ Projects:
 [x] Fixing name collisions (See "Tricky Types" test 1, few days)
     - Statix does not support string concat :c
 
+[ ] Adding synctactic sugar (1 week)
 [ ] Language-parametric services exploration (1 week?)
 [ ] Implicit arguments (not sure?)
 [ ] Fixpoints and termination checking (1-4 weeks?)

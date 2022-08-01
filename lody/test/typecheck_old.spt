@@ -27,7 +27,7 @@ test shadow 2 [[
 let prod = /P : Type. P;
 /R : Type. /x: prod R. x
 ]]
-]] 0 errors  run get-type on #1 to FnType(R("R"), Type(), FnType(R("x"), Var(R("R")), Var(R("R"))))
+]] 0 errors  run get-type on #1 to FnType("R", Type(), FnType("x", Var("R"), Var("R")))
 
 
 

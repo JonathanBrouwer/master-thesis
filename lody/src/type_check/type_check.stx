@@ -7,7 +7,7 @@ imports
   type_check/do_lazy_substs
   
 signature constructors
-  Ticked : ID -> ID
+  Tick : ID -> ID
 
 rules
 
@@ -47,7 +47,7 @@ rules
   generateArgName(s, id) = generateArgNameSub(scopeGetNames(s, id), s, id).
   generateArgNameSub : list((path * (ID * NameEntry))) * scope * ID -> ID
   generateArgNameSub([], _, id) = id.
-  generateArgNameSub(_, s, id) = generateArgName(s, Ticked(id)).
+  generateArgNameSub(_, s, id) = generateArgName(s, Tick(id)).
   
   generateArgScope : scope * ID * ID * Expr -> scope
   generateArgScope(s, id, id, arg_type_reduced) = scopePutType(s, id, arg_type_reduced).

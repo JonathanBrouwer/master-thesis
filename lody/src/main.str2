@@ -15,8 +15,8 @@ imports
 
 rules // Analysis
 
-  pre-analyze  = explicate-injections-lody-Start
-  post-analyze = implicate-injections-lody-Start
+  pre-analyze  = id
+  post-analyze = id
 
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
   editor-resolve = stx-editor-resolve

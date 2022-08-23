@@ -1,3 +1,4 @@
 - Stratego stage before statix?
 - Different ways of substition
 - Untypable expressions? /T : Type. /T : T. T
+    -> Uniquify stage?

@@ -11,7 +11,7 @@ test shadow 2 [[
 test shadow 3 [[
 let f = /x: Type. /T: Type. /y: x. y;
 [[(/T : Type. f T)]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T", Type(), FnType("y", Var("T"), Var("T"))))
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType(Tick("T"), Type(), FnType("y", Var("T"), Var("T"))))
 
 //Really supposed to be type!
 test wrong order substs 6b [[

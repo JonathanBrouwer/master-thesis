@@ -5,9 +5,6 @@ imports
   type_check/beta_eq
   type_check/scopes
   type_check/do_lazy_substs
-  
-signature constructors
-  Tick : ID -> ID
 
 rules
 

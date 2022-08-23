@@ -33,21 +33,14 @@ rules
   	// Now typecheck the type of the body with the arg in scope
   	expectBetaEq((empty_scope(), typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn)), (empty_scope(), Type())).
   
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name_renamed, arg_type_reduced, body_type) :-
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type_reduced, body_type) :-
 	// The arg type must be a type
   	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
   	// Reduce arg_type
   	doLazySubsts(s, arg_type) == arg_type_reduced,
-  	// Find new arg_name
-  	generateArgName(s, arg_name) == arg_name_renamed,
   	// Now typecheck the body with the arg in scope
-  	typeOfExpr(generateArgScope(s, arg_name, arg_name_renamed, arg_type_reduced), body) == body_type.
-  	
-  generateArgName : scope * ID -> ID
-  generateArgName(s, id) = generateArgNameSub(scopeGetNames(s, id), s, id).
-  generateArgNameSub : list((path * (ID * NameEntry))) * scope * ID -> ID
-  generateArgNameSub([], _, id) = id.
-  generateArgNameSub(_, s, id) = generateArgName(s, Tick(id)).
+  	typeOfExpr(generateArgScope(s, arg_name, arg_name, arg_type_reduced), body) == body_type.
+  
   
   generateArgScope : scope * ID * ID * Expr -> scope
   generateArgScope(s, id, id, arg_type_reduced) = scopePutType(s, id, arg_type_reduced).

@@ -44,7 +44,7 @@ rules
   	// Now typecheck the body with the arg in scope
   	typeOfExpr(generateArgScope(s, arg_name, arg_name_renamed, arg_type_reduced), body) == body_type.
   	
-  typeOfExpr_(s, FnDestruct(fn, arg)) = doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg)), fn_body_type):- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg)), fn_body_type) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
   	betaReduceHead((empty_scope(), typeOfExpr(s, fn))) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type

@@ -6,12 +6,14 @@ Projects:
 [x] Implement CoC in sdf3+statix (2 weeks)
 [x] Using krivine-inspired architecture to improve performance (1 week)
     - Needed to change a rule?
-[x] Fixing name collisions (See "Tricky Types" test 1, few days)
-    - Statix does not support string concat :c
 
+[~] Fixing name collisions (See "Tricky Types" tests, 2 weeks???)
+    - Statix does not support string concat :c
+    - Very complex
+
+[ ] Inductive data types with positivity + coverage checking (1-4 weeks?)
 [ ] Adding synctactic sugar (1 week)
-[ ] Language-parametric services exploration (1 week?)
+[ ] Language-parametric services exploration (few weeks?)
 [ ] Implicit arguments (not sure?)
 [ ] Fixpoints and termination checking (1-4 weeks?)
-[ ] Inductive data types with positivity + coverage checking (1-4 weeks?)
 [ ] Universe support (1-4 weeks?)

@@ -14,9 +14,9 @@ Projects:
     - do scope graphs help fixing this? -> Result
 
 TODO:
-- Steal tests from pi for all
-- change / to \
-- read "Scopes as types" -> how do system f
+[ ] Steal tests from pi for all
+[x] change / to \
+[ ] read "Scopes as types" -> how do system f
 
 Most interesting:
 [ ] Language-parametric services exploration (few weeks?)

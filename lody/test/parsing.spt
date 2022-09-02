@@ -23,21 +23,21 @@ _: X -> (_: Y -> Z)
 ]]
 
 test parse fun construct 1 [[
-/ x : T. x
+\ x : T. x
 ]] parse succeeds
 
 test parse fun construct 2 [[
-/ x : T. x
+\ x : T. x
 ]] parse succeeds
 
 test parse fun construct 3b [[
-/x : T. /y : T. x
+\x : T. \y : T. x
 ]] parse succeeds
 
 test parse fun construct 3c [[
-/x : T. /y : T. x
+\x : T. \y : T. x
 ]] parse to [[
-/x : T. (/y : T. x)
+\x : T. (\y : T. x)
 ]]
 
 test parse fun destruct 1 [[
@@ -59,13 +59,13 @@ a b c d e f g
 ]] parse succeeds
 
 test parse fun destruct 4 [[
-/x:T. x y
+\x:T. x y
 ]] parse to [[
-/x:T. (x y)
+\x:T. (x y)
 ]]
 
 test parse complex 1 [[
-(/x : T. x) Type
+(\x : T. x) Type
 ]] parse succeeds
 
 

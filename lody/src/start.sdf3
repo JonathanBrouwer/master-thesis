@@ -16,7 +16,7 @@ context-free syntax
   Expr.Type = "Type"
   Expr.Var = ID
   Expr.FnType = ID ":" Expr "->" Expr {right}
-  Expr.FnConstruct = "/" ID ":" Expr "." Expr
+  Expr.FnConstruct = "\\" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
   
   ID = IDR

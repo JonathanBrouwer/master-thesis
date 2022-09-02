@@ -6,15 +6,14 @@ Projects:
 [x] Implement CoC in sdf3+statix (2 weeks)
 [x] Using krivine-inspired architecture to improve performance (1 week)
     - Needed to change a rule?
-
-[~] Fixing name collisions (See "Tricky Types" tests, 2 weeks???)
+[x] Fixing name collisions (See "Tricky Types" tests, 2 weeks???)
     - Statix does not support string concat :c
     - Very complex
     -> .ref property and stratego pass to generate new names
     - do scope graphs help fixing this? -> Result
 
 TODO:
-[ ] Steal tests from pi for all
+[x] Steal tests from pi for all
 [x] change / to \
 [ ] read "Scopes as types" -> how do system f
 

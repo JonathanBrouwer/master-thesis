@@ -1,20 +1,20 @@
 module tricky_types
 
-//test tricky 1 [[
-//[[(/T : Type. /T : T. T)]]
-//]] 0 errors run get-type on #1 to FnType("T", Type(), FnType(Tick("T"), Var("T"), Var("T")))
-//
-//test tricky 2 [[
-//[[(/T: Type. /T : Type. /T: T. T)]]
-//]] 0 errors run get-type on #1 to FnType("T", Type(), FnType(Tick("T"), Type(), FnType(Tick(Tick("T")), Var(Tick("T")), Var(Tick("T")))))
-//
-//test tricky 3 [[
-//let f = /x: Type. /T: Type. /y: x. y;
-//[[(/T : Type. f T)]]
-//]] 0 errors run get-type on #1 to FnType("T", Type(), FnType(Tick("T"), Type(), FnType("y", Var("T"), Var("T"))))
-//
-//test tricky 4 [[
-//[[
-//(/x : Type. (let y = x; (/ x : y. y)))
-//]]
-//]] 0 errors run get-type on #1 to FnType("x", Type(), FnType(Tick("x"), Var("x"), Type()))
+test tricky 1 [[
+[[(\T : Type. \T : T. T)]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Var("T"), Var("T")))
+
+test tricky 2 [[
+[[(\T: Type. \T : Type. \T: T. T)]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Type(), FnType("T''", Var("T'"), Var("T'"))))
+
+test tricky 3 [[
+let f = \x: Type. \T: Type. \y: x. y;
+[[(\T : Type. f T)]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Type(), FnType("y", Var("T"), Var("T"))))
+
+test tricky 4 [[
+[[
+(\x : Type. (let y = x; (\ x : y. y)))
+]]
+]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x'", Var("x"), Type()))

@@ -18,3 +18,11 @@ test tricky 4 [[
 (\x : Type. (let y = x; (\ x : y. y)))
 ]]
 ]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x'", Var("x"), Type()))
+
+test tricky 5 [[
+[[
+let v1 = (\T : Type. \T : T. T);
+(\x: (H: Type -> _: H -> H). Type) v1
+]]
+]] 0 errors run get-type on #1 to Type()
+

@@ -16,6 +16,7 @@ TODO:
 [x] Steal tests from pi for all
 [x] change / to \
 [ ] read "Scopes as types" -> how do system f
+    -> My approach of substitution is the same as section 2.5
 
 Most interesting:
 [ ] Language-parametric services exploration (few weeks?)

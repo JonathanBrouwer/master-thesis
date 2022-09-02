@@ -19,10 +19,16 @@ test tricky 4 [[
 ]]
 ]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x'", Var("x"), Type()))
 
-test tricky 5 [[
+test tricky 5 simple [[
 [[
-let v1 = (\T : Type. \T : T. T);
-(\x: (H: Type -> _: H -> H). Type) v1
+(\T : Type. \G : T. G) : (H: Type -> I: H -> H)
 ]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to FnType("H", Type(), FnType("I", Var("H"), Var("H")))
+
+test tricky 5 complex [[
+[[
+(\T : Type. \T : T. T) : (H: Type -> I: H -> H)
+]]
+]] 0 errors run get-type on #1 to FnType("H", Type(), FnType("I", Var("H"), Var("H")))
+
 

@@ -18,13 +18,14 @@ context-free syntax
   Expr.FnType = ID ":" Expr "->" Expr {right}
   Expr.FnConstruct = "\\" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
+  Expr.TypeAssert = Expr ":" Expr
   
   ID = IDR
   
   Expr = "(" Expr ")" {bracket}
   
 context-free priorities
-  Expr.Type > Expr.Var > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
+  Expr.Type > Expr.Var > Expr.TypeAssert > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
   
 context-free restrictions
 

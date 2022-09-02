@@ -46,5 +46,13 @@ rules
   	
   typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(scopePutSubst(s, n, (s, v)), b) :-
   	typeOfExpr(s, v) == _.
+  	
+  typeOfExpr_(s, TypeAssert(e, t)) = t :-
+    // t must be a type
+    expectBetaEq((empty_scope(), typeOfExpr(s, t)), (empty_scope(), Type())),
+    // and the type of e must be t
+    expectBetaEq((empty_scope(), typeOfExpr(s, e)), (s, t)).
+    
+  	
 
   

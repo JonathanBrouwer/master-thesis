@@ -41,7 +41,10 @@ rules // Analysis
   uniquify :: Expr * List(ID) -> Expr
   uniquify : (Type(), _) -> Type()
   uniquify : (FnDestruct(e1, e2), names) -> FnDestruct(<uniquify> (e1, names), <uniquify> (e2, names))
-  uniquify : (Let(_, _, _), _) -> <fail> // Should never occur in types?
+  
+  uniquify : (Let(n1, a, b), names) -> Let(n2, <uniquify> (a, names), <uniquify> (b, [<strip-annos> n2 | names]))
+  with <find-new-name> (n1, names) => n2
+  with rules( Rename : n1 -> n2 )
   
   uniquify : (Var(n1), _) -> Var(n2)
   where <resolve-ref> n1 => d

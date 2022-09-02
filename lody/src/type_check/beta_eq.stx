@@ -34,6 +34,7 @@ rules
   betaReduceHead : (scope * Expr) -> (scope * Expr)
   betaReduceHead((s, e@Type())) = (s, e).
   
+  //This is wrong, we should find the entry in the scope graph that id `ref`s to.
   betaReduceHead((s, e@Var(id))) = betaReduceHeadVar(id, scopeGetNames(s, id)).
   betaReduceHeadVar : ID * list((path * (ID * NameEntry))) -> (scope * Expr)
   betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _]) = betaReduceHead((sw, w)).

@@ -51,6 +51,8 @@ rules
   betaReduceHeadFn(_, (sfa, f, a)) = (sfa, FnDestruct(f, a)).
   
   betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
+  
+  betaReduceHead((s, TypeAssert(e, _))) = (s, e).
 
   betaReduce : (scope * Expr) -> Expr
   betaReduce(e) = betaReduce_(betaReduceHead(e)).

@@ -31,4 +31,12 @@ test tricky 5 complex [[
 ]]
 ]] 0 errors run get-type on #1 to FnType("H", Type(), FnType("I", Var("H"), Var("H")))
 
+test subst self [[
+[[
+let f = (\T : Type. \T : T. T);
+f (T : Type -> _: T -> T) f
+]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("_", Var("T"), Var("T")))
+
+
 

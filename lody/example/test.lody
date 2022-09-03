@@ -1,1 +1,1 @@
-(/T : Type. /T : T. T)
+\x: Type. x

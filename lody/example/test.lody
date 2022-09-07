@@ -1,1 +1,2 @@
-if true then true else false end
+let x = Type;
+[[ID]]

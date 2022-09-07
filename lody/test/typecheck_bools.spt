@@ -1,5 +1,31 @@
 module typecheck_bools
 
+test true [[
+[[true]]
+]] 0 errors run get-type on #1 to BoolType()
 
+test false [[
+[[true]]
+]] 0 errors run get-type on #1 to BoolType()
 
+test if true [[
+[[if true then Type else Type end]]
+]] 0 errors run get-type on #1 to Type()
 
+test if false [[
+[[if false then Type else Type end]]
+]] 0 errors run get-type on #1 to Type()
+
+test if var 1 [[
+[[
+let x = true;
+if x then Type else Type end
+]]
+]] 0 errors run get-type on #1 to Type()
+
+test if var 2 [[
+[[
+\x: Bool.
+if x then Type else Type end
+]]
+]] 0 errors run get-type on #1 to FnType("x", BoolType(), Type())

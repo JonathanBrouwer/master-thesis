@@ -116,7 +116,10 @@ rules
   //FnDestruct is simple structural recursion
   removeDuplicateNames(sn, ss, FnDestruct(fn, arg)) = FnDestruct(removeDuplicateNames(sn, ss, fn), removeDuplicateNames(sn, ss, arg)).
   
-  
+  removeDuplicateNames(sn, ss, BoolTrue()) = BoolTrue().
+  removeDuplicateNames(sn, ss, BoolFalse()) = BoolFalse().
+  removeDuplicateNames(sn, ss, BoolType()) = BoolType().
+  removeDuplicateNames(sn, ss, BoolIf(c, t, e)) = BoolIf(removeDuplicateNames(sn, ss, c), removeDuplicateNames(sn, ss, t), removeDuplicateNames(sn, ss, e)).
   
   
   

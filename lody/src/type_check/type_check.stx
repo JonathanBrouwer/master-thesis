@@ -5,6 +5,9 @@ imports
   type_check/beta_eq
   type_check/scopes
   type_check/do_lazy_substs
+  
+signature constructors
+  Tick : ID -> ID
 
 rules
 
@@ -17,7 +20,8 @@ rules
 
   typeOfExpr_(_, Type()) = Type().
   
-  typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
+  typeOfExpr_(s, Var(id)) = removeDuplicateNames(s, ss, typeOfNameEntry(scopeGetName(s, id))) :-
+  	new ss.
   typeOfNameEntry : NameEntry -> Expr
   typeOfNameEntry(NameType(T)) = T.
   typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
@@ -30,13 +34,15 @@ rules
   	// Now typecheck the type of the body with the arg in scope
   	expectBetaEq((empty_scope(), typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn)), (empty_scope(), Type())).
   
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type_reduced, body_type) :-
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name_renamed, arg_type_reduced, body_type) :-
 	// The arg type must be a type
   	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
   	// Reduce arg_type
   	doLazySubsts(s, arg_type) == arg_type_reduced,
+  	// Find new arg_name
+  	generateArgName(s, arg_name) == arg_name_renamed,
   	// Now typecheck the body with the arg in scope
-  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), body) == body_type.
+  	typeOfExpr(generateArgScope(s, arg_name, arg_name_renamed, arg_type_reduced), body) == body_type.
   	
   typeOfExpr_(s, FnDestruct(fn, arg)) = doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg)), fn_body_type) :- {fn_arg_type}
   	// After beta reduction, the type of fn must be FnType
@@ -57,5 +63,47 @@ rules
   typeOfExpr(_, Expr-Plhdr()) = _.
   typeOfExpr_(_, Expr-Plhdr()) = _.
   	
-
+  generateArgName : scope * ID -> ID
+  generateArgName(s, id) = generateArgNameSub(scopeGetNames(s, id), s, id).
+  generateArgNameSub : list((path * (ID * NameEntry))) * scope * ID -> ID
+  generateArgNameSub([], _, id) = id.
+  generateArgNameSub(_, s, id) = generateArgName(s, Tick(id)).
+  
+  generateArgScope : scope * ID * ID * Expr -> scope
+  generateArgScope(s, id, id, arg_type_reduced) = scopePutType(s, id, arg_type_reduced).
+  generateArgScope(s, id, id_new, arg_type_reduced) = scopePutSubst(s', id, (s', Var(id_new))) :-
+  	scopePutType(s, id_new, arg_type_reduced) == s'.
+  	
+  // scope for finding names * scope for finding substitutions * expression
+  removeDuplicateNames : scope * scope * Expr -> Expr
+  
+  //For variables, we check if there is a substitution available.
+  //If there is, apply it and removeDuplicateNamesNameEntry in it.
+  //If there is not, just return e, we are done.
+  removeDuplicateNames(sn, ss, Var(n)) = removeDuplicateNamesNameEntry(sn, Var(n), scopeGetNames(ss, n)).
+  removeDuplicateNamesNameEntry : scope * Expr * list((path * (ID * NameEntry))) -> Expr
+  removeDuplicateNamesNameEntry(_, e, []) = e.
+  removeDuplicateNamesNameEntry(sn, _, [(_, (_, NameSubst(ss, e))) | _]) = removeDuplicateNames(sn, ss, e).
+  
+  //Type is trivial
+  removeDuplicateNames(_, _, Type()) = Type().
+  
+  //For FnType, we need to generate a new name, add it to the graphs, and recursively check the body. The arg_type is checked using the old scope
+  removeDuplicateNames(sn, ss, FnType(arg_name, arg_type, rtrn)) = FnType(arg_name_renamed, removeDuplicateNames(sn, ss, arg_type), removeDuplicateNames(sn', ss', rtrn)) :-
+  	generateArgName(sn, arg_name) == arg_name_renamed,
+  	scopePutType(sn, arg_name_renamed, arg_type) == sn',
+  	scopePutSubst(ss, arg_name, (ss, Var(arg_name_renamed))) == ss'.
+  	
+  //FnConstruct is identical to FnType
+  removeDuplicateNames(sn, ss, FnConstruct(arg_name, arg_type, rtrn)) = FnConstruct(arg_name_renamed, removeDuplicateNames(sn, ss, arg_type), removeDuplicateNames(sn', ss', rtrn)) :-
+  	generateArgName(sn, arg_name) == arg_name_renamed,
+  	scopePutType(sn, arg_name_renamed, arg_type) == sn',
+  	scopePutSubst(ss, arg_name, (ss, Var(arg_name_renamed))) == ss'.
+  	
+  //FnDestruct is simple structural recursion
+  removeDuplicateNames(sn, ss, FnDestruct(fn, arg)) = FnDestruct(removeDuplicateNames(sn, ss, fn), removeDuplicateNames(sn, ss, arg)).
+  
+  
+  
+  
   

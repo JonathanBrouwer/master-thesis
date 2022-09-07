@@ -12,6 +12,12 @@ rules
   programOk(Program(expr)) :-
   	typeOfExpr(empty_scope(), expr) == _.
   	
+  	
+  
+  
+  // Semantic code completion
+  programOk(Start-Plhdr()).
+  	
 
   
 

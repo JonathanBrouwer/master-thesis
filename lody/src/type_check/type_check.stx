@@ -53,6 +53,9 @@ rules
     // and the type of e must be t
     expectBetaEq((empty_scope(), typeOfExpr(s, e)), (s, t)).
     
+  // Semantic code completion
+  typeOfExpr(_, Expr-Plhdr()) = _.
+  typeOfExpr_(_, Expr-Plhdr()) = _.
   	
 
   

@@ -65,5 +65,14 @@ rules
   betaReduce_((s, FnDestruct(fn, arg))) = FnDestruct(betaReduce((s, fn)), betaReduce((s, arg))).
   
   
+  // Semantic code completion
+  expectBetaEq((_, Expr-Plhdr()), _).
+  expectBetaEq(_, (_, Expr-Plhdr())).
+  
+  expectBetaEq_((_, Expr-Plhdr()), _).
+  expectBetaEq_(_, (_, Expr-Plhdr())).
+  
+  betaReduceHead((_, Expr-Plhdr())) = _.
+  betaReduce((_, Expr-Plhdr())) = _.
   
   

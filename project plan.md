@@ -12,6 +12,11 @@ Projects:
     -> .ref property and stratego pass to generate new names
     - do scope graphs help fixing this? -> Result
 
+    Things that were tried:
+    - Using spoofax things, would really like support for checking .ref properties
+    - Using uniquify stages, at the end was implemented but too late. At the start breaks spoofax
+
+
 TODO:
 [x] Steal tests from pi for all
 [x] change / to \
@@ -23,6 +28,8 @@ Most interesting:
     - Code completion + Renaming
     - renaming not in spoofax 3?
     - code completion -> contact daniel pelsmaeker
+        - What is Plhdr? -> Placeholder
+
 [ ] Implicit arguments (not sure?)
     - when using _ variable
     - to ensure no free metavars, make rule that matches everything

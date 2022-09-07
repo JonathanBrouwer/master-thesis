@@ -19,3 +19,8 @@ rules
   	FnConstruct(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, arg_name, Type()), body)).
   doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
   doLazySubsts(s, Let(n, v, b)) = doLazySubsts(scopePutSubst(s, n, (s, v)), b).
+  
+      
+  // Semantic code completion
+  doLazySubsts(_, Expr-Plhdr()) = _.
+  	

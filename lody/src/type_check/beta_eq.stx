@@ -30,6 +30,14 @@ rules
   		(scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body2)).
   expectBetaEq((s1, FnDestruct(fn1, arg1)), (s2, FnDestruct(fn2, arg2))) :-
   	expectBetaEq((s1, fn1), (s2, fn2)), expectBetaEq((s1, arg1), (s2, arg2)).
+  	
+  expectBetaEq((s1, BoolTrue()), (s2, BoolTrue())).
+  expectBetaEq((s1, BoolFalse()), (s2, BoolFalse())).
+  expectBetaEq((s1, BoolType()), (s2, BoolType())).
+  expectBetaEq((s1, BoolIf(c1, t1, e1)), (s2, BoolIf(c2, t2, e2))) :-
+  	expectBetaEq((s1, c1), (s2, c2)),
+  	expectBetaEq((s1, t1), (s2, t2)),
+  	expectBetaEq((s1, e1), (s2, e2)).
   
   betaReduceHead : (scope * Expr) -> (scope * Expr)
   betaReduceHead((s, e@Type())) = (s, e).
@@ -53,6 +61,15 @@ rules
   betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
   
   betaReduceHead((s, TypeAssert(e, _))) = (s, e).
+  
+  betaReduceHead((s, e@BoolTrue())) = (s, e).
+  betaReduceHead((s, e@BoolFalse())) = (s, e).
+  betaReduceHead((s, e@BoolType())) = (s, e).
+  betaReduceHead((s, e@BoolIf(c, t, e))) = betaReduceHeadIf(s, betaReduceHead((s, c)), c, t, e).
+  betaReduceHeadIf : scope * (scope * Expr) * Expr * Expr * Expr -> (scope * Expr)
+  betaReduceHeadIf(s, (_, BoolTrue()), _, t, _) = (s, t).
+  betaReduceHeadIf(s, (_, BoolFalse()), _, _, e) = (s, e).
+  betaReduceHeadIf(s, _, c, t, e) = (s, BoolIf(c, t, e)).
 
   betaReduce : (scope * Expr) -> Expr
   betaReduce(e) = betaReduce_(betaReduceHead(e)).
@@ -63,6 +80,11 @@ rules
   betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
   betaReduce_((s, FnConstruct(arg_name, arg_type, body))) = FnConstruct(arg_name, betaReduce((s, arg_type)), betaReduce((s, body))).
   betaReduce_((s, FnDestruct(fn, arg))) = FnDestruct(betaReduce((s, fn)), betaReduce((s, arg))).
+  
+  betaReduce_((s, e@BoolTrue())) = e.
+  betaReduce_((s, e@BoolFalse())) = e.
+  betaReduce_((s, e@BoolType())) = e.
+  betaReduce_((s, e@BoolIf(c, t, e))) = BoolIf(betaReduce((s, c)), betaReduce((s, t)), betaReduce((s, e))).
   
   
   // Semantic code completion

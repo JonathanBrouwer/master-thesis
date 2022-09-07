@@ -1,1 +1,1 @@
-\ T : Type . \ x : [[ID]] . [[Expr]]
+if true then true else false end

@@ -20,6 +20,11 @@ rules
   doLazySubsts(s, FnDestruct(fn, arg)) = FnDestruct(doLazySubsts(s, fn), doLazySubsts(s, arg)).
   doLazySubsts(s, Let(n, v, b)) = doLazySubsts(scopePutSubst(s, n, (s, v)), b).
   
+  doLazySubsts(s, BoolTrue()) = BoolTrue().
+  doLazySubsts(s, BoolFalse()) = BoolFalse().
+  doLazySubsts(s, BoolType()) = BoolType().
+  doLazySubsts(s, BoolIf(c, t, e)) = BoolIf(doLazySubsts(s, c), doLazySubsts(s, t), doLazySubsts(s, e)).
+  
       
   // Semantic code completion
   doLazySubsts(_, Expr-Plhdr()) = _.

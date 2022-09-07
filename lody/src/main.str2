@@ -15,8 +15,8 @@ imports
 
 rules // Analysis
 
-//  pre-analyze  = id
-//  post-analyze = id
+  pre-analyze  = id
+  post-analyze = id
 
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
   editor-resolve = stx-editor-resolve
@@ -42,8 +42,8 @@ rules // Analysis
   upgrade-placeholders   = upgrade-placeholders-lody
   is-inj                 = is-lody-inj-cons
   pp-partial             = pp-partial-lody-string
-  pre-analyze            = explicate-injections-lody
-  post-analyze           = implicate-injections-lody
-  
+//  pre-analyze            = explicate-injections-lody
+//  post-analyze           = implicate-injections-lody
+//  
   
   

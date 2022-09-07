@@ -59,10 +59,23 @@ rules
     // and the type of e must be t
     expectBetaEq((empty_scope(), typeOfExpr(s, e)), (s, t)).
     
+  // Boolean support
+  typeOfExpr_(s, BoolTrue()) = BoolType().
+  typeOfExpr_(s, BoolFalse()) = BoolType().
+  typeOfExpr_(s, BoolType()) = Type().
+  typeOfExpr_(s, BoolIf(c, t, e)) = typeT :- {typeE}
+  	expectBetaEq((s, typeOfExpr(s, c)), (empty_scope(), BoolType())),
+  	typeT == typeOfExpr(s, t),
+  	typeE == typeOfExpr(s, e),
+  	expectBetaEq((s, typeT), (s, typeE)).
+    
   // Semantic code completion
   typeOfExpr(_, Expr-Plhdr()) = _.
   typeOfExpr_(_, Expr-Plhdr()) = _.
   	
+  	
+  	
+  //---- Deduplication
   generateArgName : scope * ID -> ID
   generateArgName(s, id) = generateArgNameSub(scopeGetNames(s, id), s, id).
   generateArgNameSub : list((path * (ID * NameEntry))) * scope * ID -> ID

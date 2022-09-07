@@ -20,12 +20,17 @@ context-free syntax
   Expr.FnDestruct = Expr Expr {left}
   Expr.TypeAssert = Expr ":" Expr
   
+  Expr.BoolTrue = "true"
+  Expr.BoolFalse = "false"
+  Expr.BoolType = "Bool"
+  Expr.BoolIf = "if" Expr "then" Expr "else" Expr "end"
+  
   ID = IDR
   
   Expr = "(" Expr ")" {bracket}
   
 context-free priorities
-  Expr.Type > Expr.Var > Expr.TypeAssert > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
+  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
   
 context-free restrictions
 
@@ -41,6 +46,13 @@ lexical syntax
   IDR = [a-zA-Z\_] [a-zA-Z0-9\_]*
   IDR = "Type" {reject}
   IDR = "let" {reject}
+  IDR = "true" {reject}
+  IDR = "false" {reject}
+  IDR = "Bool" {reject}
+  IDR = "if" {reject}
+  IDR = "then" {reject}
+  IDR = "else" {reject}
+  IDR = "end" {reject}
   
 lexical restrictions
 

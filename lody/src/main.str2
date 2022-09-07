@@ -37,9 +37,13 @@ rules // Analysis
       
   fail-msg(|msg) = err-msg(|$[get-type: [msg]]); fail
   
-
-  
-  
+  // Defined for semantic code completion
+  downgrade-placeholders = downgrade-placeholders-lody
+  upgrade-placeholders   = upgrade-placeholders-lody
+  is-inj                 = is-lody-inj-cons
+  pp-partial             = pp-partial-lody-string
+  pre-analyze            = explicate-injections-lody
+  post-analyze           = implicate-injections-lody
   
   
   

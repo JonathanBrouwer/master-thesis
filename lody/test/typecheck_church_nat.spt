@@ -13,9 +13,9 @@ let plus = \x: Nat. \y: Nat. x Nat y s;
 
 plus one two
 ]]
-]] 0 errors run get-type on #1 to FnType(Tick("x"), Type(), 
-									FnType(_, Var(Tick("x")), 
-									  FnType(_, FnType(_, Var(Tick("x")), Var(Tick("x"))), Var(Tick("x")))
+]] 0 errors run get-type on #1 to FnType("x", Type(), 
+									FnType(_, Var("x"), 
+									  FnType(_, FnType(_, Var("x"), Var("x")), Var("x"))
 									)
 								  )
 

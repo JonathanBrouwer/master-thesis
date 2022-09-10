@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Stmt Expr ID
+  Start Stmt Expr
 
 context-free syntax
 
@@ -25,8 +25,6 @@ context-free syntax
   Expr.BoolType = "Bool"
   Expr.BoolIf = "if" Expr "then" Expr "else" Expr "end"
   
-  ID = IDR
-  
   Expr = "(" Expr ")" {bracket}
   
 context-free priorities
@@ -37,25 +35,25 @@ context-free restrictions
   LAYOUT? -/- [\ \n\t\v\f\r]
   
 lexical sorts
-  IDR
+  ID
 
 lexical syntax
 
   LAYOUT = [\ \n\t\v\f\r]
   
-  IDR = [a-zA-Z\_] [a-zA-Z0-9\_]*
-  IDR = "Type" {reject}
-  IDR = "let" {reject}
-  IDR = "true" {reject}
-  IDR = "false" {reject}
-  IDR = "Bool" {reject}
-  IDR = "if" {reject}
-  IDR = "then" {reject}
-  IDR = "else" {reject}
-  IDR = "end" {reject}
+  ID = [a-zA-Z\_] [a-zA-Z0-9\_]*
+  ID = "Type" {reject}
+  ID = "let" {reject}
+  ID = "true" {reject}
+  ID = "false" {reject}
+  ID = "Bool" {reject}
+  ID = "if" {reject}
+  ID = "then" {reject}
+  ID = "else" {reject}
+  ID = "end" {reject}
   
 lexical restrictions
 
-  IDR -/- [a-zA-Z0-9\_]
+  ID -/- [a-zA-Z0-9\_]
 
 

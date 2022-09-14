@@ -11,66 +11,83 @@ signature constructors
 
 rules
 
-  typeOfExpr : scope * Expr -> Expr
-  typeOfExpr(s, e) = T :-
-    typeOfExpr_(s, e) == T,
+  typeOfExpr : scope * Expr -> (Expr * Expr)
+  typeOfExpr(s, e) = (q, T) :-
+    typeOfExpr_(s, e) == (q, T),
     @e.type := betaReduce((empty_scope(), T)).
 //	@e.type := T.
   
-  typeOfExpr_ : scope * Expr -> Expr
+  typeOfExpr_ : scope * Expr -> (Expr * Expr)
 
-  typeOfExpr_(_, Type()) = Type().
+  typeOfExpr_(_, q@Type()) = (q, Type()).
   
-  typeOfExpr_(s, Infer(e)) = typeOfExpr_(empty_scope(), e).
-  typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
+  
+  typeOfExpr_(s, Var("_")) = (Infer(q), qt) :-
+  	(_, qt) == typeOfExpr(empty_scope(), q).
+  // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
+  // They should just be flattened
+  typeOfExpr_(s, Infer(q)) = typeOfExpr_(s, q).
+  	
+  typeOfExpr_(s, q@Var(id)) = (q, typeOfNameEntry(scopeGetName(s, id))).
   
   typeOfNameEntry : NameEntry -> Expr
   typeOfNameEntry(NameType(T)) = T.
-  typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
+  typeOfNameEntry(NameSubst(se, e)) = t :- (_, t) == typeOfExpr(se, e).
   
-  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = Type() :- {arg_type_reduced}
+  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = (FnType(arg_name, arg_type', rtrn'), Type()) :- {arg_type_reduced arg_type_type rtrn_type}
 	// The arg type must be a type
-  	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
+  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
   	// Reduce arg_type
-  	doLazySubsts(s, arg_type) == arg_type_reduced,
+  	doLazySubsts(s, arg_type') == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
-  	expectBetaEq((empty_scope(), typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn)), (empty_scope(), Type())).
+  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn) == (rtrn', rtrn_type),
+  	expectBetaEq((empty_scope(), rtrn_type), (empty_scope(), Type())).
   
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = FnType(arg_name, arg_type_reduced, body_type) :-
+  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name, arg_type', body'), FnType(arg_name, arg_type_reduced, body_type)) :- {arg_type_type}
 	// The arg type must be a type
-  	expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
+  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
   	// Reduce arg_type
-  	doLazySubsts(s, arg_type) == arg_type_reduced,
+  	doLazySubsts(s, arg_type') == arg_type_reduced,
   	// Now typecheck the body with the arg in scope
-  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), body) == body_type.
+  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), body) == (body', body_type).
   	
-  typeOfExpr_(s, FnDestruct(fn, arg)) = doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg)), fn_body_type) :- {fn_arg_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type}
   	// After beta reduction, the type of fn must be FnType
-  	betaReduceHead((empty_scope(), typeOfExpr(s, fn))) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
+  	typeOfExpr(s, fn) == (fn', fn_type),
+  	betaReduceHead((empty_scope(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
-  	expectBetaEq((empty_scope(), typeOfExpr(s, arg)), (sf, fn_arg_type)).
+  	typeOfExpr(s, arg) == (arg', arg_type),
+  	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
+  	// Find body type with substitution needed
+  	doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg')), fn_body_type) == fn_body_type'.
   	
-  typeOfExpr_(s, Let(n, v, b)) = typeOfExpr(scopePutSubst(s, n, (s, v)), b) :-
-  	typeOfExpr(s, v) == _.
+  typeOfExpr_(s, Let(n, v, b)) = (Let(n, v', b'), b_type) :-
+  	typeOfExpr(scopePutSubst(s, n, (s, v)), b) == (b', b_type),
+  	typeOfExpr(s, v) == (v', _).
   	
-  typeOfExpr_(s, TypeAssert(e, t)) = t :-
+  typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
     // t must be a type
-    expectBetaEq((empty_scope(), typeOfExpr(s, t)), (empty_scope(), Type())),
+    typeOfExpr(s, t) == (t', t_type),
+    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
     // and the type of e must be t
-    expectBetaEq((empty_scope(), typeOfExpr(s, e)), (s, t)).
+    typeOfExpr(s, e) == (e', e_type),
+    expectBetaEq((empty_scope(), e_type), (s, t')).
     
   // Boolean support
-  typeOfExpr_(s, BoolTrue()) = BoolType().
-  typeOfExpr_(s, BoolFalse()) = BoolType().
-  typeOfExpr_(s, BoolType()) = Type().
-  typeOfExpr_(s, BoolIf(cond, then, else)) = typeT :- {typeE}
-  	expectBetaEq((s, typeOfExpr(s, cond)), (empty_scope(), BoolType())),
-  	typeT == typeOfExpr(s, then),
-  	typeE == typeOfExpr(s, else),
-  	expectBetaEq((s, typeT), (s, typeE)).
+  typeOfExpr_(s, q@BoolTrue()) = (q, BoolType()).
+  typeOfExpr_(s, q@BoolFalse()) = (q, BoolType()).
+  typeOfExpr_(s, q@BoolType()) = (q, Type()).
+  typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
+  	typeOfExpr(s, cond) == (cond', cond_type),
+  	expectBetaEq((s, cond_type), (empty_scope(), BoolType())),
+  	typeOfExpr(s, then) == (then', then_type),
+  	typeOfExpr(s, else) == (else', else_type),
+  	expectBetaEq((s, then_type), (s, else_type)).
     
   // Semantic code completion
-  typeOfExpr(_, Expr-Plhdr()) = _.
-  typeOfExpr_(_, Expr-Plhdr()) = _.
+  typeOfExpr(_, Expr-Plhdr()) = (Expr-Plhdr(), _).
+  typeOfExpr_(_, Expr-Plhdr()) = (Expr-Plhdr(), _).
   	
 

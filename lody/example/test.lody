@@ -1,2 +1,1 @@
-let id = (\T : Type. \x: T. x);
-(id _ true) : Bool
+(\x : Type. x) : _

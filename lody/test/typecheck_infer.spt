@@ -1,0 +1,18 @@
+module typecheck_infer
+
+test infer true [[
+true : _
+]] 0 errors
+
+test infer Type [[
+Type : _
+]] 0 errors
+
+test infer FnType [[
+(\x : Type. x) : _
+]] 0 errors
+
+test infer identity [[
+let id = (\T : Type. \x: T. x);
+[[(id _ true)]] : Bool
+]] 0 errors run get-type on #1 to BoolType()

@@ -3,6 +3,7 @@ module type_check/do_lazy_substs
 imports
   signatures/start-sig
   type_check/scopes
+  type_check/type_check
 
 rules
   // Given a scope with NameSubst items
@@ -24,6 +25,8 @@ rules
   doLazySubsts(s, BoolFalse()) = BoolFalse().
   doLazySubsts(s, BoolType()) = BoolType().
   doLazySubsts(s, BoolIf(c, t, e)) = BoolIf(doLazySubsts(s, c), doLazySubsts(s, t), doLazySubsts(s, e)).
+  
+  doLazySubsts(s, Infer(e)) = Infer(e).
   
       
   // Semantic code completion

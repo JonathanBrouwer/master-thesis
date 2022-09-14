@@ -1,2 +1,2 @@
-\x: Type.
-[[Expr]]
+let id = (\T : Type. \x: T. x);
+(id _ true) : Bool

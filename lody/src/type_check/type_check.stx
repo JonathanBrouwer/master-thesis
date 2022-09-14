@@ -5,6 +5,9 @@ imports
   type_check/beta_eq
   type_check/scopes
   type_check/do_lazy_substs
+  
+signature constructors
+  Infer : Expr -> Expr
 
 rules
 
@@ -12,11 +15,13 @@ rules
   typeOfExpr(s, e) = T :-
     typeOfExpr_(s, e) == T,
     @e.type := betaReduce((empty_scope(), T)).
+//	@e.type := T.
   
   typeOfExpr_ : scope * Expr -> Expr
 
   typeOfExpr_(_, Type()) = Type().
   
+  typeOfExpr_(s, Infer(e)) = typeOfExpr_(empty_scope(), e).
   typeOfExpr_(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
   
   typeOfNameEntry : NameEntry -> Expr
@@ -58,10 +63,10 @@ rules
   typeOfExpr_(s, BoolTrue()) = BoolType().
   typeOfExpr_(s, BoolFalse()) = BoolType().
   typeOfExpr_(s, BoolType()) = Type().
-  typeOfExpr_(s, BoolIf(c, t, e)) = typeT :- {typeE}
-  	expectBetaEq((s, typeOfExpr(s, c)), (empty_scope(), BoolType())),
-  	typeT == typeOfExpr(s, t),
-  	typeE == typeOfExpr(s, e),
+  typeOfExpr_(s, BoolIf(cond, then, else)) = typeT :- {typeE}
+  	expectBetaEq((s, typeOfExpr(s, cond)), (empty_scope(), BoolType())),
+  	typeT == typeOfExpr(s, then),
+  	typeE == typeOfExpr(s, else),
   	expectBetaEq((s, typeT), (s, typeE)).
     
   // Semantic code completion

@@ -15,6 +15,30 @@ rules
   expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
   
   expectBetaEq_ : (scope * Expr) * (scope * Expr)
+  
+  
+  /// INFER RULES
+  expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
+  	e1 == e2.
+  expectBetaEq_((_, Infer(e1)), (s2, e2)) :-
+    expectBetaEq_((s2, e2), (_, Infer(e1))).
+    
+  expectBetaEq_((s1, e1@Type()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@AlphaEqVars(_, _)), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@FnType(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_name2 arg_type2 body2}
+  	e2 == FnType(arg_name2, Infer(arg_type2), Infer(body2)),
+  	expectBetaEq_((s1, e1), (empty_scope(), e2)).
+  	
+  	
+  expectBetaEq_((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@BoolIf(c1, t1, b1)), (_, Infer(e2))) :- {c2 t2 b2}
+  	e2 == BoolIf(Infer(c2), Infer(t2), Infer(b2)),
+  	expectBetaEq_((s1, e1), (empty_scope(), e2)).
+  
+  
+  /// NORMAL RULES
   expectBetaEq_((_, Type()), (_, Type())).
   expectBetaEq_((_, AlphaEqVars(a, b)), (_, AlphaEqVars(a, b))).
   expectBetaEq_((_, Var(n)), (_, Var(n))).
@@ -34,10 +58,12 @@ rules
   expectBetaEq_((s1, BoolTrue()), (s2, BoolTrue())).
   expectBetaEq_((s1, BoolFalse()), (s2, BoolFalse())).
   expectBetaEq_((s1, BoolType()), (s2, BoolType())).
-  expectBetaEq_((s1, BoolIf(c1, t1, e1)), (s2, BoolIf(c2, t2, e2))) :-
-  	expectBetaEq((s1, c1), (s2, c2)),
-  	expectBetaEq((s1, t1), (s2, t2)),
-  	expectBetaEq((s1, e1), (s2, e2)).
+  expectBetaEq_((s1, BoolIf(cond1, then1, else1)), (s2, BoolIf(cond2, then2, else2))) :-
+  	expectBetaEq((s1, cond1), (s2, cond2)),
+  	expectBetaEq((s1, then1), (s2, then2)),
+  	expectBetaEq((s1, else1), (s2, else2)).
+  	
+  
   
   betaReduceHead : (scope * Expr) -> (scope * Expr)
   betaReduceHead((s, e@Type())) = (s, e).
@@ -70,6 +96,8 @@ rules
   betaReduceHeadIf(s, (_, BoolTrue()), _, t, _) = (s, t).
   betaReduceHeadIf(s, (_, BoolFalse()), _, _, e) = (s, e).
   betaReduceHeadIf(s, _, c, t, e) = (s, BoolIf(c, t, e)).
+  
+  betaReduceHead((s, e@Infer(_))) = (s, e).
 
   betaReduce : (scope * Expr) -> Expr
   betaReduce(e) = betaReduce_(betaReduceHead(e)).
@@ -85,6 +113,8 @@ rules
   betaReduce_((s, e@BoolFalse())) = e.
   betaReduce_((s, e@BoolType())) = e.
   betaReduce_((s, e@BoolIf(c, t, e))) = BoolIf(betaReduce((s, c)), betaReduce((s, t)), betaReduce((s, e))).
+  
+  betaReduce_((_, Infer(e))) = e.
   
   
   // Semantic code completion

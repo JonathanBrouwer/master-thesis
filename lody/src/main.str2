@@ -21,8 +21,7 @@ rules // Analysis
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
   editor-resolve = stx-editor-resolve
   
-  editor-hover   = stx-editor-hover(|"inferred") <+ stx-editor-hover
-  
+  editor-hover : x -> <conc-strings> (<stx-editor-hover> x, " --- ", <stx-editor-hover(|"Inferred") <+ !""> x)
   
 //  get-type :: Expr -> Expr
   get-type : expr -> type // Defines a rule which matches on node and returns type'

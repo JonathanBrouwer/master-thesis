@@ -34,3 +34,35 @@ let id = (\T : Type. \x: T. x);
 let x = _;
 (id x true)
 ]] 0 errors
+
+test infer function [[
+\f: _: Bool -> Type.
+\x: f _.
+let g = \y: f true. y;
+g x
+]] 0 errors
+
+test variable via type assert [[
+let f = _;
+true : f
+]] 0 errors
+
+test infer function type [[
+(\x: _. true) true
+]] 0 errors
+
+test infer function type via type assert [[
+(\x: _. true) : (_: Bool -> Bool)
+]] 0 errors
+
+test infer function type via let - app [[
+let f = (\x: _. true);
+f true
+]] 0 errors
+
+test infer function type via let - ass [[
+let f = (\x: _. true);
+f : (_: Bool -> Bool)
+]] 0 errors
+
+

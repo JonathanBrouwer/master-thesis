@@ -14,8 +14,8 @@ rules
   typeOfExpr : scope * Expr -> (Expr * Expr)
   typeOfExpr(s, e) = (q, T) :-
     typeOfExpr_(s, e) == (q, T),
-    @e.type := betaReduce((empty_scope(), T)).
-//	@e.type := T.
+//    @e.type := betaReduce((empty_scope(), T)).
+	@e.type := T.
   
   typeOfExpr_ : scope * Expr -> (Expr * Expr)
 
@@ -24,7 +24,7 @@ rules
   
   typeOfExpr_(s, e@Var("_")) = (Infer(q), qt) :-
   	(_, qt) == typeOfExpr(empty_scope(), q),
-  	@e.inferred := q.
+  	@e.Inferred := q.
   // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
   // They should just be flattened
   typeOfExpr_(s, Infer(q)) = typeOfExpr_(s, q).
@@ -33,7 +33,7 @@ rules
   
   typeOfNameEntry : NameEntry -> Expr
   typeOfNameEntry(NameType(T)) = T.
-  typeOfNameEntry(NameSubst(se, e)) = t :- (_, t) == typeOfExpr(se, e).
+  typeOfNameEntry(NameSubst(se, e)) = t :- typeOfExpr(se, e) == (_, t).
   
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = (FnType(arg_name, arg_type', rtrn'), Type()) :- {arg_type_reduced arg_type_type rtrn_type}
 	// The arg type must be a type

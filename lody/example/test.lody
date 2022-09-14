@@ -1,2 +1,2 @@
-let x = Type;
-[[Expr]]
+let f = _;
+true : f

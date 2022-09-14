@@ -3,5 +3,13 @@ Spoofax is a textual language workbench: \label{key}a collection of tools that e
 
 Dependently typed languages are different from other languages because they allow types to be parameterized by values. This allows more rigorous reasoning over types and the values that are inhabited by a type. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires evaluation of the terms they are parameterized by. 
 
-This goal of this paper is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed language can be encoded concisely in Statix.
+This goal of this paper is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed language can be encoded concisely in Statix. The goal is not to show that Statix can implement it, but that implementing it is easier in Statix than in a general-purpose programming language. 
 
+We will first show the base language and explain the way that Statix was used to implement this language. Next, we will explore several features and see how well they can be expressed in Statix. 
+
+Features
+- Base language (sec 2)
+- Name collision avoidance (sec 3)
+- Editor services (sec 4)
+- Inference (sec 5)
+- Data types (sec 6)

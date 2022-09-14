@@ -16,3 +16,21 @@ test infer identity [[
 let id = (\T : Type. \x: T. x);
 [[(id _ true)]] : Bool
 ]] 0 errors run get-type on #1 to BoolType()
+
+test infer inside if [[
+true : if true then _ else Type end
+]] 0 errors
+
+test infer nothing [[
+_
+]] >=1 errors
+
+test infer inside if false [[
+true : if true then Bool else _ end
+]] >=1 errors
+
+test infer via variable [[
+let id = (\T : Type. \x: T. x);
+let x = _;
+(id x true)
+]] 0 errors

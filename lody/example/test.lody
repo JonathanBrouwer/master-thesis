@@ -1,2 +1,2 @@
 let f = _;
-true : f
+f : (_: Bool -> Bool)

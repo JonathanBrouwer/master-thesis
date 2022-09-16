@@ -1,0 +1,63 @@
+% !TEX root = document.tex
+
+\chapter{\label{chap:baselang}Base Language}
+
+The base language that was implemented is the Calculus of Constructions \autocite{Coquand_Huet_1988}, with a syntax somewhat similar to that of Haskell. One extra feature was added that is not present in the Calculus of Constructions, that is, let bindings.
+
+\section{Syntax}
+
+The syntax of the base language is defined in SDF3, the syntax definition language of Spoofax. The definition is very similar to that of a simply typed lambda calculus, except that types and expressions are a single sort. 
+
+\begin{lstlisting}
+context-free sorts
+	Expr
+	
+context-free syntax
+	Expr.Let = [let [ID] = [Expr]; [Expr]]
+	Expr.Type = "Type"
+	Expr.Var = ID
+	Expr.FnType = ID ":" Expr "->" Expr {right}
+	Expr.FnConstruct = "\\" ID ":" Expr "." Expr
+	Expr.FnDestruct = Expr Expr {left}
+	Expr = "(" Expr ")" {bracket}
+
+context-free priorities
+	Expr.Type > Expr.Var > Expr.FnType > Expr.FnDestruct 
+		> Expr.FnConstruct > Expr.Let
+\end{lstlisting}
+
+\section{Static Analysis}
+
+
+\section{How scope graphs are used}
+
+To type-check the base language, we need to use Statix, and scope graphs. This section describes how scope graphs are used.
+
+The scope graph only has a single type of edge, we call them \verb|P| edges (parent edges). It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
+
+\begin{lstlisting}
+signature sorts
+	NameEntry
+constructors
+	NameType : Expr -> NameEntry
+	NameSubst : scope * Expr -> NameEntry
+relations
+	name : ID -> NameEntry
+name-resolution	labels P
+\end{lstlisting}
+
+These are all the definitions we will need to type-check programs. We will create a name with \verb|NameType| as entry for function parameters, and we will use \verb|NameSubst| for let bindings and function application in beta reduction.
+
+
+
+
+
+
+
+
+\section{Garbage}
+
+- Base language is calculus of constructions with lets + type assertions (move type assertions to sec 5?)
+- Describe syntax of the base language?
+- Describe rules of base language (statix syntax or mathy?)
+- Scope graphs for substitutions + scopes

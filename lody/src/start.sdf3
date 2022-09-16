@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Stmt Expr
+  Start Expr
 
 context-free syntax
 

@@ -65,4 +65,10 @@ let f = (\x: _. true);
 f : (_: Bool -> Bool)
 ]] 0 errors
 
+test infer function type via two lets [[
+let f = (\x: _. true);
+let g = (\y: _. f y);
+g true
+]] 0 errors
+
 

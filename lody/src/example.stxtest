@@ -1,46 +1,36 @@
-resolve {s if a b c d e f sf fn_arg_name arg_type fn_type}
+resolve {s v' s' v'' s'' arg_type' arg_type_type arg_type_reduced x y sf fn_arg_name fn_arg_type fn_body_type arg_type}
   new s,
+  
 //  typeOfExpr(s, 
-//  	Let("f", 
-//  		FnConstruct("x", Infer(if), BoolTrue()),
-//  		FnDestruct(Var("f"), BoolTrue())
+//  	Let("f", FnConstruct("x", Var("_"), BoolTrue()),
+//  		Let("g", FnConstruct("y", Var("_"), FnDestruct(Var("f"), Var("y"))), 
+//  			FnDestruct(Var("g"), BoolTrue())
+//  		) 
 //  	)
-//  ) == (_, _)
+//  ) == (_, _),
+  
+  typeOfExpr(s, FnConstruct("x", Var("_"), BoolTrue())) == (v', _),
+  s' == scopePutSubst(s, "f", (s, v')),
+  
+  typeOfExpr(s', Var("_")) == (arg_type', arg_type_type),
+  doLazySubsts(s', arg_type') == arg_type_reduced,
+  s'' == scopePutType(s', "y", arg_type_reduced),
+  
+//  typeOfExpr(s'', FnDestruct(Var("f"), Var("y"))) == (_, x)
+  typeOfExpr(s'', Var("f")) == (_, x),
+  betaReduceHead((empty_scope(), x)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
+  
+  typeOfExpr(s'', Var("y")) == (_, arg_type),
+  
+  expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
+  
+  
+  
+  Type() == Type()
+  
+//  typeOfExpr(s', FnConstruct("y", Var("_"), FnDestruct(Var("f"), Var("y")))) == (v'', _)
 
-//  typeOfExpr_(s, Let(n, v, b)) = (Let(n, v', b'), b_type) :-
-//  	typeOfExpr(s, v) == (v', _),
-//  	typeOfExpr(scopePutSubst(s, n, (s, v')), b) == (b', b_type).
 
-
-//  typeOfExpr_(s, q@Var(id)) = (q, typeOfNameEntry(scopeGetName(s, id))).
-//  
-//  typeOfNameEntry : NameEntry -> Expr
-//  typeOfNameEntry(NameType(T)) = T.
-//  typeOfNameEntry(NameSubst(se, e)) = t :- typeOfExpr(se, e) == (_, t).
-
-  // Unfold let
-  typeOfExpr(s, FnConstruct("x", Infer(if), BoolTrue())) == (a, _),
-  b == scopePutSubst(s, "f", (s, a)),
-  
-  scopeGetName(b, "f") == NameSubst(c, d),
-  typeOfExpr(c, d) == (e, f),
-  f == fn_type,
-  typeOfExpr(b, Var("f")) == (_, fn_type),
-  
-  
-  
-  fn_type == FnType("x", Infer(BoolType()), BoolType())
-  
-
-//  typeOfExpr(b, FnDestruct(Var("f"), BoolTrue())) == (_, c)
-  
-  
-  
-  
-  
-  
-  // let f = (\x: _. true);
-  // f true
 imports
   signatures/start-sig
   type_check/beta_eq

@@ -1,2 +1,3 @@
-let f = _;
-f : (_: Bool -> Bool)
+let f = (\x: _. true);
+let g = (\y: _. f y);
+g true

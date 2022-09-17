@@ -18,8 +18,8 @@ rules
   
   
   /// INFER RULES
-//  expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
-//  	e1 == e2.
+  expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
+  	e1 == e2.
   expectBetaEq_((_, Infer(e1)), (s2, e2)) :-
     expectBetaEq_((s2, e2), (_, Infer(e1))).
     

@@ -71,4 +71,11 @@ let g = (\y: _. f y);
 g true
 ]] 0 errors
 
+test infer function type via if 1 [[
+(\b: _. if b then Type else Type end)
+]] 0 errors
+
+test infer function type via if 2 [[
+(\b: _. if true then b else Type end)
+]] 0 errors
 

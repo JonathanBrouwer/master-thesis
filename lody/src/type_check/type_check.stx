@@ -13,10 +13,9 @@ rules
 
   typeOfExpr : scope * Expr -> (Expr * Expr)
   typeOfExpr(s, e) = (q, T) :-
-  	try { false } | note $[expr [s] [e] [T]],
     typeOfExpr_(s, e) == (q, T),
-//    @e.type := betaReduce((empty_scope(), T)).
-	@e.type := T.
+    @e.type := betaReduce((empty_scope(), T)).
+//	@e.type := T.
   
   typeOfExpr_ : scope * Expr -> (Expr * Expr)
 
@@ -28,7 +27,9 @@ rules
   	@e.Inferred := q.
   // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
   // They should just be flattened
-  typeOfExpr_(s, Infer(q)) = typeOfExpr_(s, q).
+  typeOfExpr_(s, Infer(q)) = (Infer(e), Infer(t)) :-
+  	q == e,
+    typeOfExpr_(s, q) == (e, t).
   	
   typeOfExpr_(s, q@Var(id)) = (q, typeOfNameEntry(scopeGetName(s, id))).
   

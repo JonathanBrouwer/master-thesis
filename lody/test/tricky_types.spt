@@ -42,3 +42,19 @@ f (T : Type -> _: T -> T) f
 ]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("_", Var("T"), Var("T")))
 
+test double term [[
+let Nat = x: Type -> _: x -> _: (_: x -> x) -> x;
+let z = \x: Type. \zf: x. \sf: (_: x -> x). zf;
+let s = \n: Nat. \x: Type. \zf: x. \sf: (_: x -> x). sf (n x zf sf);
+
+let one = s z : Nat;
+let two = s (s z) : Nat;
+
+let doubled = (two Type Type (\T: Type. (X: Type -> T))) : Type;
+(\x: Type. \y: Type. Type) : doubled
+]] 0 errors
+
+
+
+
+

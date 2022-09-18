@@ -1,1 +1,9 @@
-true : Type
+let Nat = x: Type -> _: x -> _: (_: x -> x) -> x;
+let z = \x: Type. \zf: x. \sf: (_: x -> x). zf;
+let s = \n: Nat. \x: Type. \zf: x. \sf: (_: x -> x). sf (n x zf sf);
+
+let one = s z : Nat;
+let two = s (s z) : Nat;
+
+let doubled = (two Type Type (\T: Type. (X: Type -> T))) : Type;
+(\x: Type. \y: Type. Type) : doubled

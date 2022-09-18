@@ -66,9 +66,10 @@ rules
   	// Find body type with substitution needed
   	doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg')), fn_body_type) == fn_body_type'.
   	
-  typeOfExpr_(s, Let(n, v, b)) = (Let(n, v', b'), b_type) :-
+  typeOfExpr_(s, l@Let(n, v, b)) = (Let(n, v', b'), b_type) :-
   	typeOfExpr(s, v) == (v', _),
-  	typeOfExpr(scopePutSubst(s, n, (s, v')), b) == (b', b_type).
+  	typeOfExpr(scopePutSubst(s, n, (s, v')), b) == (b', b_type),
+  	@l.Inferred := betaReduce((s, v')).
   	
   typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
     // t must be a type

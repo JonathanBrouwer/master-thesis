@@ -84,15 +84,15 @@ rules
   
   betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
   
-  betaReduceHead((s, TypeAssert(e, _))) = (s, e).
+  betaReduceHead((s, TypeAssert(e, _))) = betaReduceHead((s, e)).
   
   betaReduceHead((s, e@BoolTrue())) = (s, e).
   betaReduceHead((s, e@BoolFalse())) = (s, e).
   betaReduceHead((s, e@BoolType())) = (s, e).
   betaReduceHead((s, BoolIf(c, t, e))) = betaReduceHeadIf(s, betaReduceHead((s, c)), c, t, e).
   betaReduceHeadIf : scope * (scope * Expr) * Expr * Expr * Expr -> (scope * Expr)
-  betaReduceHeadIf(s, (_, BoolTrue()), _, t, _) = (s, t).
-  betaReduceHeadIf(s, (_, BoolFalse()), _, _, e) = (s, e).
+  betaReduceHeadIf(s, (_, BoolTrue()), _, t, _) = betaReduceHead((s, t)).
+  betaReduceHeadIf(s, (_, BoolFalse()), _, _, e) = betaReduceHead((s, e)).
   betaReduceHeadIf(s, _, c, t, e) = (s, BoolIf(c, t, e)).
   
   betaReduceHead((s, e@Infer(_))) = (s, e).

@@ -110,7 +110,7 @@ rules
   betaReduce_((s, e@BoolTrue())) = e.
   betaReduce_((s, e@BoolFalse())) = e.
   betaReduce_((s, e@BoolType())) = e.
-  betaReduce_((s, e@BoolIf(c, t, e))) = BoolIf(betaReduce((s, c)), betaReduce((s, t)), betaReduce((s, e))).
+  betaReduce_((s, BoolIf(c, t, e))) = BoolIf(betaReduce((s, c)), betaReduce((s, t)), betaReduce((s, e))).
   
   betaReduce_((_, Infer(e))) = e.
   

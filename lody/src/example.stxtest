@@ -1,34 +1,8 @@
-resolve {s v' s' v'' s'' arg_type' arg_type_type arg_type_reduced x y sf fn_arg_name fn_arg_type fn_body_type arg_type}
+resolve {s}
   new s,
   
-//  typeOfExpr(s, 
-//  	Let("f", FnConstruct("x", Var("_"), BoolTrue()),
-//  		Let("g", FnConstruct("y", Var("_"), FnDestruct(Var("f"), Var("y"))), 
-//  			FnDestruct(Var("g"), BoolTrue())
-//  		) 
-//  	)
-//  ) == (_, _),
-  
-  typeOfExpr(s, FnConstruct("x", Var("_"), BoolTrue())) == (v', _),
-  s' == scopePutSubst(s, "f", (s, v')),
-  
-  typeOfExpr(s', Var("_")) == (arg_type', arg_type_type),
-  doLazySubsts(s', arg_type') == arg_type_reduced,
-  s'' == scopePutType(s', "y", arg_type_reduced),
-  
-//  typeOfExpr(s'', FnDestruct(Var("f"), Var("y"))) == (_, x)
-  typeOfExpr(s'', Var("f")) == (_, x),
-  betaReduceHead((empty_scope(), x)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
-  
-  typeOfExpr(s'', Var("y")) == (_, arg_type),
-  
-  expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
-  
-  
-  
-  Type() == Type()
-  
-//  typeOfExpr(s', FnConstruct("y", Var("_"), FnDestruct(Var("f"), Var("y")))) == (v'', _)
+  //(\T : Type. \T : T. T)
+  typeOfExpr(s, FnConstruct("T", Type(), FnConstruct("T", Var("T"), Var("T")))) == _
 
 
 imports

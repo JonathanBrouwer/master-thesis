@@ -4,6 +4,10 @@ test tricky 1 [[
 [[(\T : Type. \T : T. T)]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(), FnType(Tick("T"), Var("T"), Var("T")))
 
+test tricky 1b [[
+[[(\T : Type. \T : T. T) Type]]
+]] 0 errors run get-type on #1 to FnType("T", Type(), Type())
+
 test tricky 2 [[
 [[(\T: Type. \T : Type. \T: T. T)]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(), FnType(Tick("T"), Type(), FnType(Tick(Tick("T")), Var(Tick("T")), Var(Tick("T")))))
@@ -37,5 +41,4 @@ let f = (\T : Type. \T : T. T);
 f (T : Type -> _: T -> T) f
 ]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("_", Var("T"), Var("T")))
-
 

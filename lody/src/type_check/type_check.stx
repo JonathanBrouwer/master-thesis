@@ -40,17 +40,17 @@ rules
   typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = (FnType(arg_name, arg_type', rtrn'), Type()) :- {arg_type_reduced arg_type_type rtrn_type}
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
+  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())) | error $[Expected [arg_type] to be a type, found [arg_type_type]],
   	// Reduce arg_type
   	doLazySubsts(s, arg_type') == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
   	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn) == (rtrn', rtrn_type),
-  	expectBetaEq((empty_scope(), rtrn_type), (empty_scope(), Type())).
+  	expectBetaEq((empty_scope(), rtrn_type), (empty_scope(), Type())) | error $[Expected [rtrn] to be a type, found [rtrn_type]].
   
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name, arg_type', body'), FnType(arg_name, arg_type_reduced, body_type)) :- {arg_type_type}
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
+  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())) | error $[Expected [arg_type] to be a type, found [arg_type_type]],
   	// Reduce arg_type
   	doLazySubsts(s, arg_type') == arg_type_reduced,
   	// Now typecheck the body with the arg in scope
@@ -62,7 +62,7 @@ rules
   	betaReduceHead((empty_scope(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
   	typeOfExpr(s, arg) == (arg', arg_type),
-  	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
+  	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)) | error $[Expected [arg] to be of type [fn_arg_type], but found [arg_type]],
   	// Find body type with substitution needed
   	doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg')), fn_body_type) == fn_body_type'.
   	
@@ -73,10 +73,10 @@ rules
   typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
     // t must be a type
     typeOfExpr(s, t) == (t', t_type),
-    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
+    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())) | error $[Expected [t] to be a type, found [t_type]],
     // and the type of e must be t
     typeOfExpr(s, e) == (e', e_type),
-    expectBetaEq((empty_scope(), e_type), (s, t')).
+    expectBetaEq((empty_scope(), e_type), (s, t')) | error $[Expected [e] to be of type [t], found [e_type]].
     
   // Boolean support
   typeOfExpr_(s, q@BoolTrue()) = (q, BoolType()).
@@ -84,10 +84,10 @@ rules
   typeOfExpr_(s, q@BoolType()) = (q, Type()).
   typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
   	typeOfExpr(s, cond) == (cond', cond_type),
-  	expectBetaEq((s, cond_type), (empty_scope(), BoolType())),
+  	expectBetaEq((s, cond_type), (empty_scope(), BoolType())) | error $[Expected [cond] to be a boolean, found [cond_type]],
   	typeOfExpr(s, then) == (then', then_type),
   	typeOfExpr(s, else) == (else', else_type),
-  	expectBetaEq((s, then_type), (s, else_type)).
+  	expectBetaEq((s, then_type), (s, else_type)) | error $[Expected branches of if to have equal types, found [then_type] and [else_type]].
     
   // Semantic code completion
   typeOfExpr(_, Expr-Plhdr()) = (Expr-Plhdr(), _).

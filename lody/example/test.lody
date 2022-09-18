@@ -1,3 +1,1 @@
-let f = (\x: _. true);
-let g = (\y: _. f y);
-g true
+true : Type

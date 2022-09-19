@@ -31,9 +31,9 @@ context-free priorities
 
 \section{How scope graphs are used}
 
-To type-check the base language, we need to use Statix, and scope graphs. This section describes how scope graphs are used.
+To type-check the base language, we need to scope graphs. This section describes how scope graphs are used.
 
-The scope graph only has a single type of edge, we call them \verb|P| edges (parent edges). It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
+The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
 
 \begin{lstlisting}
 signature sorts
@@ -46,10 +46,28 @@ relations
 name-resolution	labels P
 \end{lstlisting}
 
-These are all the definitions we will need to type-check programs. We will create a name with \verb|NameType| as entry for function parameters, and we will use \verb|NameSubst| for let bindings and function application in beta reduction.
+These are all the definitions we will need to type-check programs. 
 
+\section{Typechecking programs}
 
+We will define a statix relation \verb|typeOfExpr| that takes a scope and an expression and typechecks the scope in the expression. It returns two expressions, the first being the expression that was input (this will be changed when we add inference), and the second being the type of the input expression.
 
+\begin{lstlisting}
+typeOfExpr : scope * Expr -> (Expr * Expr)
+\end{lstlisting}
+
+\subsection{Let bindings and variables}
+
+Let bindings are typechecked by first typechecking the value that was bound, and then putting this as a substitution in the scope graph. This new scope is then used to typecheck the body.
+
+\begin{lstlisting}
+typeOfExpr_(s, l@Let(n, v, b)) = (Let(n, v', b'), b_type) :- {s'}
+	typeOfExpr(s, v) == (v', _),
+	scopePutSubst(s, n, (s, v')) == s',
+	typeOfExpr(s', b) == (b', b_type).
+\end{lstlisting}
+
+We can then 
 
 
 

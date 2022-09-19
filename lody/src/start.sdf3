@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Expr
+  Start Expr ID
 
 context-free syntax
 
@@ -27,6 +27,8 @@ context-free syntax
   
   Expr = "(" Expr ")" {bracket}
   
+  ID = RID
+  
 context-free priorities
   {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
   
@@ -35,25 +37,25 @@ context-free restrictions
   LAYOUT? -/- [\ \n\t\v\f\r]
   
 lexical sorts
-  ID
+  RID
 
 lexical syntax
 
   LAYOUT = [\ \n\t\v\f\r]
   
-  ID = [a-zA-Z\_] [a-zA-Z0-9\_]*
-  ID = "Type" {reject}
-  ID = "let" {reject}
-  ID = "true" {reject}
-  ID = "false" {reject}
-  ID = "Bool" {reject}
-  ID = "if" {reject}
-  ID = "then" {reject}
-  ID = "else" {reject}
-  ID = "end" {reject}
+  RID = [a-zA-Z\_] [a-zA-Z0-9\_]*
+  RID = "Type" {reject}
+  RID = "let" {reject}
+  RID = "true" {reject}
+  RID = "false" {reject}
+  RID = "Bool" {reject}
+  RID = "if" {reject}
+  RID = "then" {reject}
+  RID = "else" {reject}
+  RID = "end" {reject}
   
 lexical restrictions
 
-  ID -/- [a-zA-Z0-9\_]
+  RID -/- [a-zA-Z0-9\_]
 
 

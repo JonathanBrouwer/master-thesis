@@ -27,7 +27,7 @@ context-free syntax
   
   Expr = "(" Expr ")" {bracket}
   
-  ID = RID
+  ID.Syn = RID
   
 context-free priorities
   {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let

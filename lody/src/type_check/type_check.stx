@@ -22,9 +22,10 @@ rules
   typeOfExpr_(_, q@Type()) = (q, Type()).
   
   
-  typeOfExpr_(s, e@Var("_" : RID : ID)) = (Infer(q), qt) :-
+  typeOfExpr_(s, e@Var(Syn("_"))) = (Infer(q), qt) :-
   	(_, qt) == typeOfExpr(empty_scope(), q),
   	@e.Inferred := q.
+  	
   // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
   // They should just be flattened
   typeOfExpr_(s, Infer(q)) = (Infer(e), Infer(t)) :-

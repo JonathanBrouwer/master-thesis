@@ -35,7 +35,7 @@ rules // Analysis
       // Gets the type of the given node (or throws an error)
       type := <stx-get-ast-type(|a) <+ fail-msg(|$[no type on node [<strip-annos;write-to-string> expr]])> expr;
       
-      type' := <uniquify> (type, [])
+      type' := <remove-syns> <uniquify> (type, [])
     with <debug(!"RESULT: ")> <strip-annos> type'
       
   fail-msg(|msg) = err-msg(|$[get-type: [msg]]); fail
@@ -44,10 +44,11 @@ rules // Analysis
   downgrade-placeholders = downgrade-placeholders-lody
   upgrade-placeholders   = upgrade-placeholders-lody
   is-inj                 = is-lody-inj-cons
-  pp-partial             = pp-partial-lody-string
-//  pre-analyze            = explicate-injections-lody
-//  post-analyze           = implicate-injections-lody
-//  
+  pp-partial             = pp-partial-lody-string  
+
+  remove-syns-sub : Syn(n) -> n
+  remove-syns-sub : x -> x
+  remove-syns = bottomup(try(remove-syns-sub))
 
   uniquify :: Expr * List(ID) -> Expr
   uniquify : (Type(), _) -> Type()
@@ -81,11 +82,11 @@ rules // Analysis
   with rules( Rename : n1 -> n2 )
   
   find-new-name :: ID * List(ID) -> ID
-  find-new-name : ("_", _) -> "_"
+  find-new-name : (Syn("_"), _) -> Syn("_")
   find-new-name : (n1, names) -> n1
   where not(<elem> (<strip-annos> n1, names))
-  find-new-name : (n1, names) -> <find-new-name> (n2, names)
-  where <elem> (<strip-annos> n1, names)
+  find-new-name : (Syn(n1), names) -> <find-new-name> (Syn(n2), names)
+  where <elem> (<strip-annos> Syn(n1), names)
   with n2 := <conc-strings> (n1, "'")
 
 

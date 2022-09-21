@@ -93,6 +93,8 @@ let f = _ : (_: Type -> Type);
 g x
 ]] >=1 errors
 
+// This is theoretically solvable because we know `f x = Bool`, and x is free.
+// But my approach cannot solve it.
 test new infer 3 [[
 let f = _ : (_: Type -> Type);
 \x : Type.

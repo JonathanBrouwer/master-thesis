@@ -79,3 +79,25 @@ test infer function type via if 2 [[
 (\b: _. if true then b else Type end)
 ]] 0 errors
 
+test new infer [[
+\f : (_: Type -> Type).
+\g : (_: (f Bool) -> (f Bool)).
+\x : f _.
+g x
+]] 0 errors
+
+// Should actually fail
+// Because we don't know f
+test new infer 2 [[
+let f = _ : (_: Type -> Type);
+\g : (_: (f Bool) -> (f Bool)).
+\x : f _.
+g x
+]] 0 errors
+
+test new infer 3 [[
+let f = _ : (_: Type -> Type);
+\x : Type.
+\g: (_: (f x) -> Bool).
+g true
+]] 0 errors

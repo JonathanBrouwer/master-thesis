@@ -59,12 +59,16 @@ rules
   typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type}
   	// After beta reduction, the type of fn must be FnType
   	typeOfExpr(s, fn) == (fn', fn_type),
-  	betaReduceHead((empty_scope(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
+  	fixType(betaReduceHead((empty_scope(), fn_type))) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
   	typeOfExpr(s, arg) == (arg', arg_type),
   	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)) | error $[Expected [arg] to be of type [fn_arg_type], but found [arg_type]],
   	// Find body type with substitution needed
   	doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg')), fn_body_type) == fn_body_type'.
+  	
+  fixType : (scope * Expr) -> (scope * Expr)
+  fixType((s, Infer(e))) = (s, e).
+  fixType(x) = x.
   	
   typeOfExpr_(s, l@Let(n, v, b)) = (Let(n, v', b'), b_type) :-
   	typeOfExpr(s, v) == (v', _),

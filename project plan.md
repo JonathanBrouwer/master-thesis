@@ -44,4 +44,15 @@ Most interesting:
 [ ] Universe support (1-4 weeks?)
 
 
+- Add postulates
 
+FIX:
+```
+\f : (_: Type -> Type).
+\g : (_: f Bool -> f Bool).
+g
+```
+
+
+- Type elaboration in statix -> Add to paper
+- Msg daniel

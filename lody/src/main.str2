@@ -28,14 +28,14 @@ rules // Analysis
   
 //  get-type :: Expr -> Expr
   get-type : expr -> type' // Defines a rule which matches on node and returns type'
-    with <debug(!"CHECKING: ")> <strip-annos> expr
+    with <debug(!"CHECKING: ")> expr
     where
       // Assigns variable a to be the result of the Statix analysis of the entire program (or throws an error)
       a := <stx-get-ast-analysis <+ fail-msg(|$[no analysis on node [<strip-annos;write-to-string> expr]])>;
       // Gets the type of the given node (or throws an error)
       type := <stx-get-ast-type(|a) <+ fail-msg(|$[no type on node [<strip-annos;write-to-string> expr]])> expr;
       
-      type' := <remove-syns> (type)
+      type' := <uniquify> <strip-annos> type
 //      type'' := <uniquify> (type', [])
       
   fail-msg(|msg) = err-msg(|$[get-type: [msg]]); fail
@@ -46,9 +46,39 @@ rules // Analysis
   is-inj                 = is-lody-inj-cons
   pp-partial             = pp-partial-lody-string  
 
-  remove-syns-sub : Syn(n) -> n
-  remove-syns-sub : x -> x
-  remove-syns = bottomup(try(remove-syns-sub))
+//  remove-syns-sub : Syn(n) -> n
+//  remove-syns-sub : x -> x
+//  remove-syns = bottomup(try(remove-syns-sub))
+  
+  
+  uniquify-sub :: ? -> ?
+  uniquify-sub : s -> s'
+  where <is(ID)> s
+  where not(<Rename> s)
+  with <gen-name> s => s'
+  with rules( Rename : s -> s' )
+  
+  uniquify-sub : s -> s''
+  where <is(ID)> s
+  where <Rename> s => s''
+  
+  uniquify :: ? -> ?
+  uniquify = topdown(try(uniquify-sub))
+  
+  gen-name :: ID -> string
+  gen-name : Syn(s) -> <gen-name-s> s
+  
+  gen-name-s :: string -> string
+  gen-name-s : "_" -> "_"
+  gen-name-s : s -> s
+  where not(<RenameTaken> <strip-annos> s)
+  with rules( RenameTaken : <strip-annos> s -> s )
+  gen-name-s : s -> <gen-name-s> s'
+  where <RenameTaken> <strip-annos> s
+  with <conc-strings> (s, "'") => s'
+  
+  
+  
 
 //  uniquify :: ? * List(ID) -> ?
 //  uniquify : (Type(), _) -> Type()
@@ -67,10 +97,7 @@ rules // Analysis
 //  uniquify : (Var(n1), _) -> Var(n2)
 //  where <resolve-ref> n1 => d
 //  where <Rename> d => n2
-//  resolve-ref :: ? -> ?
-//  resolve-ref : node -> d
-//  where <stx-get-ast-analysis> node => analysis
-//  where <stx-get-ast-ref(|analysis); if is-list then Hd end> node => d
+  
 //  
 //  uniquify : (FnConstruct(n1, et, eb), names) -> FnConstruct(n2, <uniquify> (et, names), <uniquify> (eb, [<strip-annos> n2 | names]))
 //  with <find-new-name> (n1, names) => n2

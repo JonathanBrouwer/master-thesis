@@ -32,7 +32,7 @@ rules
   	q == e,
     typeOfExpr_(s, q) == (e, t).
   	
-  typeOfExpr_(s, q@Var(id)) = (q, typeOfNameEntry(scopeGetName(s, id))).
+  typeOfExpr_(s, q@Var(id)) = (q, typeOfNameEntry(scopeGetName(s, rid(id), id))).
   
   typeOfNameEntry : NameEntry -> Expr
   typeOfNameEntry(NameType(T)) = T.
@@ -45,7 +45,7 @@ rules
   	// Reduce arg_type
   	doLazySubsts(s, arg_type') == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
-  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), rtrn) == (rtrn', rtrn_type),
+  	typeOfExpr(scopePutType(s, rid(arg_name), arg_type_reduced), rtrn) == (rtrn', rtrn_type),
   	expectBetaEq((empty_scope(), rtrn_type), (empty_scope(), Type())) | error $[Expected [rtrn] to be a type, found [rtrn_type]].
   
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name, arg_type', body'), FnType(arg_name, arg_type_reduced, body_type)) :- {arg_type_type}
@@ -55,7 +55,7 @@ rules
   	// Reduce arg_type
   	doLazySubsts(s, arg_type') == arg_type_reduced,
   	// Now typecheck the body with the arg in scope
-  	typeOfExpr(scopePutType(s, arg_name, arg_type_reduced), body) == (body', body_type).
+  	typeOfExpr(scopePutType(s, rid(arg_name), arg_type_reduced), body) == (body', body_type).
   	
   typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type}
   	// After beta reduction, the type of fn must be FnType
@@ -65,11 +65,11 @@ rules
   	typeOfExpr(s, arg) == (arg', arg_type),
   	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)) | error $[Expected [arg] to be of type [fn_arg_type], but found [arg_type]],
   	// Find body type with substitution needed
-  	doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg')), fn_body_type) == fn_body_type'.
+  	doLazySubsts(scopePutSubst(sf, rid(fn_arg_name), (s, arg')), fn_body_type) == fn_body_type'.
   	
   typeOfExpr_(s, l@Let(n, v, b)) = (Let(n, v', b'), b_type) :-
   	typeOfExpr(s, v) == (v', _),
-  	typeOfExpr(scopePutSubst(s, n, (s, v')), b) == (b', b_type),
+  	typeOfExpr(scopePutSubst(s, rid(n), (s, v')), b) == (b', b_type),
   	@l.Inferred := betaReduce((s, v')).
   	
   typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}

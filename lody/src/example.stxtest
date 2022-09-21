@@ -1,8 +1,8 @@
-resolve {s}
+resolve {s x y z}
   new s
   
   //(\T : Type. \T : T. T)
-//  typeOfExpr(s, FnConstruct("T", Type(), FnConstruct("T", Var("T"), Var("T")))) == _
+  , typeOfExpr(s, FnConstruct(Syn("T"), Type(), FnConstruct(Syn("x"), Var(Syn("T")), Var(Syn("x"))))) == (x, y)
 
 
 imports

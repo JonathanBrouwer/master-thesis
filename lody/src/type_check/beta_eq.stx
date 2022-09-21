@@ -62,6 +62,13 @@ rules
   	expectBetaEq((s1, else1), (s2, else2)).
   	
   
+  //Also removes Infer at the start
+  betaReduceHeadFull : (scope * Expr) -> (scope * Expr)
+  betaReduceHeadFull(e) = betaReduceHeadFull_1(betaReduceHead(e)).
+    	
+  betaReduceHeadFull_1 : (scope * Expr) -> (scope * Expr)
+  betaReduceHeadFull_1((s, Infer(e))) = betaReduceHeadFull_1((s, e)).
+  betaReduceHeadFull_1(x) = x.
   
   betaReduceHead : (scope * Expr) -> (scope * Expr)
   betaReduceHead((s, e@Type())) = (s, e).

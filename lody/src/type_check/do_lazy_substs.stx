@@ -28,6 +28,8 @@ rules
   
   doLazySubsts(s, Infer(e)) = Infer(e).
   
+  doLazySubsts(s, TypeAssert(e1, e2)) = TypeAssert(doLazySubsts(s, e1), doLazySubsts(s, e2)).
+  
       
   // Semantic code completion
   doLazySubsts(_, Expr-Plhdr()) = _.

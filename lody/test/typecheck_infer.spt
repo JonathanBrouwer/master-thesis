@@ -86,18 +86,16 @@ test new infer [[
 g x
 ]] 0 errors
 
-// Should actually fail
-// Because we don't know f
 test new infer 2 [[
 let f = _ : (_: Type -> Type);
 \g : (_: (f Bool) -> (f Bool)).
 \x : f _.
 g x
-]] 0 errors
+]] >=1 errors
 
 test new infer 3 [[
 let f = _ : (_: Type -> Type);
 \x : Type.
 \g: (_: (f x) -> Bool).
 g true
-]] 0 errors
+]] >=1 errors

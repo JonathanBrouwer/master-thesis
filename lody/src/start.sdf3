@@ -30,7 +30,7 @@ context-free syntax
   ID.Syn = RID
   
 context-free priorities
-  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnType > Expr.FnDestruct > Expr.FnConstruct > Expr.Let
+  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnDestruct > Expr.FnType > Expr.FnConstruct > Expr.Let
   
 context-free restrictions
 

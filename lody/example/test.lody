@@ -1,1 +1,4 @@
-\vec: _: Bool -> Type.
+let f = _ : (_: Type -> Type);
+\x : Type.
+\g: (_: (f x) -> Bool).
+g true

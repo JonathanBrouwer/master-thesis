@@ -1,24 +1,5 @@
 resolve {s x y z n v' s' a b e' e_type t t' t_type e ss}
   new ss
-  
-  , typeOfExpr(ss, BoolType()) == (v', _)
-  , scopePutSubst(ss, rid(Syn("f")), (s, v')) == s,
-  
-  
-//  typeOfExpr_(s', TypeAssert(BoolTrue(), Var(Syn("f")))) == (x, y)
-  
-    t == Var(Syn("f")),
-    e == BoolTrue(),
-  
-//  typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
-    // t must be a type
-    typeOfExpr(s, t) == (t', t_type),
-//    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())) | error $[Expected [t] to be a type, found [t_type]],
-    // and the type of e must be t
-    typeOfExpr(s, e) == (e', e_type),
-    expectBetaEq((empty_scope(), e_type), (s, t'))
-  
-
 
 
 imports

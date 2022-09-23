@@ -11,23 +11,23 @@ constructors
   NameType : Expr -> NameEntry
   NameSubst : scope * Expr -> NameEntry
 relations
-  name : RID -> NameEntry
+  name : ID -> NameEntry
 name-resolution
   labels P
   
 rules
 
-  scopePutType : scope * RID * Expr -> scope
+  scopePutType : scope * ID * Expr -> scope
   scopePutType(s, id, t) = s' :-
   	new s', s' -P-> s,
   	!name[id, NameType(t)] in s'.
   	
-  scopePutSubst : scope * RID * (scope * Expr) -> scope
+  scopePutSubst : scope * ID * (scope * Expr) -> scope
   scopePutSubst(s, id, (sv, v)) = s' :-
   	new s', s' -P-> s,
   	!name[id, NameSubst(sv, v)] in s'.
   	
-  scopeGetName : scope * RID -> (NameEntry * scope)
+  scopeGetName : scope * ID -> (NameEntry * scope)
   scopeGetName(s, rid) = (result, s') :- {id'}
   	scopeGetScopes(s, rid) == [(_, s')] | error $[Unknown variable [rid] in [s]],
   	scopeGetLocalNames(s', rid) == [(_, (id', result))],
@@ -37,31 +37,28 @@ rules
 //  scopeGetEntry(s) = r :-
 //    query name filter e in s |-> [(_, (_, r))].
 //  	
-  scopeGetNameOpt : scope * RID -> list((NameEntry * scope))
+  scopeGetNameOpt : scope * ID -> list((NameEntry * scope))
   scopeGetNameOpt(s, rid) = scopeGetNameOpt_1(rid, scopeGetScopes(s, rid)).
   	
-  scopeGetNameOpt_1 : RID * list((path * scope)) -> list((NameEntry * scope))
+  scopeGetNameOpt_1 : ID * list((path * scope)) -> list((NameEntry * scope))
   scopeGetNameOpt_1(_, []) = [].
   scopeGetNameOpt_1(rid, [(_, s') | _]) = [(result, s')] :- {id'}
   	scopeGetLocalNames(s', rid) == [(_, (id', result))],
   	@rid.ref := id'.
   	
-  scopeGetScopes : scope * RID -> list((path * scope))
+  scopeGetScopes : scope * ID -> list((path * scope))
   scopeGetScopes(s, id) = results :-
   	query () filter P* and { s' :- scopeGetLocalNames(s', id) == [_ | _] } min $ < P in s |-> results.
   	
-  scopeGetLocalNames : scope * RID -> list((path * (RID * NameEntry)))
+  scopeGetLocalNames : scope * ID -> list((path * (ID * NameEntry)))
   scopeGetLocalNames(s, id) = results :-
   	query name filter e and { id' :- id' == id } min $ < P in s |-> results.
 
-  scopeGetNames : scope * RID -> list((path * (RID * NameEntry)))
+  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
   scopeGetNames(s, id) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
 
   empty_scope : -> scope
   empty_scope() = s :- new s.
-  
-  rid : ID -> RID
-  rid(Syn(n)) = n.
-//  rid(ScopedName(n, _)) = n.
+
   

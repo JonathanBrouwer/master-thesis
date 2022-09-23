@@ -12,8 +12,6 @@ imports
   libstratego-gpp
   libspoofax/sdf/pp
   
-signature constructors
-  Infer : Expr -> Expr
 
 rules // Analysis
 
@@ -64,8 +62,6 @@ rules // Analysis
   where <is(ID)> s
   where <Rename> s => s''
   
-  uniquify-sub : Infer(e) -> e
-  
   uniquify :: ? -> ?
   uniquify = topdown(try(uniquify-sub))
   
@@ -80,6 +76,45 @@ rules // Analysis
   gen-name-s : s -> <gen-name-s> s'
   where <RenameTaken> <strip-annos> s
   with <conc-strings> (s, "'") => s'
+  
+  
+  
+
+//  uniquify :: ? * List(ID) -> ?
+//  uniquify : (Type(), _) -> Type()
+//  uniquify : (FnDestruct(e1, e2), names) -> FnDestruct(<uniquify> (e1, names), <uniquify> (e2, names))
+//  
+//  uniquify : (BoolType(), names) -> BoolType()
+//  uniquify : (BoolTrue(), names) -> BoolTrue()
+//  uniquify : (BoolFalse(), names) -> BoolFalse()
+//  uniquify : (BoolIf(c, e1, e2), names) -> BoolIf(<uniquify> (c, names), <uniquify> (e1, names), <uniquify> (e2, names))
+//  
+//  
+//  uniquify : (Let(n1, a, b), names) -> Let(n2, <uniquify> (a, names), <uniquify> (b, [<strip-annos> n2 | names]))
+//  with <find-new-name> (n1, names) => n2
+//  with rules( Rename : n1 -> n2 )
+//  
+//  uniquify : (Var(n1), _) -> Var(n2)
+//  where <resolve-ref> n1 => d
+//  where <Rename> d => n2
+  
+//  
+//  uniquify : (FnConstruct(n1, et, eb), names) -> FnConstruct(n2, <uniquify> (et, names), <uniquify> (eb, [<strip-annos> n2 | names]))
+//  with <find-new-name> (n1, names) => n2
+//  with rules( Rename : n1 -> n2 )
+//  
+//  uniquify : (FnType(n1, et, eb), names) -> FnType(n2, <uniquify> (et, names), <uniquify> (eb, [<strip-annos> n2 | names]))
+//  with <find-new-name> (n1, names) => n2
+//  with <debug(!"RENAMED: ")> (<strip-annos> n1, <strip-annos> n2, <strip-annos> names)
+//  with rules( Rename : n1 -> n2 )
+//  
+//  find-new-name :: string * List(string) -> string
+//  find-new-name : ("_", _) -> "_"
+//  find-new-name : (n1, names) -> n1
+//  where not(<elem> (<strip-annos> n1, names))
+//  find-new-name : (n1, names) -> <find-new-name> (n2, names)
+//  where <elem> (<strip-annos> Syn(n1), names)
+//  with n2 := <conc-strings> (n1, "'")
 
 
 

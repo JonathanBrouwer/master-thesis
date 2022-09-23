@@ -119,7 +119,7 @@ rules
   betaReduce_((s, e@BoolType())) = e.
   betaReduce_((s, BoolIf(c, t, e))) = BoolIf(betaReduce((s, c)), betaReduce((s, t)), betaReduce((s, e))).
   
-  betaReduce_((_, Infer(e))) = Infer(e).
+  betaReduce_((_, Infer(e))) = e.
   
   
   // Semantic code completion

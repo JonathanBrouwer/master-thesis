@@ -74,9 +74,14 @@ rules
   betaReduceHead((s, e@Type())) = (s, e).
   
   //This is wrong, we should find the entry in the scope graph that id `ref`s to.
-  betaReduceHead((s, e@Var(id))) = betaReduceHeadVar(id, scopeGetNames(s, rid(id))).
-  betaReduceHeadVar : ID * list((path * (RID * NameEntry))) -> (scope * Expr)
-  betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _]) = betaReduceHead((sw, w)).
+//  betaReduceHead((s, e@Var(id))) = betaReduceHeadVar(id, scopeGetNames(s, rid(id))).
+//  betaReduceHeadVar : ID * list((path * (RID * NameEntry))) -> (scope * Expr)
+//  betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _]) = betaReduceHead((sw, w)).
+//  betaReduceHeadVar(id, _) = (empty_scope(), Var(id)).
+  
+  betaReduceHead((s, e@Var(id))) = betaReduceHeadVar(id, scopeGetNameOpt(s, rid(id))).
+  betaReduceHeadVar : ID * list((NameEntry * scope)) -> (scope * Expr)
+  betaReduceHeadVar(_, [(NameSubst(sw, w), _) | _]) = betaReduceHead((sw, w)).
   betaReduceHeadVar(id, _) = (empty_scope(), Var(id)).
   
   betaReduceHead((s, e@AlphaEqVars(_, _))) = (s, e).

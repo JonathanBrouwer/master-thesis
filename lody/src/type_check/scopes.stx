@@ -27,11 +27,33 @@ rules
   	new s', s' -P-> s,
   	!name[id, NameSubst(sv, v)] in s'.
   	
-  scopeGetName : scope * RID * ID -> NameEntry
-  scopeGetName(s, rid, id) = result :- {id'}
-  	scopeGetNames(s, rid) == [(_, (id', result))] | error $[Unknown variable [rid] in [s]],
+  scopeGetName : scope * RID -> (NameEntry * scope)
+  scopeGetName(s, rid) = (result, s') :- {id'}
+  	scopeGetScopes(s, rid) == [(_, s')] | error $[Unknown variable [rid] in [s]],
+  	scopeGetLocalNames(s', rid) == [(_, (id', result))],
   	@rid.ref := id'.
-  
+  	
+//  scopeGetEntry : scope -> NameEntry
+//  scopeGetEntry(s) = r :-
+//    query name filter e in s |-> [(_, (_, r))].
+//  	
+  scopeGetNameOpt : scope * RID -> list((NameEntry * scope))
+  scopeGetNameOpt(s, rid) = scopeGetNameOpt_1(rid, scopeGetScopes(s, rid)).
+  	
+  scopeGetNameOpt_1 : RID * list((path * scope)) -> list((NameEntry * scope))
+  scopeGetNameOpt_1(_, []) = [].
+  scopeGetNameOpt_1(rid, [(_, s') | _]) = [(result, s')] :- {id'}
+  	scopeGetLocalNames(s', rid) == [(_, (id', result))],
+  	@rid.ref := id'.
+  	
+  scopeGetScopes : scope * RID -> list((path * scope))
+  scopeGetScopes(s, id) = results :-
+  	query () filter P* and { s' :- scopeGetLocalNames(s', id) == [_ | _] } min $ < P in s |-> results.
+  	
+  scopeGetLocalNames : scope * RID -> list((path * (RID * NameEntry)))
+  scopeGetLocalNames(s, id) = results :-
+  	query name filter e and { id' :- id' == id } min $ < P in s |-> results.
+
   scopeGetNames : scope * RID -> list((path * (RID * NameEntry)))
   scopeGetNames(s, id) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
@@ -41,5 +63,5 @@ rules
   
   rid : ID -> RID
   rid(Syn(n)) = n.
-  
+//  rid(ScopedName(n, _)) = n.
   

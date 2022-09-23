@@ -10,10 +10,17 @@ rules
   // Applies the substitutions to the given expressions
   doLazySubsts : scope * Expr -> Expr
   doLazySubsts(_, Type()) = Type().
+  
   doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNames(s, rid(n))).
   doLazySubstsName : ID * list((path * (RID * NameEntry))) -> Expr
   doLazySubstsName(n, [(_, (_, NameSubst(sw, w))) | _]) = doLazySubsts(sw, w).
   doLazySubstsName(n, _) = Var(n).
+  
+//  doLazySubsts(s, Var(n)) = doLazySubstsName(n, scopeGetNameOpt(s, rid(n))).
+//  doLazySubstsName : ID * list((NameEntry * scope)) -> Expr
+//  doLazySubstsName(n, [(NameSubst(sw, w), _) | _]) = doLazySubsts(sw, w).
+//  doLazySubstsName(n, _) = Var(n).
+  
   doLazySubsts(s, FnType(arg_name, arg_type, rtrn)) = 
   	FnType(arg_name, doLazySubsts(s, arg_type), doLazySubsts(scopePutType(s, rid(arg_name), Type()), rtrn)).
   doLazySubsts(s, FnConstruct(arg_name, arg_type, body)) = 

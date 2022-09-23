@@ -161,3 +161,8 @@ test wrong order substs 5 [[
 ]]
 ]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
 
+test type via var [[
+let f = Bool;
+true : f
+]] 0 errors
+

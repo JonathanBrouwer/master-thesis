@@ -1,4 +1,2 @@
-let f = _ : (_: Type -> Type);
-\x : Type.
-\g: (_: (f x) -> Bool).
-g true
+let f = Bool;
+true : f

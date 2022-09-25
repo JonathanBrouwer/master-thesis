@@ -12,6 +12,9 @@ imports
   libstratego-gpp
   libspoofax/sdf/pp
   
+signature constructors
+  Infer : Expr -> Expr
+  ScopedName : ? * RID -> ID
 
 rules // Analysis
 
@@ -36,7 +39,7 @@ rules // Analysis
       type := <stx-get-ast-type(|a) <+ fail-msg(|$[no type on node [<strip-annos;write-to-string> expr]])> expr;
       
       type' := <uniquify> <strip-annos> type
-//      type'' := <uniquify> (type', [])
+//      type' := <strip-annos> type
       
   fail-msg(|msg) = err-msg(|$[get-type: [msg]]); fail
   
@@ -56,6 +59,7 @@ rules // Analysis
   where <is(ID)> s
   where not(<Rename> s)
   with <gen-name> s => s'
+  with <debug(!"RENAME: ")> (s, s')
   with rules( Rename : s -> s' )
   
   uniquify-sub : s -> s''
@@ -67,14 +71,15 @@ rules // Analysis
   
   gen-name :: ID -> string
   gen-name : Syn(s) -> <gen-name-s> s
+  gen-name : ScopedName(_, s) -> <gen-name-s> s
   
   gen-name-s :: string -> string
   gen-name-s : "_" -> "_"
   gen-name-s : s -> s
-  where not(<RenameTaken> <strip-annos> s)
-  with rules( RenameTaken : <strip-annos> s -> s )
+  where not(<RenameTaken> s)
+  with rules( RenameTaken : s -> s )
   gen-name-s : s -> <gen-name-s> s'
-  where <RenameTaken> <strip-annos> s
+  where <RenameTaken> s
   with <conc-strings> (s, "'") => s'
   
   

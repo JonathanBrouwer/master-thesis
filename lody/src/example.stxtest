@@ -1,5 +1,14 @@
 resolve {s x y z n v' s' a b e' e_type t t' t_type e ss}
   new ss
+  
+  //let f = \y:Type. y; f
+  
+  , typeOfExpr(ss, 
+  	Let(Syn("f"), FnConstruct(Syn("y"), Type(), Var(Syn("y"))),
+  		Var(Syn("f"))
+  	)
+  ) == (x, y)  
+
 
 
 imports

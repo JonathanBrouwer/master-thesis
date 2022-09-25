@@ -3,6 +3,7 @@ module type_check/scopes
 imports
 
   signatures/start-sig
+  type_check/type_check
   
 signature
 sorts
@@ -29,36 +30,20 @@ rules
   	
   scopeGetName : scope * ID -> (NameEntry * scope)
   scopeGetName(s, rid) = (result, s') :- {id'}
-  	scopeGetScopes(s, rid) == [(_, s')] | error $[Unknown variable [rid] in [s]],
-  	scopeGetLocalNames(s', rid) == [(_, (id', result))],
+  	scopeGetNames(s, rid) == [(_, (id'@ScopedName(s', _), result))] | error $[Unknown variable [rid] in [s]],
   	@rid.ref := id'.
-  	
-//  scopeGetEntry : scope -> NameEntry
-//  scopeGetEntry(s) = r :-
-//    query name filter e in s |-> [(_, (_, r))].
-//  	
-  scopeGetNameOpt : scope * ID -> list((NameEntry * scope))
-  scopeGetNameOpt(s, rid) = scopeGetNameOpt_1(rid, scopeGetScopes(s, rid)).
-  	
-  scopeGetNameOpt_1 : ID * list((path * scope)) -> list((NameEntry * scope))
-  scopeGetNameOpt_1(_, []) = [].
-  scopeGetNameOpt_1(rid, [(_, s') | _]) = [(result, s')] :- {id'}
-  	scopeGetLocalNames(s', rid) == [(_, (id', result))],
-  	@rid.ref := id'.
-  	
-  scopeGetScopes : scope * ID -> list((path * scope))
-  scopeGetScopes(s, id) = results :-
-  	query () filter P* and { s' :- scopeGetLocalNames(s', id) == [_ | _] } min $ < P in s |-> results.
-  	
-  scopeGetLocalNames : scope * ID -> list((path * (ID * NameEntry)))
-  scopeGetLocalNames(s, id) = results :-
-  	query name filter e and { id' :- id' == id } min $ < P in s |-> results.
 
   scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
-  scopeGetNames(s, id) = results :-
+  scopeGetNames(s, Syn(n)) = results :-
+  	query name filter P* and { id' :- rid(id') == n } min $ < P in s |-> results.
+  scopeGetNames(s, id@ScopedName(_, _)) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
 
   empty_scope : -> scope
   empty_scope() = s :- new s.
+  
+  rid : ID -> RID
+  rid(Syn(n)) = n.
+  rid(ScopedName(_, n)) = n.
 
   

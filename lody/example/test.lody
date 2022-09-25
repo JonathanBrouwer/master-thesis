@@ -1,2 +1,3 @@
-let f = Bool;
-true : f
+let x = Type;
+let y = x;
+y

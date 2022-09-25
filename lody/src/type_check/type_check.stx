@@ -4,7 +4,6 @@ imports
   signatures/start-sig
   type_check/beta_eq
   type_check/scopes
-  type_check/do_lazy_substs
   
 signature constructors
   Infer : Expr -> Expr
@@ -50,7 +49,7 @@ rules
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
   	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
   	// Reduce arg_type
-  	doLazySubsts(s, arg_type') == arg_type_reduced,
+  	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
   	scopePutType(s, arg_name', arg_type_reduced) == s',
   	typeOfExpr(s', rtrn) == (rtrn', rtrn_type),
@@ -63,12 +62,12 @@ rules
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
   	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
   	// Reduce arg_type
-  	doLazySubsts(s, arg_type') == arg_type_reduced,
+  	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the body with the arg in scope
   	scopePutType(s, arg_name', arg_type_reduced) == s',
   	typeOfExpr(s', body) == (body', body_type).
   	
-  typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type}
+  typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type s'}
   	// After beta reduction, the type of fn must be FnType
   	typeOfExpr(s, fn) == (fn', fn_type),
   	betaReduceHeadFull((empty_scope(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
@@ -76,7 +75,8 @@ rules
   	typeOfExpr(s, arg) == (arg', arg_type),
   	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
   	// Find body type with substitution needed
-  	doLazySubsts(scopePutSubst(sf, fn_arg_name, (s, arg')), fn_body_type) == fn_body_type'.
+  	scopePutSubst(sf, fn_arg_name, (s, arg')) == s',
+  	betaReduce((s', fn_body_type)) == fn_body_type'.
   	
   typeOfExpr_(s, l@Let(n, v, b)) = (Let(n', v', b'), b_type) :- {s'}
   	scopeName(s', n) == n',

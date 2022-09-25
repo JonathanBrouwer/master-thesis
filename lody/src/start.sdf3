@@ -18,6 +18,8 @@ context-free syntax
   Expr.FnType = ID ":" Expr "->" Expr {right}
   Expr.FnConstruct = "\\" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
+  
+  Expr.Postulate = "postulate" ID ":" Expr
   Expr.TypeAssert = Expr ":" Expr
   
   Expr.BoolTrue = "true"
@@ -53,6 +55,7 @@ lexical syntax
   RID = "then" {reject}
   RID = "else" {reject}
   RID = "end" {reject}
+  RID = "postulate" {reject}
   
 lexical restrictions
 

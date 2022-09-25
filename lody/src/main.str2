@@ -66,6 +66,8 @@ rules // Analysis
   where <is(ID)> s
   where <Rename> s => s''
   
+  uniquify-sub : Infer(e) -> e
+  
   uniquify :: ? -> ?
   uniquify = topdown(try(uniquify-sub))
   

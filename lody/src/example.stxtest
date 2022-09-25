@@ -1,13 +1,18 @@
-resolve {s x y z n v' s' a b e' e_type t t' t_type e ss}
-  new ss
+resolve {s x y e' t' e_type t_type}
+  new s,
   
-  //let f = \y:Type. y; f
+  //(\x : Type. x) : _
   
-  , typeOfExpr(ss, 
-  	Let(Syn("f"), FnConstruct(Syn("y"), Type(), Var(Syn("y"))),
-  		Var(Syn("f"))
-  	)
-  ) == (x, y)  
+	typeOfExpr(s, Var(Syn("_"))) == (t', t_type),
+	typeOfExpr(s, FnConstruct(Syn("x"), Type(), Var(Syn("x")))) == (e', e_type),
+	expectBetaEq((empty_scope(), e_type), (s, t'))
+  
+//  , typeOfExpr(ss, 
+//  	TypeAssert(
+//		FnConstruct(Syn("x"), Type(), Var(Syn("x"))),
+//		Var(Syn("_"))  	
+//  	)
+//  ) == (x, y)  
 
 
 

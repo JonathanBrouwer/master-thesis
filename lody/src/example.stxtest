@@ -20,7 +20,6 @@ imports
   signatures/start-sig
   type_check/beta_eq
   type_check/scopes
-  type_check/do_lazy_substs
   type_check/type_check
   
   

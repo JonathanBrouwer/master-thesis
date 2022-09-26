@@ -31,7 +31,7 @@ context-free priorities
 
 \section{How scope graphs are used}
 
-To type-check the base language, we need to scope graphs. This section describes how scope graphs are used.
+To type-check the base language, we need to scope graph, this section describes how scope graphs are used.
 
 The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
 
@@ -46,7 +46,15 @@ relations
 name-resolution	labels P
 \end{lstlisting}
 
-These are all the definitions we will need to type-check programs. 
+These are all the definitions we will need to type-check programs. Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
+
+\begin{lstlisting}
+scopePutType : scope * ID * Expr -> scope
+scopePutSubst : scope * ID * (scope * Expr) -> scope
+scopeGetName : scope * ID -> (NameEntry * scope)
+scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
+empty_scope : -> scopes
+\end{lstlisting}
 
 \section{Typechecking programs}
 

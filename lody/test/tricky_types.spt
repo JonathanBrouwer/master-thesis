@@ -54,6 +54,15 @@ let doubled = (two Type Type (\T: Type. (X: Type -> T))) : Type;
 (\x: Type. \y: Type. Type) : doubled
 ]] 0 errors
 
+test postulate 1 [[
+postulate x : (_: Type -> Bool);
+[[x]]
+]] 0 errors run get-type on #1 to FnType("_", Type(), BoolType())
+
+test postulate 2 [[
+postulate x : (_: Type -> Bool);
+[[x Bool]]
+]] 0 errors run get-type on #1 to BoolType()
 
 
 

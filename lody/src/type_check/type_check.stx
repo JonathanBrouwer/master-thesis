@@ -86,6 +86,15 @@ rules
   	typeOfExpr(s', b) == (b', b_type),
   	@l.Inferred := betaReduce((s, v')).
   	
+  typeOfExpr_(s, Postulate(n, t, b)) = (Postulate(n', t', b'), b_type) :- {s' t_type t''}
+  	scopeName(s', n) == n',
+    // t must be a type
+    typeOfExpr(s, t) == (t', t_type),
+    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
+    betaReduce((s, t')) == t'',
+  	scopePutType(s, n', t'') == s',
+  	typeOfExpr(s', b) == (b', b_type).
+  
   typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
     // t must be a type
     typeOfExpr(s, t) == (t', t_type),

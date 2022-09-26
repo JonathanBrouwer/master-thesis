@@ -19,7 +19,7 @@ context-free syntax
   Expr.FnConstruct = "\\" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
   
-  Expr.Postulate = "postulate" ID ":" Expr
+  Expr.Postulate = [postulate [ID]: [Expr]; [Expr]]
   Expr.TypeAssert = Expr ":" Expr
   
   Expr.BoolTrue = "true"
@@ -32,7 +32,7 @@ context-free syntax
   ID.Syn = RID
   
 context-free priorities
-  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnDestruct > Expr.FnType > Expr.FnConstruct > Expr.Let
+  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnDestruct > Expr.FnType > Expr.FnConstruct > {left: Expr.Let Expr.Postulate}
   
 context-free restrictions
 

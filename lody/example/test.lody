@@ -1,3 +1,2 @@
-let x = Type;
-let y = x;
-y
+postulate x: Type;
+x

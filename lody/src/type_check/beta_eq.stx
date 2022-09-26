@@ -91,6 +91,7 @@ rules
   
   betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
   
+  betaReduceHead((s, Postulate(n, t, b))) = betaReduceHead((s, b)).
   betaReduceHead((s, TypeAssert(e, _))) = betaReduceHead((s, e)).
   
   betaReduceHead((s, e@BoolTrue())) = (s, e).

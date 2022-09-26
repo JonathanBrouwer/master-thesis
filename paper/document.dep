@@ -139,5 +139,6 @@
   *{file}   {100-introduction.tex}{0000/00/00 v0.0}
   *{file}   {200-base-language.tex}{0000/00/00 v0.0}
   *{file}   {300-name-collisions.tex}{0000/00/00 v0.0}
+  *{file}   {600-related-work.tex}{0000/00/00 v0.0}
   *{file}   {mt-cmr.cfg}  {2013/05/19 v2.2}
 }

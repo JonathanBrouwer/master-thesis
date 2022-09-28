@@ -26,9 +26,6 @@ context-free priorities
 		> Expr.FnConstruct > Expr.Let
 \end{lstlisting}
 
-\section{Static Analysis}
-
-
 \section{How scope graphs are used}
 
 To type-check the base language, we need to scope graph, this section describes how scope graphs are used.
@@ -51,39 +48,62 @@ These are all the definitions we will need to type-check programs. Next, we will
 \begin{lstlisting}
 scopePutType : scope * ID * Expr -> scope
 scopePutSubst : scope * ID * (scope * Expr) -> scope
-scopeGetName : scope * ID -> (NameEntry * scope)
+scopeGetName : scope * ID -> NameEntry
 scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
-empty_scope : -> scopes
+empty_scope : -> scope
 \end{lstlisting}
+
+The \verb|scopePutType| and \verb|scopePutSubsts| relations generate a new scope given a parent scope and a type or substitution respectively. To query the scope graph, use \verb|scopeGetName| or \verb|scopeGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|empty_scope| returns a fresh empty scope.
 
 \section{Typechecking programs}
 
-We will define a statix relation \verb|typeOfExpr| that takes a scope and an expression and typechecks the scope in the expression. It returns two expressions, the first being the expression that was input (this will be changed when we add inference), and the second being the type of the input expression.
+We will define a statix relation \verb|typeOfExpr| that takes a scope and an expression and typechecks the scope in the expression. It returns the type of the expression.
 
 \begin{lstlisting}
-typeOfExpr : scope * Expr -> (Expr * Expr)
+typeOfExpr : scope * Expr -> Expr
 \end{lstlisting}
 
-\subsection{Let bindings and variables}
+\subsection{Typechecking Type, Let bindings and Variables}
+
+The \verb|Type| expression, being the Type of Types, has itself as its Type.
+
+\begin{lstlisting}
+typeOfExpr(_, Type()) = Type().
+\end{lstlisting}
 
 Let bindings are typechecked by first typechecking the value that was bound, and then putting this as a substitution in the scope graph. This new scope is then used to typecheck the body.
 
 \begin{lstlisting}
-typeOfExpr_(s, l@Let(n, v, b)) = (Let(n, v', b'), b_type) :- {s'}
-	typeOfExpr(s, v) == (v', _),
-	scopePutSubst(s, n, (s, v')) == s',
-	typeOfExpr(s', b) == (b', b_type).
+typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
+	typeOfExpr(s, v) == _,
+	scopePutSubst(s, n, (s, v)) == s'.
 \end{lstlisting}
 
-We can then 
+We can then typecheck variables by querying the scope graph using \verb|scopeGetName|. Then, we need to define a relation \verb|typeOfNameEntry| that takes the \verb|NameEntry|, if it is a \verb|NameType| returns the type, and if it is a \verb|NameSubst| computes the type of the substitution \footnote{Note that as an optimization, to avoid recomputing the type each time the variable is used, we could compute the type of the NameSubst when we create the NameEntry. To keep the implementation as simple as possible, we didn't do this for now.}. 
+
+\begin{lstlisting}
+typeOfExpr(s, Var(id)) = typeOfNameEntry(scopeGetName(s, id)).
+typeOfNameEntry : NameEntry -> Expr
+typeOfNameEntry(NameType(T)) = T.
+typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
+\end{lstlisting}
+
+\subsection{Typechecking Functions}
+
+Functions consist of three different expressions, \verb|FnType|, the type of functions, \verb|FnConstruct|, the constructor for functions (a lambda function) and \verb|FnDestruct|, the destructor for functions (function application).
+
+ The type of a \verb|FnType| expression is \verb|Type|, however we do need to typecheck the subexpressions. The argument type can be typechecked using the same scope, but because this is a dependently typed language, the return type may contain references to the name of the argument. Thus, we need to add the type of the variable to the scope before typechecking the return type. We then check that both the argument type and the return type are types, by checking that their type is beta equal to \verb|Type|.
+ 
+\begin{lstlisting}
+typeOfExpr(s, FnType(arg_name, arg_type, rtrn_type)) = Type() :- {s'}
+    expectBetaEq((empty_scope(), typeOfExpr(s, arg_type)), (empty_scope(), Type())),
+    scopePutType(s, arg_name, betaReduce((s, arg_type))) == s',
+	expectBetaEq((empty_scope(), typeOfExpr(s', rtrn_type)), (empty_scope(), Type())).
+\end{lstlisting}
+
+Next, ...
+
+\subsection{Beta Reductions}
+//todo
 
 
-
-
-
-\section{Garbage}
-
-- Base language is calculus of constructions with lets + type assertions (move type assertions to sec 5?)
-- Describe syntax of the base language?
-- Describe rules of base language (statix syntax or mathy?)
-- Scope graphs for substitutions + scopes

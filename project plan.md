@@ -16,13 +16,6 @@ Projects:
     - Using spoofax things, would really like support for checking .ref properties
     - Using uniquify stages, at the end was implemented but too late. At the start breaks spoofax
 
-
-TODO:
-[x] Steal tests from pi for all
-[x] change / to \
-[ ] read "Scopes as types" -> how do system f
-    -> My approach of substitution is the same as section 2.5
-
 Most interesting:
 [ ] Language-parametric services exploration (few weeks?)
     - Code completion + Renaming
@@ -30,18 +23,27 @@ Most interesting:
     - code completion -> contact daniel pelsmaeker
         - What is Plhdr? -> Placeholder
 
-[ ] Implicit arguments (not sure?)
+[x] Implicit arguments (not sure?)
     - when using _ variable
     - to ensure no free metavars, make rule that matches everything
     - add meta variable during typechecking
     - unif sigma paper http://www.cse.chalmers.se/~abela/unif-sigma-long.pdf
     - https://kilthub.cmu.edu/articles/journal_contribution/Optimizing_Higher-Order_Pattern_Unification/6608198/1
 
-[ ] Inductive data types with positivity + coverage checking (1-4 weeks?)
+[ ] Inductive data types with positivity + coverage checking
     - Start with bools+nats, vecs?
-[ ] Adding synctactic sugar (1 week)
-[ ] Fixpoints and termination checking (1-4 weeks?)
-[ ] Universe support (1-4 weeks?)
+    -  natural number eliminator
+    
+    elimNat : (P : Nat -> Type) (pzero : P zero) (psuc : (n : Nat) -> P n -> P (suc n)) -> (n : Nat) -> P n
+    elimBool : (P : Bool -> Type) (pfalse : P false) (ptrue : P true) -> (b : Bool) -> P b
+    
+    elimBool : (Pfalse : Type) (Ptrue : Type) (pfalse : Pfalse) (ptrue : Ptrue) -> (b : Bool) -> P b
+    
+    elimVec : ???
+    
+[ ] Adding synctactic sugar
+[ ] Fixpoints and termination checking
+[ ] Universe support
 
 
 - Add postulates

@@ -88,6 +88,17 @@ typeOfNameEntry(NameType(T)) = T.
 typeOfNameEntry(NameSubst(se, e)) = typeOfExpr(se, e).
 \end{lstlisting}
 
+\subsection{Beta Reductions}
+A unique requirement for dependently typed languages is beta reduction during typechecking, since types may require evaluation to compare.  In this section, we will define three rules, \verb|expectBetaEq|, which compares two expressions and checks if they're equal, \verb|betaReduce|, which fully evaluates an expression, and \verb|betaReduceHead|, which evaluates the head of an expression.
+
+Starting with the latter, the signature of \verb|betaReduceHead| is the following, taking in an expression with a scope, and also returning and expression with a possibly different scope.
+
+\begin{lstlisting}
+betaReduceHead : (scope * Expr) -> (scope * Expr)
+\end{lstlisting}
+
+
+
 \subsection{Typechecking Functions}
 
 Functions consist of three different expressions, \verb|FnType|, the type of functions, \verb|FnConstruct|, the constructor for functions (a lambda function) and \verb|FnDestruct|, the destructor for functions (function application).
@@ -103,7 +114,5 @@ typeOfExpr(s, FnType(arg_name, arg_type, rtrn_type)) = Type() :- {s'}
 
 Next, ...
 
-\subsection{Beta Reductions}
-//todo
 
 

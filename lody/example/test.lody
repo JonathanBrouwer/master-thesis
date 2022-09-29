@@ -1,2 +1,1 @@
-postulate x: Type;
-x
+[[Expr]]

@@ -13,7 +13,6 @@ rules
   
   expectBetaEq : (scope * Expr) * (scope * Expr)
   expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
-  
   expectBetaEq_ : (scope * Expr) * (scope * Expr)
   
   

@@ -2,14 +2,55 @@
 
 \chapter{\label{chap:namecolls}Solving Name Collisions}
 
+The implementation of the base language shown in section \ref{chap:baselang} has one big problem, that is name collisions. This section will explore several ways of solving these collisions. An example of such a collision is the following: What is the type of this expression (a polymorphic identity function)?
+\begin{lstlisting}
+\T : Type. \T : T. T
+\end{lstlisting}
+
+The algorithm so far would tell you it is \verb|T : Type -> T : T -> T|. Given the scoping rules of the language, that is equivalent to \verb|T : Type -> x : T -> x|. However, the correct answer would be \verb|T : Type -> x : T -> T|. There is no way of expressing this type without renaming a variable.
+
+\section{In depth: Why does this happen?}
+
+In this section, we will step through the steps that happen during the type checking of the term above, to explain why the incorrect type signature is returned. To find the type, the following is evaluated:
+
+\begin{lstlisting}
+typeOfExpr(_, FnConstruct("T", Type(), FnConstruct("T", Var("T"), Var("T"))))
+\end{lstlisting}
+
+\noindent
+This creates a new node in the scope graph, and then type checks the body with this scope.
+
+\begin{lstlisting}
+typeOfExpr(s1, FnConstruct("T", Var("T"), Var("T")))
+
+(T : Type)
+   [s1]
+\end{lstlisting}
+
+\noindent
+The same thing happens, the body of the \verb|FnConstruct| is typechecked with a new scope.
+
+\begin{lstlisting}
+typeOfExpr(s2, Var("T"))
+	
+(T : Type)      (T : Var("T"))
+	[s1]<-----------[s2]
+\end{lstlisting}
+
+Finally, we need to find the type of \verb|T|. This finds the lexically closest definition of \verb|T| (the one in s2), which is correct. But the type of \verb|T| is \verb|T|, which does NOT refer to the lexically closest \verb|T|, but instead to the \verb|T| in s1. This situation, in which a type can contain a reference to a variable that is shadowed, is the problem. We need to find a way to make sure that shadowing like this can never happen.
+
+\section{Solutions}
+
+\subsection{De Bruijn Indices}
+
+Almost all compilers that typecheck dependently typed languages use de Bruijn representation for variables \cite{TODO agda lean etc}. Using de Bruijn indices in statix is possible, but sacrifices a lot. It would require a transformation on the AST before typechecking. Modifying the AST like this causes problems, because it changes AST nodes. All editor services that rely on \verb|.ref| annotations, such as renaming, can no longer be used. It also loses a lot of the benefits of using Spoofax, since using scope graphs relies on using names.
+
+\subsection{Uniquifying names}
+
+The first solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. The simplest being, it doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, this is a pre-analysis transformation, so similarly to using de Bruijn indices, it breaks editor services such as renaming. 
+
+\subsection{Renaming terms dynamically}
 
 
 
-
-
-\section{Garbage}
-
-Ways:
-- Uniquify at the start, doesn't work (example)
-- Rename terms using statix rules (works, complex)
-- Using scope graphs
+\subsection{Using scopes to distinguish names}

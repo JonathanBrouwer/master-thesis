@@ -1,0 +1,14 @@
+Abstract
+Introduction: 
+- Simply typed lambda + system f (Scopes as types)
+- Hindley Milner not possible? (No paper)
+- Generalization requires knowing which variables are free
+
+- Show typing rules that we implement (note challenges in dependent types)
+- Use math notation
+- What do 
+- Show possible extensions, mention results
+- Related work?
+    - Pi for all / other toy implementations]
+    
+- Conclusion

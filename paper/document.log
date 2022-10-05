@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022/Arch Linux) (preloaded format=xelatex 2022.4.29)  5 OCT 2022 13:45
+This is XeTeX, Version 3.141592653-2.6-0.999994 (TeX Live 2022/Arch Linux) (preloaded format=xelatex 2022.6.26)  5 OCT 2022 15:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -799,13 +799,13 @@ guage=dflt;"
 (fontspec)             \tex_hyphenchar:D \font =-1\scan_stop: 
 
 
-(/usr/share/texmf/tex/generic/misc/mathabx.sty
+(/usr/share/texmf-dist/tex/generic/mathabx/mathabx.sty
 Package: mathabx 2003/07/29 v0.0 Non-standard LaTeX package mathabx
 \symmatha=\mathgroup4
 \symmathb=\mathgroup5
 \symmathx=\mathgroup6
 
-(/usr/share/texmf/tex/generic/misc/mathabx.dcl
+(/usr/share/texmf-dist/tex/generic/mathabx/mathabx.dcl
 LaTeX Font Info:    Redeclaring math symbol \cdotp on input line 25.
 LaTeX Font Info:    Redeclaring math symbol \times on input line 33.
 LaTeX Font Info:    Redeclaring math symbol \div on input line 34.
@@ -3524,7 +3524,7 @@ Expr[]\TU/TeXGyrePagella(0)/m/n/10.95 .
  (./300-name-collisions.tex
 
 LaTeX Warning: Citation 'TODO agda lean etc' on page 7 undefined on input line 
-46.
+49.
 
 Package microtype Info: Character `ﬆ' is missing
 (microtype)             in font `\TU/TeXGyrePagella(0)/b/n/10.95'.
@@ -3785,7 +3785,7 @@ Dependency list written on document.dep.
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `document.out' has not changed.
-(rerunfilecheck)             Checksum: 6A06A62FB89C4F8080AC496F5789A5CB;1644.
+(rerunfilecheck)             Checksum: A043F59752765EFE1BCB56B2BA74D257;1664.
 
 Package biblatex Warning: Please (re)run Biber on the file:
 (biblatex)                document
@@ -3797,8 +3797,8 @@ Package logreq Info: Writing requests to 'document.run.xml'.
  ) 
 Here is how much of TeX's memory you used:
  44838 strings out of 476156
- 876968 string characters out of 5814963
- 1711520 words of memory out of 5000000
+ 877008 string characters out of 5814963
+ 1711557 words of memory out of 5000000
  64947 multiletter control sequences out of 15000+600000
  482164 words of font info for 112 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191

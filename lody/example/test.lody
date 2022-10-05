@@ -1,1 +1,1 @@
-[[Expr]]
+(\T : Type. \T : T. T)

@@ -59,6 +59,13 @@ elim Nat : P: (_: Nat -> Type) -> _: (P Z) -> _: (x: Nat -> _: P x -> P (S x)) -
 ]] 0 errors 
 
 
+test elim bool usage [[
+data MyBool =
+	MyFalse : MyBool,
+	MyTrue : MyBool;
+((elim MyBool) (\_: MyBool. Bool) false true) : (_: MyBool -> Bool)
+]] 0 errors
+
 
 
 

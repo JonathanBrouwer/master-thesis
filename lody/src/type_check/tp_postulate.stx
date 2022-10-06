@@ -1,0 +1,19 @@
+module type_check/tp_postulate
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/type_check
+  
+rules
+  typeOfExpr_(s, Postulate(n, t, b)) = (Postulate(n', t', b'), b_type) :- {s' t_type t''}
+  	scopeName(s', n) == n',
+    // t must be a type
+    typeOfExpr(s, t) == (t', t_type),
+    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
+    betaReduce((s, t')) == t'',
+  	scopePutType(s, n', t'') == s',
+  	typeOfExpr(s', b) == (b', b_type).
+  	
+  betaReduceHead((s, Postulate(n, t, b))) = betaReduceHead((s, b)).

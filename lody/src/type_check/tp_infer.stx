@@ -1,0 +1,36 @@
+module type_check/tp_infer
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/type_check
+  
+rules
+  	
+  // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
+  // They should just be flattened
+  typeOfExpr_(s, Infer(q)) = (Infer(e), Infer(t)) :-
+  	q == e,
+    typeOfExpr_(s, q) == (e, t).
+    
+  betaReduceHead((s, e@Infer(_))) = (s, e).
+  
+  betaReduce_((_, Infer(e))) = Infer(e).
+    
+  expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
+  	e1 == e2.
+  expectBetaEq_((_, Infer(e1)), (s2, e2)) :-
+    expectBetaEq_((s2, e2), (_, Infer(e1))).
+    
+  expectBetaEq_((s1, e1@Type()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@AlphaEqVars(_, _)), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@FnType(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_type2 body2}
+  	e2 == FnType(arg_name1, Infer(arg_type2), Infer(body2)),
+  	expectBetaEq_((s1, e1), (empty_scope(), e2)).
+  expectBetaEq_((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@BoolIf(c1, t1, b1)), (_, Infer(e2))) :- {c2 t2 b2}
+  	e2 == BoolIf(Infer(c2), Infer(t2), Infer(b2)),
+  	expectBetaEq_((s1, e1), (empty_scope(), e2)).

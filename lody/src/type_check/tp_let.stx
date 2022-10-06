@@ -1,0 +1,18 @@
+module type_check/tp_let
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/type_check
+
+rules
+  typeOfExpr_(s, l@Let(n, v, b)) = (Let(n', v', b'), b_type) :- {s'}
+  	scopeName(s', n) == n',
+    //Convert arg_name
+  	typeOfExpr(s, v) == (v', _),
+  	scopePutSubst(s, n', (s, v')) == s',
+  	typeOfExpr(s', b) == (b', b_type),
+  	@l.Inferred := betaReduce((s, v')).
+  	
+  betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).

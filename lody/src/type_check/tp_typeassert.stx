@@ -1,0 +1,18 @@
+module type_check/tp_typeassert
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/type_check
+  
+rules
+  typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
+    // t must be a type
+    typeOfExpr(s, t) == (t', t_type),
+    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
+    // and the type of e must be t
+    typeOfExpr(s, e) == (e', e_type),
+    expectBetaEq((empty_scope(), e_type), (s, t')).
+    
+  betaReduceHead((s, TypeAssert(e, _))) = betaReduceHead((s, e)).

@@ -1,0 +1,55 @@
+module type_check/tp_datatypes
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/type_check
+  
+rules
+  typeOfExpr_(_, e@DataType(_, _)) = (e, Type()).
+  typeOfExpr_(s, DataTypeDecl(n, cs, b)) = (DataTypeDecl(n', cs', b'), b_type) :- {s' s''}
+  	scopeName(s', n) == n',
+  	
+  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
+  	dataTypeConstrs(s', s', cs) == (s'', cs'),
+  	typeOfExpr(s'', b) == (b', b_type).
+  	
+  dataTypeConstrs : scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
+  dataTypeConstrs(_, s, []) = (s, []).
+  dataTypeConstrs(sb, s, [Constructor(n, e) | cs]) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
+  	scopeName(s', n) == n',
+  	
+  	typeOfExpr(sb, e) == (e', e_type),
+  	expectBetaEq((empty_scope(), e_type), (empty_scope(), Type())),
+  	
+  	scopePutType(s, n', betaReduce((sb, e'))) == s',
+  	dataTypeConstrs(sb, s', cs) == (s'', cs').
+  	
+  typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
+  	scopeGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
+  	new sp, p == ScopedName(sp, "P"),
+  	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
+  dataTypeElimsGen : ID * ID * list(DataConstructor) -> Expr
+  dataTypeElimsGen(n, p, []) = FnType(Syn("v"), Var(n), FnDestruct(Var(p), Var(Syn("v")))).
+  dataTypeElimsGen(n, p, [Constructor(c, e) | cs]) = FnType(Syn("_"), dataTypeElimsGenSub(n, p, e, Var(c)), dataTypeElimsGen(n, p, cs)).
+  dataTypeElimsGenSub : ID * ID * Expr * Expr -> Expr
+  
+  // Sub is the return type
+  dataTypeElimsGenSub(n, p, Var(n), base) = FnDestruct(Var(p), base).
+  // Sub is a FnType with a == n (TODO rescope m?)
+  dataTypeElimsGenSub(n, p, FnType(m, Var(n), b), base) = 
+  	FnType(m, Var(n), 
+  		FnType(Syn("_"), FnDestruct(Var(p), Var(m)),
+  			dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))
+  		)
+  	).
+  // Sub is a FnType a != n (TODO rescope m?)
+  dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
+  
+  
+  betaReduceHead((s, e@DataType(n, cs))) = (s, DataType(n, cs)).
+  
+  betaReduce_((s, e@DataType(_, _))) = e.
+  expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
+  

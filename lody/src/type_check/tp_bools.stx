@@ -1,0 +1,41 @@
+module type_check/tp_bools
+
+imports
+  signatures/start-sig
+  type_check/beta_eq
+  type_check/scopes
+  type_check/type_check
+  
+rules
+  typeOfExpr_(s, q@BoolTrue()) = (q, BoolType()).
+  typeOfExpr_(s, q@BoolFalse()) = (q, BoolType()).
+  typeOfExpr_(s, q@BoolType()) = (q, Type()).
+  typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
+  	typeOfExpr(s, cond) == (cond', cond_type),
+  	expectBetaEq((s, cond_type), (empty_scope(), BoolType())),
+  	typeOfExpr(s, then) == (then', then_type),
+  	typeOfExpr(s, else) == (else', else_type),
+  	expectBetaEq((s, then_type), (s, else_type)).
+  	
+  betaReduceHead((s, e@BoolTrue())) = (s, e).
+  betaReduceHead((s, e@BoolFalse())) = (s, e).
+  betaReduceHead((s, e@BoolType())) = (s, e).
+  betaReduceHead((s, BoolIf(c, t, e))) = betaReduceHeadIf(s, betaReduceHead((s, c)), c, t, e).
+  betaReduceHeadIf : scope * (scope * Expr) * Expr * Expr * Expr -> (scope * Expr)
+  betaReduceHeadIf(s, (_, BoolTrue()), _, t, _) = betaReduceHead((s, t)).
+  betaReduceHeadIf(s, (_, BoolFalse()), _, _, e) = betaReduceHead((s, e)).
+  betaReduceHeadIf(s, _, c, t, e) = (s, BoolIf(c, t, e)).
+  
+  betaReduce_((s, e@BoolTrue())) = e.
+  betaReduce_((s, e@BoolFalse())) = e.
+  betaReduce_((s, e@BoolType())) = e.
+  betaReduce_((s, BoolIf(c, t, e))) = BoolIf(betaReduce((s, c)), betaReduce((s, t)), betaReduce((s, e))).
+  	
+  expectBetaEq_((s1, BoolTrue()), (s2, BoolTrue())).
+  expectBetaEq_((s1, BoolFalse()), (s2, BoolFalse())).
+  expectBetaEq_((s1, BoolType()), (s2, BoolType())).
+  expectBetaEq_((s1, BoolIf(cond1, then1, else1)), (s2, BoolIf(cond2, then2, else2))) :-
+  	expectBetaEq((s1, cond1), (s2, cond2)),
+  	expectBetaEq((s1, then1), (s2, then2)),
+  	expectBetaEq((s1, else1), (s2, else2)).
+  	

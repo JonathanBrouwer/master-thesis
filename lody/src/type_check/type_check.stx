@@ -4,6 +4,15 @@ imports
   signatures/start-sig
   type_check/beta_eq
   type_check/scopes
+  type_check/tp_bools
+  type_check/tp_datatypes
+  type_check/tp_fn
+  type_check/tp_infer
+  type_check/tp_let
+  type_check/tp_postulate
+  type_check/tp_type
+  type_check/tp_typeassert
+  type_check/tp_var
   
 signature constructors
   Infer : Expr -> Expr
@@ -21,147 +30,8 @@ rules
   
   typeOfExpr_ : scope * Expr -> (Expr * Expr)
 
-  typeOfExpr_(_, q@Type()) = (q, Type()).
-  
-  
-  typeOfExpr_(s, e@Var(Syn("_"))) = (Infer(q), qt) :-
-  	(_, qt) == typeOfExpr(empty_scope(), q),
-  	@e.Inferred := q.
-  	
-  // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
-  // They should just be flattened
-  typeOfExpr_(s, Infer(q)) = (Infer(e), Infer(t)) :-
-  	q == e,
-    typeOfExpr_(s, q) == (e, t).
-  	
-  typeOfExpr_(s, Var(id)) = (Var(ScopedName(ns, rid(id))), typeOfNameEntry(n)) :-
-  	scopeGetName(s, id) == (n, ns).
-  typeOfNameEntry : NameEntry -> Expr
-  typeOfNameEntry(NameType(T)) = T.
-  typeOfNameEntry(NameSubst(se, e)) = t :- typeOfExpr(se, e) == (_, t).
-  
   scopeName : scope * ID -> ID
   scopeName(s', Syn(n)) = ScopedName(s', n).
   scopeName(_, x@ScopedName(_, _)) = x.
-  
-  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = (FnType(arg_name', arg_type', rtrn'), Type()) :- {arg_type_reduced arg_type_type rtrn_type s'}
-  	scopeName(s', arg_name) == arg_name',
-  	
-	// The arg type must be a type
-	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
-  	// Reduce arg_type
-  	betaReduce((s, arg_type')) == arg_type_reduced,
-  	// Now typecheck the type of the body with the arg in scope
-  	scopePutType(s, arg_name', arg_type_reduced) == s',
-  	typeOfExpr(s', rtrn) == (rtrn', rtrn_type),
-  	expectBetaEq((empty_scope(), rtrn_type), (empty_scope(), Type())).
-  
-  typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name', arg_type', body'), FnType(arg_name', arg_type_reduced, body_type)) :- {arg_type_type ns s'}
-	scopeName(s', arg_name) == arg_name',
-	
-	// The arg type must be a type
-	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
-  	// Reduce arg_type
-  	betaReduce((s, arg_type')) == arg_type_reduced,
-  	// Now typecheck the body with the arg in scope
-  	scopePutType(s, arg_name', arg_type_reduced) == s',
-  	typeOfExpr(s', body) == (body', body_type).
-  	
-  typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type s'}
-  	// After beta reduction, the type of fn must be FnType
-  	typeOfExpr(s, fn) == (fn', fn_type),
-  	betaReduceHeadFull((empty_scope(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
-  	// And the type of arg must be beta eq to the declared arg type
-  	typeOfExpr(s, arg) == (arg', arg_type),
-  	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
-  	// Find body type with substitution needed
-  	scopePutSubst(sf, fn_arg_name, (s, arg')) == s',
-  	betaReduce((s', fn_body_type)) == fn_body_type'.
-  	
-  typeOfExpr_(s, l@Let(n, v, b)) = (Let(n', v', b'), b_type) :- {s'}
-  	scopeName(s', n) == n',
-    //Convert arg_name
-  	typeOfExpr(s, v) == (v', _),
-  	scopePutSubst(s, n', (s, v')) == s',
-  	typeOfExpr(s', b) == (b', b_type),
-  	@l.Inferred := betaReduce((s, v')).
-  	
-  typeOfExpr_(s, Postulate(n, t, b)) = (Postulate(n', t', b'), b_type) :- {s' t_type t''}
-  	scopeName(s', n) == n',
-    // t must be a type
-    typeOfExpr(s, t) == (t', t_type),
-    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
-    betaReduce((s, t')) == t'',
-  	scopePutType(s, n', t'') == s',
-  	typeOfExpr(s', b) == (b', b_type).
-  
-  typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
-    // t must be a type
-    typeOfExpr(s, t) == (t', t_type),
-    expectBetaEq((empty_scope(), t_type), (empty_scope(), Type())),
-    // and the type of e must be t
-    typeOfExpr(s, e) == (e', e_type),
-    expectBetaEq((empty_scope(), e_type), (s, t')).
-    
-  // Boolean support
-  typeOfExpr_(s, q@BoolTrue()) = (q, BoolType()).
-  typeOfExpr_(s, q@BoolFalse()) = (q, BoolType()).
-  typeOfExpr_(s, q@BoolType()) = (q, Type()).
-  typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
-  	typeOfExpr(s, cond) == (cond', cond_type),
-  	expectBetaEq((s, cond_type), (empty_scope(), BoolType())),
-  	typeOfExpr(s, then) == (then', then_type),
-  	typeOfExpr(s, else) == (else', else_type),
-  	expectBetaEq((s, then_type), (s, else_type)).
-  
-  // Data type support
-  typeOfExpr_(_, e@DataType(_, _)) = (e, Type()).
-  typeOfExpr_(s, DataTypeDecl(n, cs, b)) = (DataTypeDecl(n', cs', b'), b_type) :- {s' s''}
-  	scopeName(s', n) == n',
-  	
-  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
-  	dataTypeConstrs(s', s', cs) == (s'', cs'),
-  	typeOfExpr(s'', b) == (b', b_type).
-  	
-  dataTypeConstrs : scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
-  dataTypeConstrs(_, s, []) = (s, []).
-  dataTypeConstrs(sb, s, [Constructor(n, e) | cs]) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
-  	scopeName(s', n) == n',
-  	
-  	typeOfExpr(sb, e) == (e', e_type),
-  	expectBetaEq((empty_scope(), e_type), (empty_scope(), Type())),
-  	
-  	scopePutType(s, n', betaReduce((sb, e'))) == s',
-  	dataTypeConstrs(sb, s', cs) == (s'', cs').
-  	
-  typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
-  	scopeGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
-  	new sp, p == ScopedName(sp, "P"),
-  	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
-  dataTypeElimsGen : ID * ID * list(DataConstructor) -> Expr
-  dataTypeElimsGen(n, p, []) = FnType(Syn("v"), Var(n), FnDestruct(Var(p), Var(Syn("v")))).
-  dataTypeElimsGen(n, p, [Constructor(c, e) | cs]) = FnType(Syn("_"), dataTypeElimsGenSub(n, p, e, Var(c)), dataTypeElimsGen(n, p, cs)).
-  dataTypeElimsGenSub : ID * ID * Expr * Expr -> Expr
-  
-  // Sub is the return type
-  dataTypeElimsGenSub(n, p, Var(n), base) = FnDestruct(Var(p), base).
-  // Sub is a FnType with a == n (TODO rescope m?)
-  dataTypeElimsGenSub(n, p, FnType(m, Var(n), b), base) = 
-  	FnType(m, Var(n), 
-  		FnType(Syn("_"), FnDestruct(Var(p), Var(m)),
-  			dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))
-  		)
-  	).
-  // Sub is a FnType a != n (TODO rescope m?)
-  dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
-  
-  
- 
-    
-  // Semantic code completion
-  typeOfExpr(_, Expr-Plhdr()) = (Expr-Plhdr(), _).
-  typeOfExpr_(_, Expr-Plhdr()) = (Expr-Plhdr(), _).
-  	
+
 

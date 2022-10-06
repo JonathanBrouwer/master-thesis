@@ -1,20 +1,8 @@
 resolve {s x y e' t' e_type t_type}
   new s,
   
-  //(\x : Type. x) : _
-  
-	typeOfExpr(s, Var(Syn("_"))) == (t', t_type),
-	typeOfExpr(s, FnConstruct(Syn("x"), Type(), Var(Syn("x")))) == (e', e_type),
-	expectBetaEq((empty_scope(), e_type), (s, t'))
-  
-//  , typeOfExpr(ss, 
-//  	TypeAssert(
-//		FnConstruct(Syn("x"), Type(), Var(Syn("x"))),
-//		Var(Syn("_"))  	
-//  	)
-//  ) == (x, y)  
-
-
+//data Nat = Z : Nat; Z
+  typeOfExpr(s, DataTypeDecl(Syn("Nat"), [Constructor(Syn("Z"), Var(Syn("Nat")))], Var(Syn("Z")))) == (x, y)
 
 imports
   signatures/start-sig

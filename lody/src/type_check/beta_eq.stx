@@ -122,6 +122,13 @@ rules
   betaReduce_((_, Infer(e))) = Infer(e).
   
   
+  //Data types
+  betaReduceHead((s, e@DataType(n, cs))) = (s, DataType(n, cs)).
+  
+  betaReduce_((s, e@DataType(_, _))) = e.
+  expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
+  
+  
   // Semantic code completion
   expectBetaEq((_, Expr-Plhdr()), _).
   expectBetaEq(_, (_, Expr-Plhdr())).

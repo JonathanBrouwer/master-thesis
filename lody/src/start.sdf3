@@ -6,7 +6,7 @@ context-free start-symbols
 
 context-free sorts
 
-  Start Expr ID
+  Start Expr ID DataConstructor
 
 context-free syntax
 
@@ -27,12 +27,15 @@ context-free syntax
   Expr.BoolType = "Bool"
   Expr.BoolIf = "if" Expr "then" Expr "else" Expr "end"
   
+  Expr.DataTypeDecl = "data" ID "=" {DataConstructor ","}* ";" Expr
+  DataConstructor.Constructor = ID ":" Expr
+  
   Expr = "(" Expr ")" {bracket}
   
   ID.Syn = RID
   
 context-free priorities
-  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnDestruct > Expr.FnType > Expr.FnConstruct > {left: Expr.Let Expr.Postulate}
+  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnDestruct > Expr.FnType > Expr.FnConstruct > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
   
 context-free restrictions
 

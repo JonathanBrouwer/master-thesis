@@ -1,0 +1,38 @@
+module typecheck_datatypes
+
+test type of nat [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+[[Nat]]
+]] 0 errors run get-type on #1 to Type()
+
+test nats [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+[[S (S Z)]]
+]] 0 errors run get-type on #1 to DataType("Nat", _)
+
+test nats check [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+Z : Nat
+]] 0 errors
+
+test with postulate [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+postulate x : Nat;
+[[x]]
+]] 0 errors run get-type on #1 to DataType("Nat", _)
+
+test with postulate [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+postulate x : Nat;
+x
+]] 0 errors

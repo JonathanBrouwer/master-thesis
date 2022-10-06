@@ -8,6 +8,8 @@ imports
 signature constructors
   Infer : Expr -> Expr
   ScopedName : scope * RID -> ID
+  
+  DataType : ID * list(DataConstructor) -> Expr
 
 rules
 
@@ -113,6 +115,27 @@ rules
   	typeOfExpr(s, then) == (then', then_type),
   	typeOfExpr(s, else) == (else', else_type),
   	expectBetaEq((s, then_type), (s, else_type)).
+  
+  // Data type support
+  typeOfExpr_(_, e@DataType(_, _)) = (e, Type()).
+  typeOfExpr_(s, DataTypeDecl(n, cs, b)) = (DataTypeDecl(n', cs', b'), b_type) :- {s' s''}
+  	scopeName(s', n) == n',
+  	
+  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
+  	dataTypeConstrs(s', s', cs) == (s'', cs'),
+  	typeOfExpr(s'', b) == (b', b_type).
+  	
+  dataTypeConstrs : scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
+  dataTypeConstrs(_, s, []) = (s, []).
+  dataTypeConstrs(sb, s, [Constructor(n, e) | cs]) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
+  	scopeName(s', n) == n',
+  	
+  	typeOfExpr(sb, e) == (e', e_type),
+  	expectBetaEq((empty_scope(), e_type), (empty_scope(), Type())),
+  	
+  	scopePutType(s, n', betaReduce((sb, e'))) == s',
+  	dataTypeConstrs(sb, s', cs) == (s'', cs').
+  	
     
   // Semantic code completion
   typeOfExpr(_, Expr-Plhdr()) = (Expr-Plhdr(), _).

@@ -1,8 +1,11 @@
-resolve {s x y e' t' e_type t_type}
+resolve {s x y e' t' e_type t_type s' s'' n' cs' b' b_type z w}
   new s,
   
-//data Nat = Z : Nat; Z
-  typeOfExpr(s, DataTypeDecl(Syn("Nat"), [Constructor(Syn("Z"), Var(Syn("Nat")))], Var(Syn("Z")))) == (x, y)
+//  typeOfExpr(s, DataTypeDecl(Syn("Unit"), [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))], DataElim(Syn("Unit")))) == (x, y)
+	typeOfExpr(s, DataTypeDecl(Syn("Unit"), [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))], DataElim(Syn("Unit")))) == (x, y)
+	
+//	typeOfExpr(s'', DataElim(Syn("Nat"))) == (b', b_type)
+
 
 imports
   signatures/start-sig

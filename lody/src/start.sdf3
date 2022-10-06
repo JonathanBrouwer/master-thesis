@@ -29,6 +29,7 @@ context-free syntax
   
   Expr.DataTypeDecl = "data" ID "=" {DataConstructor ","}* ";" Expr
   DataConstructor.Constructor = ID ":" Expr
+  Expr.DataElim = "elim" ID
   
   Expr = "(" Expr ")" {bracket}
   
@@ -59,6 +60,7 @@ lexical syntax
   RID = "else" {reject}
   RID = "end" {reject}
   RID = "postulate" {reject}
+  RID = "elim" {reject}
   
 lexical restrictions
 

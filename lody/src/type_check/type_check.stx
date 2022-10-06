@@ -136,6 +136,16 @@ rules
   	scopePutType(s, n', betaReduce((sb, e'))) == s',
   	dataTypeConstrs(sb, s', cs) == (s'', cs').
   	
+  typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
+  	scopeGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
+  	new sp, p == ScopedName(sp, "P"),
+  	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
+  dataTypeElimsGen : ID * ID * list(DataConstructor) -> Expr
+  dataTypeElimsGen(n, p, []) = FnType(Syn("v"), Var(n), FnDestruct(Var(p), Var(Syn("v")))).
+  dataTypeElimsGen(n, p, [Constructor(c, e) | cs]) = dataTypeElimsGen(n, p, cs).
+  
+  
+ 
     
   // Semantic code completion
   typeOfExpr(_, Expr-Plhdr()) = (Expr-Plhdr(), _).

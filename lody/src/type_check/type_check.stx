@@ -142,7 +142,20 @@ rules
   	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
   dataTypeElimsGen : ID * ID * list(DataConstructor) -> Expr
   dataTypeElimsGen(n, p, []) = FnType(Syn("v"), Var(n), FnDestruct(Var(p), Var(Syn("v")))).
-  dataTypeElimsGen(n, p, [Constructor(c, e) | cs]) = dataTypeElimsGen(n, p, cs).
+  dataTypeElimsGen(n, p, [Constructor(c, e) | cs]) = FnType(Syn("_"), dataTypeElimsGenSub(n, p, e, Var(c)), dataTypeElimsGen(n, p, cs)).
+  dataTypeElimsGenSub : ID * ID * Expr * Expr -> Expr
+  
+  // Sub is the return type
+  dataTypeElimsGenSub(n, p, Var(n), base) = FnDestruct(Var(p), base).
+  // Sub is a FnType with a == n (TODO rescope m?)
+  dataTypeElimsGenSub(n, p, FnType(m, Var(n), b), base) = 
+  	FnType(m, Var(n), 
+  		FnType(Syn("_"), FnDestruct(Var(p), Var(m)),
+  			dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))
+  		)
+  	).
+  // Sub is a FnType a != n (TODO rescope m?)
+  dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
   
   
  

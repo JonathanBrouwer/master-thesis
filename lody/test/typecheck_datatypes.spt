@@ -37,38 +37,25 @@ postulate x : Nat;
 x
 ]] 0 errors
 
+
 test elim box [[
 data Unit =
 	MakeUnit : Unit;
-[[elim Unit]]
-]] 0 errors run get-type on #1 to FnType(
-  "P"
-, FnType("_", DataType("Unit", _), Type())
-, FnType(
-    "v"
-  , DataType("Unit", _)
-  , FnDestruct(Var("P"), Var("v"))
-  )
-)
-
-test elim box 2 [[
-data Unit =
-	MakeUnit : Unit;
-(elim Unit : (P: (_ : Unit -> Type) -> (n: Unit -> P n)))
+elim Unit : P: (_ : Unit -> Type) -> _: (P MakeUnit) -> n: Unit -> P n
 ]] 0 errors
 
 test elim bool [[
 data MyBool =
 	MyFalse : MyBool,
 	MyTrue : MyBool;
-[[elim MyBool]]
+elim MyBool : P: (_ : MyBool -> Type) -> _: (P MyFalse) -> _: (P MyTrue) -> n: MyBool -> P n
 ]] 0 errors
 
 test elim nat [[
 data Nat =
 	Z : Nat,
 	S : x: Nat -> Nat;
-[[elim Nat]]
+elim Nat : P: (_: Nat -> Type) -> _: (P Z) -> _: (x: Nat -> _: P x -> P (S x)) -> n: Nat -> P n
 ]] 0 errors 
 
 

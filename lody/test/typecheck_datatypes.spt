@@ -66,6 +66,19 @@ data MyBool =
 ((elim MyBool) (\_: MyBool. Bool) false true) : (_: MyBool -> Bool)
 ]] 0 errors
 
+test elim bool usage 2 [[
+data MyBool =
+	MyFalse : MyBool,
+	MyTrue : MyBool;
+(((elim MyBool) (\_: MyBool. Type) Bool Type) MyFalse) : Type
+]] 0 errors
+
+test elim bool usage 3 [[
+data MyBool =
+	MyFalse : MyBool,
+	MyTrue : MyBool;
+false : (((elim MyBool) (\_: MyBool. Type) Bool Type) MyFalse)
+]] 0 errors
 
 
 

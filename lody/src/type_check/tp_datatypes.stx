@@ -50,6 +50,9 @@ rules
   
   betaReduceHead((s, e@DataType(n, cs))) = (s, DataType(n, cs)).
   
+  //TODO
+//  betaReduceHead((s, DataElim(n))) = (_, _).
+  
   betaReduce_((s, e@DataType(_, _))) = e.
   expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
   

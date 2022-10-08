@@ -48,11 +48,24 @@ rules
   betaReduceHead((s, e@FnType(_, _, _))) = (s, e).
   betaReduceHead((s, e@FnConstruct(_, _, _))) = (s, e).
   
-  betaReduceHead((s, FnDestruct(fn, arg))) = betaReduceHeadFn(betaReduceHead((s, fn)), (s, fn, arg)).
-  // (beta reduced fn) * (original fn * arg)
-  betaReduceHeadFn : (scope * Expr) * (scope * Expr * Expr) -> (scope * Expr)
-  betaReduceHeadFn((sbf, FnConstruct(arg_name, arg_type, body)), (sfa, _, a)) = betaReduceHead((scopePutSubst(sbf, arg_name, (sfa, a)), body)).
-  betaReduceHeadFn(_, (sfa, f, a)) = (sfa, FnDestruct(f, a)).
+  betaReduceHead((s, FnDestruct(fn, arg))) = betaReduceHeadFn(betaReduceHead((s, fn)), [(s, arg)]).
+ 
+  // (beta reduced head) * (list of collected arguments) -> (head-normal result)
+  betaReduceHeadFn : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  // If we have no args left, we can return the head
+  betaReduceHeadFn(head, []) = head.
+  // If we encounter another FnDestruct, add it to the argument stack (krivine style)
+  betaReduceHeadFn((s, FnDestruct(fn, arg)), args) = betaReduceHeadFn(betaReduceHead((s, fn)), [(s, arg) | args]).
+  // If we encounter a FnConstruct, apply it to its argument
+  betaReduceHeadFn((s, FnConstruct(arg_name, arg_type, body)), [arg | args]) = betaReduceHeadFn(betaReduceHead((scopePutSubst(s, arg_name, arg), body)), args).
+  // If we encounter an indeterminate function, rebuild the application tree
+  betaReduceHeadFn((s, e@Var(_)), args) = betaReduceHeadFnRebuild((s, e), args).
+  betaReduceHeadFn((s, e@AlphaEqVars(_, _)), args) = betaReduceHeadFnRebuild((s, e), args).
+  
+  betaReduceHeadFnRebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  betaReduceHeadFnRebuild(head, []) = head.
+  betaReduceHeadFnRebuild((s, e), [arg | args]) = betaReduceHeadFnRebuild((scopePutSubst(s, t, arg), FnDestruct(e, Var(t))), args) :- {stemp}
+  	new stemp, t == ScopedName(stemp, "temp"). 
   
   betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
   betaReduce_((s, FnConstruct(arg_name, arg_type, body))) = FnConstruct(arg_name, betaReduce((s, arg_type)), betaReduce((s, body))).

@@ -81,7 +81,7 @@ rules
   // Finds the correct constructor to apply, and apply it
   // v, constructors left for current iteration, functions left for current iteration
   betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> (scope * Expr)
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, _) | _], [f | _]) = _.
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, _) | _], [f | _]) = f.
   betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
   betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = betaReduceHeadFnApply(betaReduceHeadFnElim2(betaReduceHead((s, f)), vs, fs), (s, a)).
   

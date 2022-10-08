@@ -74,23 +74,42 @@ rules
   // Checks if we have enough arguments
   // s, n, original args, return value of betaReduceHeadFnConstructorArgs, data constructors -> result
   betaReduceHeadFnElim1 : scope * ID * list((scope * Expr)) * (list((scope * Expr)) * list((scope * Expr)) * int) * list(DataConstructor) -> (scope * Expr)
-  betaReduceHeadFnElim1(s, n, as_original, (_, _, 0), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original).
-  betaReduceHeadFnElim1(s, n, as_original, ([], _, 1), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original).
-  betaReduceHeadFnElim1(s, n, as_original, ([v | as_after], as_cs, 1), cs) = betaReduceHeadFn(betaReduceHeadFnElim2(betaReduceHead(v), cs, as_cs), as_after).
+  betaReduceHeadFnElim1(s, n, as_original, (_, _, 0), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original). // Not enough
+  betaReduceHeadFnElim1(s, n, as_original, ([], _, 1), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original). // Enough for args, not enough for v.
+  // There are enough, we remove one more called v. Then we call betaReduceHeadFnElim2 with that information. 
+  betaReduceHeadFnElim1(_, n, _, ([v | as_after], as_cs, 1), cs) = betaReduceHeadFn(betaReduceHeadFnElim3(n, betaReduceHeadFnElim2(betaReduceHead(v), cs, as_cs)), as_after). 
   
-  // Finds the correct constructor to apply, and apply it
-  // v, constructors left for current iteration, functions left for current iteration
-  betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> (scope * Expr)
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, _) | _], [f | _]) = betaReduceHead(f).
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
-  betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = betaReduceHeadFnApply(betaReduceHeadFnElim2(betaReduceHead((s, f)), vs, fs), (s, a)).
-  
-  
+  // Removes an argument for each constructor. Returns 1 if successful.
   // list of arguments in * constructors -> (arguments out * results * success boolean)
   betaReduceHeadFnConstructorArgs : list((scope * Expr)) * list(DataConstructor) -> (list((scope * Expr)) * list((scope * Expr)) * int)
   betaReduceHeadFnConstructorArgs([a|as], [_|cs]) = (a_after, [a | a_res], suc) :- betaReduceHeadFnConstructorArgs(as, cs) == (a_after, a_res, suc).
   betaReduceHeadFnConstructorArgs(as, []) = (as, [], 1).
   betaReduceHeadFnConstructorArgs([], [_|_]) = (_, _, 0). // Not enough args
+  
+  // Finds the correct constructor to apply, and apply it
+  // v, constructors left for current iteration, functions left for current iteration
+  betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> ((scope * Expr) * Expr * int)
+  // We found the correct constructor, replace the var with the f function
+  //TODO move this betaReduceHead to the proper place
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, ce) | _], [f | _]) = (betaReduceHead(f), ce, 1).
+  // No more constructors left, we did not find it
+  betaReduceHeadFnElim2((s, Var(v)), [], []) = (_, _, 0).
+  // Did not find the correct one yet, keep searching
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
+  // FnDestruct 
+  betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = (betaReduceHeadFnApply(e, (s, a)), c, succ) :-
+  	betaReduceHeadFnElim2(betaReduceHead((s, f)), vs, fs) == (e, c, succ).
+  
+  // Inserts recursive calls where necessary, and beta reduces result
+  betaReduceHeadFnElim3 : ID * ((scope * Expr) * Expr * int) -> (scope * Expr)
+//  betaReduceHeadFnElim3(_, (e, _, 1)) = e.
+//  betaReduceHeadFnElim3(_, (_, _, 0)) = _. //TODO return original value
+  // We are at the base case
+  // e is now the root function, note that it is not necesarrily var anymore
+  betaReduceHeadFnElim3(_, (e, Var(_), 1)) = e.
+  // Normal recursive case
+  betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnDestruct(fc, ac), 1)) = betaReduceHeadFnApply(betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1)), (s, ae)).
+
   
   
   //TODO

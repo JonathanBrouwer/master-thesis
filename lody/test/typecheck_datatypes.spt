@@ -99,6 +99,19 @@ data Nat =
 elim Nat : P: (_: Nat -> Type) -> _: (P Z) -> _: (x: Nat -> _: P x -> P (S x)) -> n: Nat -> P n
 ]] 0 errors 
 
+test elim use nat 0 [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+Type : ((elim Nat) (\_: Nat. Type) Type (\n: Nat. \b: Type. Bool) Z)
+]] 0 errors 
+
+test elim use nat 1 [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+false : ((elim Nat) (\_: Nat. Type) Type (\n: Nat. \b: Type. Bool) (S Z))
+]] 0 errors 
 
 
 

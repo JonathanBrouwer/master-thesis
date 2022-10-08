@@ -68,7 +68,7 @@ rules
   
   //First, parse the arguments (at least one argument is guaranteed)
   // betaReduceHeadFnConstructorArgs will parse the arguments
-  betaReduceHeadFn((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, as, betaReduceHeadFnConstructorArgs(args, cs, []), cs) :-
+  betaReduceHeadFn((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
   	scopeGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
   
   // Checks if we have enough arguments
@@ -81,16 +81,16 @@ rules
   // Finds the correct constructor to apply, and apply it
   // v, constructors left for current iteration, functions left for current iteration
   betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> (scope * Expr)
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, _) | _], [f | _]) = f.
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, _) | _], [f | _]) = betaReduceHead(f).
   betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
   betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = betaReduceHeadFnApply(betaReduceHeadFnElim2(betaReduceHead((s, f)), vs, fs), (s, a)).
   
   
-  // list of arguments in * constructors * results -> (arguments out * results)
-  betaReduceHeadFnConstructorArgs : list((scope * Expr)) * list(DataConstructor) * list((scope * Expr)) -> (list((scope * Expr)) * list((scope * Expr)) * int)
-  betaReduceHeadFnConstructorArgs([a|as], [_|cs], rs) = betaReduceHeadFnConstructorArgs(as, cs, [a|rs]).
-  betaReduceHeadFnConstructorArgs(as, [], rs) = (as, rs, 1).
-  betaReduceHeadFnConstructorArgs([], [_|_], _) = (_, _, 0). // Not enough args
+  // list of arguments in * constructors -> (arguments out * results * success boolean)
+  betaReduceHeadFnConstructorArgs : list((scope * Expr)) * list(DataConstructor) -> (list((scope * Expr)) * list((scope * Expr)) * int)
+  betaReduceHeadFnConstructorArgs([a|as], [_|cs]) = (a_after, [a | a_res], suc) :- betaReduceHeadFnConstructorArgs(as, cs) == (a_after, a_res, suc).
+  betaReduceHeadFnConstructorArgs(as, []) = (as, [], 1).
+  betaReduceHeadFnConstructorArgs([], [_|_]) = (_, _, 0). // Not enough args
   
   
   //TODO
@@ -98,4 +98,7 @@ rules
   
   betaReduce_((s, e@DataType(_, _))) = e.
   expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
+  
+  
+  
   

@@ -1,10 +1,25 @@
-resolve {s x y e' t' e_type t_type s' s'' n' cs' b' b_type z w}
+resolve {s n cs b s' s'' n' cs' x y z}
   new s,
   
-//  typeOfExpr(s, DataTypeDecl(Syn("Unit"), [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))], DataElim(Syn("Unit")))) == (x, y)
-	typeOfExpr(s, DataTypeDecl(Syn("Unit"), [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))], DataElim(Syn("Unit")))) == (x, y)
-	
-//	typeOfExpr(s'', DataElim(Syn("Nat"))) == (b', b_type)
+//data Unit =
+//	MakeUnit : Unit;
+//false : (((elim Unit) (\_: Unit. Type) Bool) MakeUnit)
+
+  n == Syn("Unit"),
+  cs == [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))],
+//  cs == [],
+  
+//  typeOfExpr_(s, DataTypeDecl(n, cs, b)) 
+  	scopeName(s', n) == n',
+  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
+  	dataTypeConstrs(s', s', cs) == (s'', cs'),
+  	
+  	b == FnDestruct(FnDestruct(FnDestruct(DataElim(n), FnConstruct(Syn("_"), Var(n), Type())), BoolType()), Var(Syn("MakeUnit"))),
+
+  	typeOfExpr(s'', b) == (x, y),
+  	betaReduceHead((s'', x)) == z
+  	
+
 
 
 imports
@@ -12,5 +27,7 @@ imports
   type_check/beta_eq
   type_check/scopes
   type_check/type_check
+  type_check/tp_fn
+  type_check/tp_datatypes
   
   

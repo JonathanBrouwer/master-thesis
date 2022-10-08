@@ -5,9 +5,13 @@ imports
   type_check/beta_eq
   type_check/scopes
   type_check/type_check
+  type_check/tp_fn
   
 rules
+  // A datatype is a type
   typeOfExpr_(_, e@DataType(_, _)) = (e, Type()).
+  
+  // If we find a declaration
   typeOfExpr_(s, DataTypeDecl(n, cs, b)) = (DataTypeDecl(n', cs', b'), b_type) :- {s' s''}
   	scopeName(s', n) == n',
   	
@@ -15,6 +19,7 @@ rules
   	dataTypeConstrs(s', s', cs) == (s'', cs'),
   	typeOfExpr(s'', b) == (b', b_type).
   	
+  // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother0
   dataTypeConstrs : scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
   dataTypeConstrs(_, s, []) = (s, []).
   dataTypeConstrs(sb, s, [Constructor(n, e) | cs]) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
@@ -26,29 +31,67 @@ rules
   	scopePutType(s, n', betaReduce((sb, e'))) == s',
   	dataTypeConstrs(sb, s', cs) == (s'', cs').
   	
+  // We need to generate the type of the eliminator
+  // It is beta reduced since it may contain variables
   typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
   	scopeGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
   	new sp, p == ScopedName(sp, "P"),
   	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
+  	
+  // name of datatype, name of P function, list of data constructors left, generate the rest of the function
   dataTypeElimsGen : ID * ID * list(DataConstructor) -> Expr
+  // generate the `v -> P v` part of the function
   dataTypeElimsGen(n, p, []) = FnType(Syn("v"), Var(n), FnDestruct(Var(p), Var(Syn("v")))).
+  // generate the next constructor, using dataTypeElimsGenSub to find the constructor
   dataTypeElimsGen(n, p, [Constructor(c, e) | cs]) = FnType(Syn("_"), dataTypeElimsGenSub(n, p, e, Var(c)), dataTypeElimsGen(n, p, cs)).
-  dataTypeElimsGenSub : ID * ID * Expr * Expr -> Expr
   
-  // Sub is the return type
+  // name of datatype, name of P function, constructor expression, the expression that is being built (starting with the constructor name, applying arguments)
+  dataTypeElimsGenSub : ID * ID * Expr * Expr -> Expr
+  // Sub is the return type. We want to generate `P (C ...)`
   dataTypeElimsGenSub(n, p, Var(n), base) = FnDestruct(Var(p), base).
-  // Sub is a FnType with a == n (TODO rescope m?)
+  // Sub is a FnType with a == n. We generate:
+  // m: a (= n) -> _: p m -> rest
   dataTypeElimsGenSub(n, p, FnType(m, Var(n), b), base) = 
   	FnType(m, Var(n), 
   		FnType(Syn("_"), FnDestruct(Var(p), Var(m)),
   			dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))
   		)
   	).
-  // Sub is a FnType a != n (TODO rescope m?)
+  // Sub is a FnType a != n. We generate:
+  // m: a -> rest
+  // We add `(base m)` to the rest
   dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
   
   
   betaReduceHead((s, e@DataType(n, cs))) = (s, DataType(n, cs)).
+  betaReduceHead((s, e@DataElim(n))) = (s, DataElim(n)).
+  
+  //First, parse the arguments (at least one argument is guaranteed)
+  // betaReduceHeadFnConstructorArgs will parse the arguments
+  betaReduceHeadFn((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, as, betaReduceHeadFnConstructorArgs(args, cs, []), cs) :-
+  	scopeGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
+  
+  // Checks if we have enough arguments
+  // s, n, original args, return value of betaReduceHeadFnConstructorArgs, data constructors -> result
+  betaReduceHeadFnElim1 : scope * ID * list((scope * Expr)) * (list((scope * Expr)) * list((scope * Expr)) * int) * list(DataConstructor) -> (scope * Expr)
+  betaReduceHeadFnElim1(s, n, as_original, (_, _, 0), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original).
+  betaReduceHeadFnElim1(s, n, as_original, ([], _, 1), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original).
+  betaReduceHeadFnElim1(s, n, as_original, ([v | as_after], as_cs, 1), cs) = betaReduceHeadFn(betaReduceHeadFnElim2(betaReduceHead(v), cs, as_cs), as_after).
+  
+  // Finds the correct constructor to apply, and apply it
+  // v, constructors left for current iteration, functions left for current iteration
+  betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> (scope * Expr)
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, _) | _], [f | _]) = _.
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
+  betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = betaReduceHeadFnApply(betaReduceHeadFnElim2(betaReduceHead((s, f)), vs, fs), (s, a)).
+  
+  
+  // list of arguments in * constructors * results -> (arguments out * results)
+  betaReduceHeadFnConstructorArgs : list((scope * Expr)) * list(DataConstructor) * list((scope * Expr)) -> (list((scope * Expr)) * list((scope * Expr)) * int)
+  betaReduceHeadFnConstructorArgs([a|as], [_|cs], rs) = betaReduceHeadFnConstructorArgs(as, cs, [a|rs]).
+  betaReduceHeadFnConstructorArgs(as, [], rs) = (as, rs, 1).
+  betaReduceHeadFnConstructorArgs([], [_|_], _) = (_, _, 0). // Not enough args
+  
   
   //TODO
 //  betaReduceHead((s, DataElim(n))) = (_, _).

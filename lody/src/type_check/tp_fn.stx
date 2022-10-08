@@ -64,8 +64,11 @@ rules
   
   betaReduceHeadFnRebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
   betaReduceHeadFnRebuild(head, []) = head.
-  betaReduceHeadFnRebuild((s, e), [arg | args]) = betaReduceHeadFnRebuild((scopePutSubst(s, t, arg), FnDestruct(e, Var(t))), args) :- {stemp}
-  	new stemp, t == ScopedName(stemp, "temp"). 
+  betaReduceHeadFnRebuild((s, e), [arg | args]) =  betaReduceHeadFnRebuild(betaReduceHeadFnApply((s, e), arg), args).
+  	
+  betaReduceHeadFnApply : (scope * Expr) * (scope * Expr) -> (scope * Expr)
+  betaReduceHeadFnApply((s, f), arg) = (scopePutSubst(s, t, arg), FnDestruct(f, Var(t))) :- {stemp}
+  	new stemp, t == ScopedName(stemp, "temp").
   
   betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
   betaReduce_((s, FnConstruct(arg_name, arg_type, body))) = FnConstruct(arg_name, betaReduce((s, arg_type)), betaReduce((s, body))).

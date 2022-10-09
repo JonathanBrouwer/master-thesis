@@ -68,16 +68,16 @@ rules
   
   //First, parse the arguments (at least one argument is guaranteed)
   // betaReduceHeadFnConstructorArgs will parse the arguments
-  betaReduceHeadFn((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
+  betaReduceHeadFn((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, p, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
   	scopeGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
   
   // Checks if we have enough arguments
   // s, n, original args, return value of betaReduceHeadFnConstructorArgs, data constructors -> result
-  betaReduceHeadFnElim1 : scope * ID * list((scope * Expr)) * (list((scope * Expr)) * list((scope * Expr)) * int) * list(DataConstructor) -> (scope * Expr)
-  betaReduceHeadFnElim1(s, n, as_original, (_, _, 0), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original). // Not enough
-  betaReduceHeadFnElim1(s, n, as_original, ([], _, 1), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original). // Enough for args, not enough for v.
+  betaReduceHeadFnElim1 : scope * ID * (scope * Expr) * list((scope * Expr)) * (list((scope * Expr)) * list((scope * Expr)) * int) * list(DataConstructor) -> (scope * Expr)
+  betaReduceHeadFnElim1(s, n, _,  as_original, (_, _, 0), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original). // Not enough
+  betaReduceHeadFnElim1(s, n, _, as_original, ([], _, 1), _) = betaReduceHeadFnRebuild((s, DataElim(n)), as_original). // Enough for args, not enough for v.
   // There are enough, we remove one more called v. Then we call betaReduceHeadFnElim2 with that information. 
-  betaReduceHeadFnElim1(_, n, _, ([v | as_after], as_cs, 1), cs) = betaReduceHeadFn(betaReduceHeadFnElim3(n, betaReduceHeadFnElim2(betaReduceHead(v), cs, as_cs)), as_after). 
+  betaReduceHeadFnElim1(_, n, p, _, ([v | as_after], as_cs, 1), cs) = betaReduceHeadFn(betaReduceHeadFnElim3(n, betaReduceHeadFnElim2(betaReduceHead(v), cs, as_cs), [p | as_cs]), as_after). 
   
   // Removes an argument for each constructor. Returns 1 if successful.
   // list of arguments in * constructors -> (arguments out * results * success boolean)
@@ -101,15 +101,24 @@ rules
   	betaReduceHeadFnElim2(betaReduceHead((s, f)), vs, fs) == (e, c, succ).
   
   // Inserts recursive calls where necessary, and beta reduces result
-  betaReduceHeadFnElim3 : ID * ((scope * Expr) * Expr * int) -> (scope * Expr)
+  // Name of datatype, result of betaReduceHeadFnElim2, values for recursive calls
+  betaReduceHeadFnElim3 : ID * ((scope * Expr) * Expr * int) * list((scope * Expr)) -> (scope * Expr)
 //  betaReduceHeadFnElim3(_, (e, _, 1)) = e.
 //  betaReduceHeadFnElim3(_, (_, _, 0)) = _. //TODO return original value
   // We are at the base case
   // e is now the root function, note that it is not necesarrily var anymore
-  betaReduceHeadFnElim3(_, (e, Var(_), 1)) = e.
+  betaReduceHeadFnElim3(_, (e, Var(_), 1), _) = e.
+  // Recursive case for self-recursive types
+  betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, Var(n), fc), 1), r) = betaReduceHeadFnApply(betaReduceHeadFnApply(base, (s, ae)), recarg) :-
+  	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1), r),
+  	recarg == betaReduceHeadFnApply(betaReduceHeadFn((s, DataElim(n)), r), (s, ae)).
   // Normal recursive case
-  betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnDestruct(fc, ac), 1)) = betaReduceHeadFnApply(betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1)), (s, ae)).
+  betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, _, fc), 1), r) = betaReduceHeadFnApply(base, (s, ae)) :-
+  	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1), r).
+  	
+  //betaReduceHeadFnApply(betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1)), (s, ae)).
 
+//type_check/tp_datatypes!betaReduceHeadFnElim3(ScopedName(#s'_450-58,"MaybeBool"), ((#s'_1169-148,FnConstruct(…,…,…)),BoolType(),1), (?s-1183,?f-1182))
   
   
   //TODO

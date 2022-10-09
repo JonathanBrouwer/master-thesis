@@ -92,6 +92,20 @@ data MyBool =
 false : (((elim MyBool) (\_: MyBool. Type) Type Bool Type Type Type) My2)
 ]] 0 errors
 
+test elim create MaybeBool [[
+data MaybeBool =
+	None : MaybeBool,
+	Some : x: Bool -> MaybeBool;
+elim MaybeBool : P: (_: MaybeBool -> Type) -> _: (P None) -> _: (x: Bool -> P (Some x)) -> n: MaybeBool -> P n
+]] 0 errors 
+
+test elim use MaybeBool [[
+data MaybeBool =
+	None : MaybeBool,
+	Some : x: Bool -> MaybeBool;
+true : ((elim MaybeBool) (\_: MaybeBool. Type) Type (\b: Bool. Bool) (Some true))
+]] 0 errors 
+
 test elim create nat [[
 data Nat =
 	Z : Nat,
@@ -113,7 +127,13 @@ data Nat =
 false : ((elim Nat) (\_: Nat. Type) Type (\n: Nat. \b: Type. Bool) (S Z))
 ]] 0 errors 
 
-
+test elim use nat 2 [[
+data Nat =
+	Z : Nat,
+	S : x: Nat -> Nat;
+let x = ((elim Nat) (\_: Nat. Nat) Z (\n: Nat. \b: Nat. (S b)) (S Z));
+x
+]] 0 errors 
 
 
 

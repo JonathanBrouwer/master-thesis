@@ -16,20 +16,39 @@ rules
   	scopeName(s', n) == n',
   	
   	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
-  	dataTypeConstrs(s', s', cs) == (s'', cs'),
+  	dataTypeConstrs(n', s', s', cs) == (s'', cs'),
   	typeOfExpr(s'', b) == (b', b_type).
   	
   // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother0
-  dataTypeConstrs : scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
-  dataTypeConstrs(_, s, []) = (s, []).
-  dataTypeConstrs(sb, s, [Constructor(n, e) | cs]) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
+  dataTypeConstrs : ID * scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
+  dataTypeConstrs(_, _, s, []) = (s, []).
+  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs]) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
   	scopeName(s', n) == n',
   	
   	typeOfExpr(sb, e) == (e', e_type),
+  	checkConstructorPositive(dn, e'),
   	expectBetaEq((empty_scope(), e_type), (empty_scope(), Type())),
   	
   	scopePutType(s, n', betaReduce((sb, e'))) == s',
-  	dataTypeConstrs(sb, s', cs) == (s'', cs').
+  	dataTypeConstrs(dn, sb, s', cs) == (s'', cs').// | error $[Constructor [n] of datatype [dn] is not strictly positive.].
+  	
+  //
+  checkConstructorPositive : ID * Expr
+  checkConstructorPositive(n, Var(n)).
+  checkConstructorPositive(n, FnType(_, Var(n), b)) :- checkConstructorPositive(n, b).
+  checkConstructorPositive(n, FnType(_, e, b)) :- 
+  	checkConstructorPositiveSub(n, e),
+  	checkConstructorPositive(n, b).
+  
+  checkConstructorPositiveSub : ID * Expr
+  checkConstructorPositiveSub(n, Var(m)) :- n != m.
+  checkConstructorPositiveSub(n, FnType(_, e1, e2)) :- 
+  	checkConstructorPositiveSub(n, e1),
+  	checkConstructorPositiveSub(n, e2).
+  checkConstructorPositiveSub(n, Type()).
+  checkConstructorPositiveSub(n, BoolType()).
+  
+  
   	
   // We need to generate the type of the eliminator
   // It is beta reduced since it may contain variables

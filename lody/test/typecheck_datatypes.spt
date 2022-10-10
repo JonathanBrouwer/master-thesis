@@ -135,7 +135,33 @@ let x = ((elim Nat) (\_: Nat. Nat) Z (\n: Nat. \b: Nat. (S b)) (S Z));
 x
 ]] 0 errors 
 
+test positivity check 1 [[
+data Nat =
+	Z : Nat,
+	S : x: (_: Nat -> Type) -> Nat;
+Type
+]] >= 1 errors 
 
+test positivity check 2 [[
+data Nat =
+	Z : Nat,
+	S : x: (_: Type -> Type) -> Nat;
+Type
+]] 0 errors 
+
+test positivity check 3 [[
+data Nat =
+	Z : Nat,
+	S : x: (_: Type -> Nat) -> Nat;
+Type
+]] >= 1 errors 
+
+test positivity check 4 [[
+data Nat =
+	Z : Nat,
+	S : x: Type -> y: (_: Type -> Nat) -> Nat;
+Type
+]] >= 1 errors 
 
 
 

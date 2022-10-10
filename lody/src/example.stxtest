@@ -1,23 +1,23 @@
 resolve {s n cs b s' s'' n' cs' x y z}
-  new s,
+  new s
   
 //data Unit =
 //	MakeUnit : Unit;
 //false : (((elim Unit) (\_: Unit. Type) Bool) MakeUnit)
 
-  n == Syn("Unit"),
-  cs == [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))],
-//  cs == [],
-  
-//  typeOfExpr_(s, DataTypeDecl(n, cs, b)) 
-  	scopeName(s', n) == n',
-  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
-  	dataTypeConstrs(s', s', cs) == (s'', cs'),
-  	
-  	b == FnDestruct(FnDestruct(FnDestruct(DataElim(n), FnConstruct(Syn("_"), Var(n), Type())), BoolType()), Var(Syn("MakeUnit"))),
-
-  	typeOfExpr(s'', b) == (x, y),
-  	betaReduceHead((s'', x)) == z
+//  n == Syn("Unit"),
+//  cs == [Constructor(Syn("MakeUnit"), Var(Syn("Unit")))],
+////  cs == [],
+//  
+////  typeOfExpr_(s, DataTypeDecl(n, cs, b)) 
+//  	scopeName(s', n) == n',
+//  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
+//  	dataTypeConstrs(s', s', cs) == (s'', cs'),
+//  	
+//  	b == FnDestruct(FnDestruct(FnDestruct(DataElim(n), FnConstruct(Syn("_"), Var(n), Type())), BoolType()), Var(Syn("MakeUnit"))),
+//
+//  	typeOfExpr(s'', b) == (x, y),
+//  	betaReduceHead((s'', x)) == z
   	
 
 

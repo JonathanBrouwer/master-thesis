@@ -16,4 +16,4 @@ rules
   	scopePutType(s, n', t'') == s',
   	typeOfExpr(s', b) == (b', b_type).
   	
-  betaReduceHeadK((s, Postulate(n, t, b)), args) = betaReduceHeadK((s, b), args).
+  betaReduceHead((s, Postulate(n, t, b)), args) = betaReduceHead((s, b), args).

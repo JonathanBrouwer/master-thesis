@@ -82,12 +82,12 @@ rules
   dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
   
   
-  betaReduceHeadK((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
-//  betaReduceHeadK((s, e@DataElim(n))) = (s, DataElim(n)).
+  betaReduceHead((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
+//  betaReduceHead((s, e@DataElim(n))) = (s, DataElim(n)).
   
   //First, parse the arguments (at least one argument is guaranteed)
   // betaReduceHeadFnConstructorArgs will parse the arguments
-  betaReduceHeadK((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, p, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
+  betaReduceHead((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, p, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
   	scopeGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
   
   // Checks if we have enough arguments
@@ -96,7 +96,7 @@ rules
   betaReduceHeadFnElim1(s, n, _,  as_original, (_, _, 0), _) = kRebuild((s, DataElim(n)), as_original). // Not enough
   betaReduceHeadFnElim1(s, n, _, as_original, ([], _, 1), _) = kRebuild((s, DataElim(n)), as_original). // Enough for args, not enough for v.
   // There are enough, we remove one more called v. Then we call betaReduceHeadFnElim2 with that information. 
-  betaReduceHeadFnElim1(_, n, p, _, ([v | as_after], as_cs, 1), cs) = betaReduceHeadK(betaReduceHeadFnElim3(n, betaReduceHeadFnElim2(betaReduceHeadK(v, []), cs, as_cs), [p | as_cs]), as_after). 
+  betaReduceHeadFnElim1(_, n, p, _, ([v | as_after], as_cs, 1), cs) = betaReduceHead(betaReduceHeadFnElim3(n, betaReduceHeadFnElim2(betaReduceHead(v, []), cs, as_cs), [p | as_cs]), as_after). 
   
   // Removes an argument for each constructor. Returns 1 if successful.
   // list of arguments in * constructors -> (arguments out * results * success boolean)
@@ -110,14 +110,14 @@ rules
   betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> ((scope * Expr) * Expr * int)
   // We found the correct constructor, replace the var with the f function
   //TODO move this betaReduceHead to the proper place
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, ce) | _], [f | _]) = (betaReduceHeadK(f, []), ce, 1).
+  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, ce) | _], [f | _]) = (betaReduceHead(f, []), ce, 1).
   // No more constructors left, we did not find it
   betaReduceHeadFnElim2((s, Var(v)), [], []) = (_, _, 0).
   // Did not find the correct one yet, keep searching
   betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
   // FnDestruct 
   betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = (kApply(e, (s, a)), c, succ) :-
-  	betaReduceHeadFnElim2(betaReduceHeadK((s, f), []), vs, fs) == (e, c, succ).
+  	betaReduceHeadFnElim2(betaReduceHead((s, f), []), vs, fs) == (e, c, succ).
   
   // Inserts recursive calls where necessary, and beta reduces result
   // Name of datatype, result of betaReduceHeadFnElim2, values for recursive calls
@@ -129,11 +129,11 @@ rules
   betaReduceHeadFnElim3(_, (e, Var(_), 1), _) = e.
   // Recursive case for self-recursive types
   betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, Var(n), fc), 1), r) = kApply(kApply(base, (s, ae)), recarg) :-
-  	base == betaReduceHeadFnElim3(n, (betaReduceHeadK((s, fe), []), fc, 1), r),
-  	recarg == kApply(betaReduceHeadK((s, DataElim(n)), r), (s, ae)).
+  	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe), []), fc, 1), r),
+  	recarg == kApply(betaReduceHead((s, DataElim(n)), r), (s, ae)).
   // Normal recursive case
   betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, _, fc), 1), r) = kApply(base, (s, ae)) :-
-  	base == betaReduceHeadFnElim3(n, (betaReduceHeadK((s, fe), []), fc, 1), r).
+  	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe), []), fc, 1), r).
   	
   //betaReduceHeadFnApply(betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1)), (s, ae)).
 

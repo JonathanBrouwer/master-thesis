@@ -17,9 +17,9 @@ rules
   typeOfNameEntry(NameType(T)) = T.
   typeOfNameEntry(NameSubst(se, e)) = t :- typeOfExpr(se, e) == (_, t).
   
-  betaReduceHeadK((s, e@Var(id)), as) = betaReduceHeadVar(id, scopeGetNames(s, id), as).
+  betaReduceHead((s, e@Var(id)), as) = betaReduceHeadVar(id, scopeGetNames(s, id), as).
   betaReduceHeadVar : ID * list((path * (ID * NameEntry)))  * list((scope * Expr)) -> (scope * Expr)
-  betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _], as) = betaReduceHeadK((sw, w), as).
+  betaReduceHeadVar(_, [(_, (_, NameSubst(sw, w))) | _], as) = betaReduceHead((sw, w), as).
   betaReduceHeadVar(id, _, as) = kRebuild((empty_scope(), Var(id)), as).
   
   betaReduce_((_, Var(id))) = Var(id).

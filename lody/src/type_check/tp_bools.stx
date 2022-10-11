@@ -17,13 +17,13 @@ rules
   	typeOfExpr(s, else) == (else', else_type),
   	expectBetaEq((s, then_type), (s, else_type)).
   	
-  betaReduceHeadK((s, e@BoolTrue()), []) = (s, e).
-  betaReduceHeadK((s, e@BoolFalse()), []) = (s, e).
-  betaReduceHeadK((s, e@BoolType()), []) = (s, e).
-  betaReduceHeadK((s, BoolIf(c, t, e)), as) = betaReduceHeadIf(s, betaReduceHeadK((s, c), []), c, t, e, as).
+  betaReduceHead((s, e@BoolTrue()), []) = (s, e).
+  betaReduceHead((s, e@BoolFalse()), []) = (s, e).
+  betaReduceHead((s, e@BoolType()), []) = (s, e).
+  betaReduceHead((s, BoolIf(c, t, e)), as) = betaReduceHeadIf(s, betaReduceHead((s, c), []), c, t, e, as).
   betaReduceHeadIf : scope * (scope * Expr) * Expr * Expr * Expr  * list((scope * Expr)) -> (scope * Expr)
-  betaReduceHeadIf(s, (_, BoolTrue()), _, t, _, as) = betaReduceHeadK((s, t), as).
-  betaReduceHeadIf(s, (_, BoolFalse()), _, _, e, as) = betaReduceHeadK((s, e), as).
+  betaReduceHeadIf(s, (_, BoolTrue()), _, t, _, as) = betaReduceHead((s, t), as).
+  betaReduceHeadIf(s, (_, BoolFalse()), _, _, e, as) = betaReduceHead((s, e), as).
   betaReduceHeadIf(s, _, c, t, e, as) = kRebuild((s, BoolIf(c, t, e)), as).
   
   betaReduce_((s, e@BoolTrue())) = e.

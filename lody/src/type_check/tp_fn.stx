@@ -45,14 +45,14 @@ rules
   	
   	
   	
-  betaReduceHeadK((s, e@FnType(_, _, _)), []) = (s, e).
+  betaReduceHead((s, e@FnType(_, _, _)), []) = (s, e).
   
   // If we have no args left, we can return the head
-  betaReduceHeadK(head, []) = head.
+  betaReduceHead(head, []) = head.
   // If we encounter another FnDestruct, add it to the argument stack (krivine style)
-  betaReduceHeadK((s, FnDestruct(fn, arg)), args) = betaReduceHeadK(betaReduceHeadK((s, fn), []), [(s, arg) | args]).
+  betaReduceHead((s, FnDestruct(fn, arg)), args) = betaReduceHead(betaReduceHead((s, fn), []), [(s, arg) | args]).
   // If we encounter a FnConstruct, apply it to its argument
-  betaReduceHeadK((s, FnConstruct(arg_name, arg_type, body)), [arg | args]) = betaReduceHeadK(betaReduceHeadK((scopePutSubst(s, arg_name, arg), body), []), args).
+  betaReduceHead((s, FnConstruct(arg_name, arg_type, body)), [arg | args]) = betaReduceHead(betaReduceHead((scopePutSubst(s, arg_name, arg), body), []), args).
   
   betaReduce_((s, FnType(arg_name, arg_type, rtrn))) = FnType(arg_name, betaReduce((s, arg_type)), betaReduce((s, rtrn))).
   betaReduce_((s, FnConstruct(arg_name, arg_type, body))) = FnConstruct(arg_name, betaReduce((s, arg_type)), betaReduce((s, body))).

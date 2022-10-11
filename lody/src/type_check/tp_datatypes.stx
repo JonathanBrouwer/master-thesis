@@ -8,6 +8,8 @@ imports
   type_check/tp_fn
   
 rules
+
+  //---- Type of DataType
   // A datatype is a type
   typeOfExpr_(_, e@DataType(_, _)) = (e, Type()).
   
@@ -32,7 +34,7 @@ rules
   	scopePutType(s, n', betaReduce((sb, e'))) == s',
   	dataTypeConstrs(dn, sb, s', cs) == (s'', cs').// | error $[Constructor [n] of datatype [dn] is not strictly positive.].
   	
-  //
+  // Check if a specific constructor is strictly positive
   checkConstructorPositive : ID * Expr
   checkConstructorPositive(n, Var(n)).
   checkConstructorPositive(n, FnType(_, Var(n), b)) :- checkConstructorPositive(n, b).
@@ -40,6 +42,7 @@ rules
   	checkConstructorPositiveSub(n, e),
   	checkConstructorPositive(n, b).
   
+  // Check if a specific constructor does not reference the ID
   checkConstructorPositiveSub : ID * Expr
   checkConstructorPositiveSub(n, Var(m)) :- n != m.
   checkConstructorPositiveSub(n, FnType(_, e1, e2)) :- 
@@ -47,9 +50,8 @@ rules
   	checkConstructorPositiveSub(n, e2).
   checkConstructorPositiveSub(n, Type()).
   checkConstructorPositiveSub(n, BoolType()).
-  
-  
-  	
+   	
+  // -- Type of DataElim
   // We need to generate the type of the eliminator
   // It is beta reduced since it may contain variables
   typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
@@ -81,9 +83,8 @@ rules
   // We add `(base m)` to the rest
   dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
   
-  
+  // -- Beta reduction rules
   betaReduceHead((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
-//  betaReduceHead((s, e@DataElim(n))) = (s, DataElim(n)).
   
   // Head with no arguments stays the same
   betaReduceHead((s, e@DataElim(_)), []) = (s, e).
@@ -125,8 +126,8 @@ rules
   // Inserts recursive calls where necessary, and beta reduces result
   // Name of datatype, result of betaReduceHeadFnElim2, values for recursive calls
   betaReduceHeadFnElim3 : ID * ((scope * Expr) * Expr * int) * list((scope * Expr)) -> (scope * Expr)
-//  betaReduceHeadFnElim3(_, (e, _, 1)) = e.
-//  betaReduceHeadFnElim3(_, (_, _, 0)) = _. //TODO return original value
+  // If failed
+  betaReduceHeadFnElim3(n, ((s, v), _, 0), r) = _. //TODO return original value
   // We are at the base case
   // e is now the root function, note that it is not necesarrily var anymore
   betaReduceHeadFnElim3(_, (e, Var(_), 1), _) = e.
@@ -137,14 +138,6 @@ rules
   // Normal recursive case
   betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, _, fc), 1), r) = kApply(base, (s, ae)) :-
   	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe), []), fc, 1), r).
-  	
-  //betaReduceHeadFnApply(betaReduceHeadFnElim3(n, (betaReduceHead((s, fe)), fc, 1)), (s, ae)).
-
-//type_check/tp_datatypes!betaReduceHeadFnElim3(ScopedName(#s'_450-58,"MaybeBool"), ((#s'_1169-148,FnConstruct(…,…,…)),BoolType(),1), (?s-1183,?f-1182))
-  
-  
-  //TODO
-//  betaReduceHead((s, DataElim(n))) = (_, _).
   
   betaReduce_((s, e@DataType(_, _))) = e.
   expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).

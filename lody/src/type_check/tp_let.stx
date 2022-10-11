@@ -15,4 +15,4 @@ rules
   	typeOfExpr(s', b) == (b', b_type),
   	@l.Inferred := betaReduce((s, v')).
   	
-  betaReduceHead((s, Let(n, v, b))) = betaReduceHead((scopePutSubst(s, n, (s, v)), b)).
+  betaReduceHeadK((s, Let(n, v, b)), args) = betaReduceHeadK((scopePutSubst(s, n, (s, v)), b), args).

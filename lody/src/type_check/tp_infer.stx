@@ -14,7 +14,7 @@ rules
   	q == e,
     typeOfExpr_(s, q) == (e, t).
     
-  betaReduceHead((s, e@Infer(_))) = (s, e).
+  betaReduceHeadK((s, e@Infer(_)), args) = kRebuild((s, e), args).
   
   betaReduce_((_, Infer(e))) = Infer(e).
     

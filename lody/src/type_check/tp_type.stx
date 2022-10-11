@@ -10,7 +10,7 @@ imports
 rules
   typeOfExpr_(_, q@Type()) = (q, Type()).
   
-  betaReduceHead((s, e@Type())) = (s, e).
+  betaReduceHeadK((s, e@Type()), []) = (s, e).
   
   betaReduce_((_, Type())) = Type().
   

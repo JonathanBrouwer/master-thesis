@@ -11,23 +11,31 @@ signature constructors
 
 rules
   
-  betaReduceHead : (scope * Expr) -> (scope * Expr)
+  betaReduceHeadK : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  
+  kRebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  kRebuild(head, []) = head.
+  kRebuild((s, e), [arg | args]) = kRebuild(kApply((s, e), arg), args).
+  
+  kApply : (scope * Expr) * (scope * Expr) -> (scope * Expr)
+  kApply((s, f), arg) = (scopePutSubst(s, t, arg), FnDestruct(f, Var(t))) :- {stemp}
+  	new stemp, t == ScopedName(stemp, "temp").
   
   betaReduce : (scope * Expr) -> Expr
-  betaReduce(e) = betaReduce_(betaReduceHead(e)).
+  betaReduce(e) = betaReduce_(betaReduceHeadK(e, [])).
   betaReduce_ : (scope * Expr) -> Expr
   
   expectBetaEq : (scope * Expr) * (scope * Expr)
-  expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHead(e1), betaReduceHead(e2)).
+  expectBetaEq(e1, e2) :- expectBetaEq_(betaReduceHeadK(e1, []), betaReduceHeadK(e2, [])).
   expectBetaEq_ : (scope * Expr) * (scope * Expr)
   
   //Rules for AlphaEqVars
-  betaReduceHead((s, e@AlphaEqVars(_, _))) = (s, e).
+  betaReduceHeadK((s, e@AlphaEqVars(_, _)), _) = (s, e).
   expectBetaEq_((_, AlphaEqVars(a, b)), (_, AlphaEqVars(a, b))).
 	
   //Rules for betaReduceHeadFull
   betaReduceHeadFull : (scope * Expr) -> (scope * Expr)
-  betaReduceHeadFull(e) = betaReduceHeadFull_1(betaReduceHead(e)).
+  betaReduceHeadFull(e) = betaReduceHeadFull_1(betaReduceHeadK(e, [])).
     	
   betaReduceHeadFull_1 : (scope * Expr) -> (scope * Expr)
   betaReduceHeadFull_1((s, Infer(e))) = betaReduceHeadFull_1((s, e)).

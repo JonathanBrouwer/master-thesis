@@ -15,4 +15,4 @@ rules
     typeOfExpr(s, e) == (e', e_type),
     expectBetaEq((empty_scope(), e_type), (s, t')).
     
-  betaReduceHead((s, TypeAssert(e, _))) = betaReduceHead((s, e)).
+  betaReduceHeadK((s, TypeAssert(e, _)), args) = betaReduceHeadK((s, e), args).

@@ -37,8 +37,15 @@ and
 ]]
 ]] 0 errors run get-type on #1 to FnType("x", BoolType(), FnType("y", BoolType(), BoolType()))
 
-test bool decomp [[
+test bool decomp true [[
 [[
 true : if true then Bool else Type end
 ]]
 ]] 0 errors run get-type on #1 to BoolType()
+
+test bool decomp false [[
+[[
+true : if false then Type else Bool end
+]]
+]] 0 errors run get-type on #1 to BoolType()
+

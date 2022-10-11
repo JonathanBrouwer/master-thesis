@@ -85,6 +85,9 @@ rules
   betaReduceHead((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
 //  betaReduceHead((s, e@DataElim(n))) = (s, DataElim(n)).
   
+  // Head with no arguments stays the same
+  betaReduceHead((s, e@DataElim(_)), []) = (s, e).
+  
   //First, parse the arguments (at least one argument is guaranteed)
   // betaReduceHeadFnConstructorArgs will parse the arguments
   betaReduceHead((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, p, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-

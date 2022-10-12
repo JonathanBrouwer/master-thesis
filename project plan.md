@@ -46,15 +46,6 @@ Most interesting:
 [ ] Universe support
 
 
-- Add postulates
-
-FIX:
-```
-\f : (_: Type -> Type).
-\g : (_: f Bool -> f Bool).
-g
-```
+- Make sure application only evaluates once by eagerly evaluating
 
 
-- Type elaboration in statix -> Add to paper
-- Msg daniel

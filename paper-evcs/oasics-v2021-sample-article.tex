@@ -28,7 +28,29 @@
 \author{Aron Zwaan}{Delft University of Technology, The Netherlands \and \url{http://aronzwaan.github.io}}{a.s.zwaan@tudelft.nl}{}{}
 
 \Copyright{Jane Open Access and Joan R. Public} %TODO mandatory, please use full first names. LIPIcs license is "CC-BY";  http://creativecommons.org/licenses/by/3.0/
-\ccsdesc[100]{\textcolor{red}{Replace ccsdesc macro with valid one}}
+\begin{CCSXML}
+    <ccs2012>
+    <concept>
+    <concept_id>10011007.10011006.10011039.10011311</concept_id>
+    <concept_desc>Software and its engineering~Semantics</concept_desc>
+    <concept_significance>500</concept_significance>
+    </concept>
+    <concept>
+    <concept_id>10011007.10011006.10011008.10011009.10011012</concept_id>
+    <concept_desc>Software and its engineering~Functional languages</concept_desc>
+    <concept_significance>300</concept_significance>
+    </concept>
+    <concept>
+    <concept_id>10011007.10011006.10011041</concept_id>
+    <concept_desc>Software and its engineering~Compilers</concept_desc>
+    <concept_significance>300</concept_significance>
+    </concept>
+    </ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Software and its engineering~Semantics}
+\ccsdesc[300]{Software and its engineering~Functional languages}
+\ccsdesc[300]{Software and its engineering~Compilers}
 
 \keywords{Spoofax, Statix, Dependent Types} %TODO mandatory; please add comma-separated list of keywords
 
@@ -72,40 +94,31 @@ The base language that was implemented is the Calculus of Constructions \cite{Co
 
 \subsection{How scope graphs are used}
 
-To type-check the base language, we need to store information about the names we have encountered. There are two different situations, names that we encounter that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings. 
+To type-check the base language, we need to store information about the names we have encountered. There are two different situations, names that we encounter that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
 
-
-   we need scope graphs. This section describes how scope graphs are used.
-
-The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
+Both of these need to be stored in the scope graph. The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
 
 \begin{lstlisting}
-	signature sorts
-	NameEntry
-	constructors
-	NameType : Expr -> NameEntry
-	NameSubst : scope * Expr -> NameEntry
-	relations
-	name : ID -> NameEntry
-	name-resolution	labels P
+signature sorts	NameEntry
+constructors    NameType : Expr -> NameEntry
+                NameSubst : scope * Expr -> NameEntry
+relations       name : ID -> NameEntry
+name-resolution	labels P
 \end{lstlisting}
 
 These are all the definitions we will need to type-check programs. Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
 
 \begin{lstlisting}
-	scopePutType : scope * ID * Expr -> scope
-	scopePutSubst : scope * ID * (scope * Expr) -> scope
-	scopeGetName : scope * ID -> NameEntry
-	scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
-	empty_scope : -> scope
+scopePutType : scope * ID * Expr -> scope
+scopePutSubst : scope * ID * (scope * Expr) -> scope
+scopeGetName : scope * ID -> NameEntry
+scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
+empty_scope : -> scope
 \end{lstlisting}
 
 The \verb|scopePutType| and \verb|scopePutSubsts| relations generate a new scope given a parent scope and a type or substitution respectively. To query the scope graph, use \verb|scopeGetName| or \verb|scopeGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|empty_scope| returns a fresh empty scope.
 
-
-System F, which allows a term to depend on a type (also known as Type Polymorphism or Type-Generic Functions)  has been implemented before 
-
-The Calculus of Constructions is the top of the lambda cube. System F, which 
+\subsection{}
 
 
 \bibliography{oasics-v2021-sample-article}

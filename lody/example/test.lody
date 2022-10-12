@@ -1,3 +1,4 @@
-data Unit =
-	MakeUnit : Unit;
-((elim Unit) : (P: (_ : Unit -> Type) -> (n: Unit -> P n)))
+data Maybe =
+	None : Maybe,
+	Some : x: Bool -> Maybe;
+Maybe

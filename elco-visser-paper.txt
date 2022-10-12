@@ -1,6 +1,8 @@
 Abstract
 Introduction: 
 - Simply typed lambda + system f (Scopes as types)
+
+- We thought it would be hard because:
 - Hindley Milner not possible? (No paper)
 - Generalization requires knowing which variables are free
 

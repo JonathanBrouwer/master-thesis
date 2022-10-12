@@ -9,4 +9,18 @@ Thierry Coquand and Gérard Huet.
   {https://doi.org/10.1016/0890-5401(88)90005-3}
   {\path{doi:10.1016/0890-5401(88)90005-3}}.
 
+\bibitem{spoofax}
+Lennart Kats and Eelco Visser.
+\newblock The spoofax language workbench.
+\newblock {\em ACM SIGPLAN Notices}, 45:237--238, 10 2010.
+\newblock \href {https://doi.org/10.1145/1869542.1869592}
+  {\path{doi:10.1145/1869542.1869592}}.
+
+\bibitem{krivine}
+Jean-Louis Krivine.
+\newblock A call-by-name lambda-calculus machine.
+\newblock {\em Higher Order Symbol. Comput.}, 20(3):199–207, sep 2007.
+\newblock \href {https://doi.org/10.1007/s10990-007-9018-9}
+  {\path{doi:10.1007/s10990-007-9018-9}}.
+
 \end{thebibliography}

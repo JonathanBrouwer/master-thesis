@@ -17,6 +17,10 @@
 
 %\graphicspath{{./graphics/}}%helpful if your graphic files are in another directory
 
+% Added because the included oasics-logo-bw.pdf is pdf 1.6 and this was giving a warning
+% Feel free to remove this if it breaks anything
+\pdfminorversion=6
+
 \bibliographystyle{plainurl}% the mandatory bibstyle
 
 \title{Dependently Typed Languages in Statix} %TODO Please add
@@ -27,7 +31,9 @@
 
 \author{Aron Zwaan}{Delft University of Technology, The Netherlands \and \url{http://aronzwaan.github.io}}{a.s.zwaan@tudelft.nl}{}{}
 
-\Copyright{Jane Open Access and Joan R. Public} %TODO mandatory, please use full first names. LIPIcs license is "CC-BY";  http://creativecommons.org/licenses/by/3.0/
+\authorrunning{J. Brouwer, J. Cockx and A. Zwaan} 
+
+\Copyright{Jonathan Brouwer, Jesper Cockx and Aron Zwaan} 
 \begin{CCSXML}
     <ccs2012>
     <concept>
@@ -80,9 +86,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent convallis orci
 
 \section{Introduction}
 
-Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of Static Semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. 
+Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of Static Semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. 
 
-Dependently typed languages are different from other languages because they allow types to be parameterized by values. This allows more rigorous reasoning over types and the values that are inhabited by a type. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires evaluation of the terms they are parameterized by. 
+Dependently typed languages are different from other languages, because they allow types to be parameterized by values. This allows more rigorous reasoning over types and the values that are inhabited by a type. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires evaluation of the terms they are parameterized by. 
 
 This goal of this paper is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed languages can be encoded concisely in Statix. The goal is not to show that Statix can implement it, but that implementing it is easier in Statix than in a general-purpose programming language. 
 
@@ -109,16 +115,35 @@ name-resolution	labels P
 These are all the definitions we will need to type-check programs. Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
 
 \begin{lstlisting}
-scopePutType : scope * ID * Expr -> scope
+scopePutType  : scope * ID * Expr -> scope
 scopePutSubst : scope * ID * (scope * Expr) -> scope
-scopeGetName : scope * ID -> NameEntry
+scopeGetName  : scope * ID -> NameEntry
 scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
-empty_scope : -> scope
+empty_scope   : -> scope
 \end{lstlisting}
 
-The \verb|scopePutType| and \verb|scopePutSubsts| relations generate a new scope given a parent scope and a type or substitution respectively. To query the scope graph, use \verb|scopeGetName| or \verb|scopeGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|empty_scope| returns a fresh empty scope.
+The \verb|scopePutType| and \verb|scopePutSubsts| relations generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|scopeGetName| or \verb|scopeGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|empty_scope| returns a fresh empty scope.
 
-\subsection{}
+\subsection{Beta Reductions}
+
+A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using Krivine abstract machines\cite{krivine}. We define a rule \verb|betaReduceHead|, that takes a scoped expression and a stack of applications. The scope acts as the environment from \cite{krivine} paper, using \verb|NameSubst| to store substitutions. Furthermore, we can define \verb|expectBetaEq|, which asserts that two terms are equal. This calls \verb|expectBetaEq_| with \verb|betaReduceHead| applied.
+
+\begin{lstlisting}
+betaReduceHead : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+expectBetaEq   : (scope * Expr) * (scope * Expr)
+expectBetaEq(e1, e2) :- 
+    expectBetaEq_(betaReduceHead(e1, []), betaReduceHead(e2, [])).
+expectBetaEq_  : (scope * Expr) * (scope * Expr)
+\end{lstlisting}	
+
+\subsection{Type-checking programs}
+
+We will define a Statix relation \verb|typeOfExpr| that takes a scope and an expression and type-checks the scope in the expression. It returns the type of the expression.
+
+\begin{lstlisting}
+typeOfExpr : scope * Expr -> Expr
+\end{lstlisting}
+
 
 
 \bibliography{oasics-v2021-sample-article}

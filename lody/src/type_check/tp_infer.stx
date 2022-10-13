@@ -27,10 +27,10 @@ rules
   expectBetaEq_((s1, e1@AlphaEqVars(_, _)), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@FnType(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_type2 body2}
   	e2 == FnType(arg_name1, Infer(arg_type2), Infer(body2)),
-  	expectBetaEq_((s1, e1), (empty_scope(), e2)).
+  	expectBetaEq_((s1, e1), (sEmpty(), e2)).
   expectBetaEq_((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@BoolIf(c1, t1, b1)), (_, Infer(e2))) :- {c2 t2 b2}
   	e2 == BoolIf(Infer(c2), Infer(t2), Infer(b2)),
-  	expectBetaEq_((s1, e1), (empty_scope(), e2)).
+  	expectBetaEq_((s1, e1), (sEmpty(), e2)).

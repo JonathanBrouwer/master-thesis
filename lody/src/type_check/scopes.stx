@@ -18,29 +18,29 @@ name-resolution
   
 rules
 
-  scopePutType : scope * ID * Expr -> scope
-  scopePutType(s, id, t) = s' :-
+  sPutType : scope * ID * Expr -> scope
+  sPutType(s, id, t) = s' :-
   	new s', s' -P-> s,
   	!name[id, NameType(t)] in s'.
   	
-  scopePutSubst : scope * ID * (scope * Expr) -> scope
-  scopePutSubst(s, id, (sv, v)) = s' :-
+  sPutSubst : scope * ID * (scope * Expr) -> scope
+  sPutSubst(s, id, (sv, v)) = s' :-
   	new s', s' -P-> s,
   	!name[id, NameSubst(sv, v)] in s'.
   	
-  scopeGetName : scope * ID -> (NameEntry * scope)
-  scopeGetName(s, rid) = (result, s') :- {id'}
-  	scopeGetNames(s, rid) == [(_, (id'@ScopedName(s', _), result))] | error $[Unknown variable [rid] in [s]],
+  sGetName : scope * ID -> (NameEntry * scope)
+  sGetName(s, rid) = (result, s') :- {id'}
+  	sGetNames(s, rid) == [(_, (id'@ScopedName(s', _), result))] | error $[Unknown variable [rid] in [s]],
   	@rid.ref := id'.
 
-  scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
-  scopeGetNames(s, Syn(n)) = results :-
+  sGetNames : scope * ID -> list((path * (ID * NameEntry)))
+  sGetNames(s, Syn(n)) = results :-
   	query name filter P* and { id' :- rid(id') == n } min $ < P in s |-> results.
-  scopeGetNames(s, id@ScopedName(_, _)) = results :-
+  sGetNames(s, id@ScopedName(_, _)) = results :-
   	query name filter P* and { id' :- id' == id } min $ < P in s |-> results.
 
-  empty_scope : -> scope
-  empty_scope() = s :- new s.
+  sEmpty : -> scope
+  sEmpty() = s :- new s.
   
   rid : ID -> RID
   rid(Syn(n)) = n.

@@ -21,6 +21,8 @@
 % Feel free to remove this if it breaks anything
 \pdfminorversion=6
 
+\usepackage{mathpartir}
+
 \bibliographystyle{plainurl}% the mandatory bibstyle
 
 \title{Dependently Typed Languages in Statix} %TODO Please add
@@ -98,16 +100,16 @@ We will first show the base language and explain the way that Statix was used to
 
 The base language that was implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube. One extra feature was added that is not present in the Calculus of Constructions, let bindings.
 
-\subsection{How scope graphs are used}
+\subsection{Scope Graphs}
 
 To type-check the base language, we need to store information about the names we have encountered. There are two different situations, names that we encounter that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
 
-Both of these need to be stored in the scope graph. The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NameType|, which stores the type of a name, or a \verb|NameSubst|, which stores a substitution corresponding to a name. 
+Both of these need to be stored in the scope graph. The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a substitution corresponding to a name. 
 
 \begin{lstlisting}
 signature sorts	NameEntry
-constructors    NameType : Expr -> NameEntry
-                NameSubst : scope * Expr -> NameEntry
+constructors    NType : Expr -> NameEntry
+                NSubst : scope * Expr -> NameEntry
 relations       name : ID -> NameEntry
 name-resolution	labels P
 \end{lstlisting}
@@ -115,21 +117,22 @@ name-resolution	labels P
 These are all the definitions we will need to type-check programs. Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
 
 \begin{lstlisting}
-scopePutType  : scope * ID * Expr -> scope
-scopePutSubst : scope * ID * (scope * Expr) -> scope
-scopeGetName  : scope * ID -> NameEntry
-scopeGetNames : scope * ID -> list((path * (ID * NameEntry)))
-empty_scope   : -> scope
+sPutType  : scope * ID * Expr -> scope
+sPutSubst : scope * ID * (scope * Expr) -> scope
+sGetName  : scope * ID -> NameEntry
+sGetNames : scope * ID -> list((path * (ID * NameEntry)))
+sEmpty    : -> scope
 \end{lstlisting}
 
-The \verb|scopePutType| and \verb|scopePutSubsts| relations generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|scopeGetName| or \verb|scopeGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|empty_scope| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubsts| relations generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|sGetName| or \verb|sGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
 
 \subsection{Beta Reductions}
 
-A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using Krivine abstract machines\cite{krivine}. We define a rule \verb|betaReduceHead|, that takes a scoped expression and a stack of applications. The scope acts as the environment from \cite{krivine} paper, using \verb|NameSubst| to store substitutions. Furthermore, we can define \verb|expectBetaEq|, which asserts that two terms are equal. This calls \verb|expectBetaEq_| with \verb|betaReduceHead| applied.
+A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using Krivine abstract machines\cite{krivine}. We define a rule \verb|betaReduceHead|, that takes a scoped expression and a stack of applications. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. Furthermore, we can define \verb|expectBetaEq|, which asserts that two terms are equal. This calls \verb|expectBetaEq_| with \verb|betaReduceHead| applied.
 
 \begin{lstlisting}
-betaReduceHead : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+betaReduceHead : (scope * Expr) * list((scope * Expr))
+                                     -> (scope * Expr)
 expectBetaEq   : (scope * Expr) * (scope * Expr)
 expectBetaEq(e1, e2) :- 
     expectBetaEq_(betaReduceHead(e1, []), betaReduceHead(e2, [])).
@@ -143,6 +146,45 @@ We will define a Statix relation \verb|typeOfExpr| that takes a scope and an exp
 \begin{lstlisting}
 typeOfExpr : scope * Expr -> Expr
 \end{lstlisting}
+
+
+We can then start defining concepts in this language. First, we present the inference rules of the language:
+
+\begin{figure}
+
+\begin{mathpar}
+\inferrule{ }{s \vdash Type() : Type()}
+
+\inferrule{ sPutSubst(s, n, (s, v)) \vdash b : t }{s \vdash Let(n, v, b) : t }
+
+\inferrule{ sGetName(s, n) = NType(t) }{ s \vdash Var(n) : t }
+
+\inferrule{ sGetName(s, n) = NSubst(se, e) \and se \vdash e : t }{ s \vdash Var(n) : t }
+
+\inferrule{ s \vdash a : at \and at \underset{\beta}{=} Type() \and a \underset{\beta}{\Rightarrow} a' \and sPutType(s, n, a') \vdash b : bt \and bt \underset{\beta}{=} Type() } { s \vdash FnType(n, a, b) : Type() }
+
+\inferrule{ s \vdash a : at \and at \underset{\beta}{=} Type() \and a \underset{\beta}{\Rightarrow} a' \and sPutType(s, n, a') \vdash b : bt } { s \vdash FnConstruct(n, a, b) : FnType(n, a', bt) }
+
+
+
+\end{mathpar}
+\caption{Rules for type-checking the Calculus of Constructions}
+\label{fig:type-check-rules}
+\end{figure}
+
+\begin{figure}
+\begin{mathpar}
+\inferrule{ }{ s, Type(), [] \Rightarrow s, Type() }
+
+\inferrule{ sPutSubst(s, n, (s, v)) \vdash b : t }{s \vdash Let(n, v, b) : t }
+\end{mathpar}
+\caption{Rules for beta reducing the Calculus of Constructions}
+\label{fig:beta-head-rules}
+\end{figure}
+
+
+
+
 
 
 

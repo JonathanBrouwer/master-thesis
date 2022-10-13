@@ -11,7 +11,7 @@ resolve {s n cs b s' s'' n' cs' x y z}
 //  
 ////  typeOfExpr_(s, DataTypeDecl(n, cs, b)) 
 //  	scopeName(s', n) == n',
-//  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
+//  	sPutSubst(s, n', (s, DataType(n', cs'))) == s',
 //  	dataTypeConstrs(s', s', cs) == (s'', cs'),
 //  	
 //  	b == FnDestruct(FnDestruct(FnDestruct(DataElim(n), FnConstruct(Syn("_"), Var(n), Type())), BoolType()), Var(Syn("MakeUnit"))),

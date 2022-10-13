@@ -12,7 +12,7 @@ rules
   typeOfExpr_(s, q@BoolType()) = (q, Type()).
   typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
   	typeOfExpr(s, cond) == (cond', cond_type),
-  	expectBetaEq((s, cond_type), (empty_scope(), BoolType())),
+  	expectBetaEq((s, cond_type), (sEmpty(), BoolType())),
   	typeOfExpr(s, then) == (then', then_type),
   	typeOfExpr(s, else) == (else', else_type),
   	expectBetaEq((s, then_type), (s, else_type)).

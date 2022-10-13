@@ -12,35 +12,35 @@ rules
   	
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
+  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type())),
   	// Reduce arg_type
   	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
-  	scopePutType(s, arg_name', arg_type_reduced) == s',
+  	sPutType(s, arg_name', arg_type_reduced) == s',
   	typeOfExpr(s', rtrn) == (rtrn', rtrn_type),
-  	expectBetaEq((empty_scope(), rtrn_type), (empty_scope(), Type())).
+  	expectBetaEq((sEmpty(), rtrn_type), (sEmpty(), Type())).
   
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name', arg_type', body'), FnType(arg_name', arg_type_reduced, body_type)) :- {arg_type_type ns s'}
 	scopeName(s', arg_name) == arg_name',
 	
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((empty_scope(), arg_type_type), (empty_scope(), Type())),
+  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type())),
   	// Reduce arg_type
   	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the body with the arg in scope
-  	scopePutType(s, arg_name', arg_type_reduced) == s',
+  	sPutType(s, arg_name', arg_type_reduced) == s',
   	typeOfExpr(s', body) == (body', body_type).
   	
   typeOfExpr_(s, FnDestruct(fn, arg)) = (FnDestruct(fn', arg'), fn_body_type') :- {sf fn_arg_name arg_type fn_type fn_arg_type fn_body_type s'}
   	// After beta reduction, the type of fn must be FnType
   	typeOfExpr(s, fn) == (fn', fn_type),
-  	betaReduceHeadFull((empty_scope(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
+  	betaReduceHeadFull((sEmpty(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
   	typeOfExpr(s, arg) == (arg', arg_type),
-  	expectBetaEq((empty_scope(), arg_type), (sf, fn_arg_type)),
+  	expectBetaEq((sEmpty(), arg_type), (sf, fn_arg_type)),
   	// Find body type with substitution needed
-  	scopePutSubst(sf, fn_arg_name, (s, arg')) == s',
+  	sPutSubst(sf, fn_arg_name, (s, arg')) == s',
   	betaReduce((s', fn_body_type)) == fn_body_type'.
   	
   	
@@ -50,7 +50,7 @@ rules
   // If we encounter another FnDestruct, add it to the argument stack (krivine style)
   betaReduceHead((s, FnDestruct(fn, arg)), args) = betaReduceHead(betaReduceHead((s, fn), []), [(s, arg) | args]).
   // If we encounter a FnConstruct, apply it to its argument
-  betaReduceHead((s, FnConstruct(arg_name, arg_type, body)), [arg | args]) = betaReduceHead(betaReduceHead((scopePutSubst(s, arg_name, arg), body), []), args).
+  betaReduceHead((s, FnConstruct(arg_name, arg_type, body)), [arg | args]) = betaReduceHead(betaReduceHead((sPutSubst(s, arg_name, arg), body), []), args).
   // If we encounter a FnConstruct with no arguments, return it
   betaReduceHead((s, e@FnConstruct(_, _, _)), []) = (s, e).
   
@@ -61,13 +61,13 @@ rules
   expectBetaEq_((s1, FnType(arg_name1, arg_type1, body1)), (s2, FnType(arg_name2, arg_type2, body2))) :-
   	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
   	expectBetaEq(
-  		(scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body1), 
-  		(scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body2)).
+  		(sPutSubst(s1, arg_name1, (sEmpty(), AlphaEqVars(arg_name1, arg_name2))), body1), 
+  		(sPutSubst(s2, arg_name2, (sEmpty(), AlphaEqVars(arg_name1, arg_name2))), body2)).
   expectBetaEq_((s1, FnConstruct(arg_name1, arg_type1, body1)), (s2, FnConstruct(arg_name2, arg_type2, body2))) :-
   	expectBetaEq((s1, arg_type1), (s2, arg_type2)),
   	expectBetaEq(
-  		(scopePutSubst(s1, arg_name1, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body1), 
-  		(scopePutSubst(s2, arg_name2, (empty_scope(), AlphaEqVars(arg_name1, arg_name2))), body2)).
+  		(sPutSubst(s1, arg_name1, (sEmpty(), AlphaEqVars(arg_name1, arg_name2))), body1), 
+  		(sPutSubst(s2, arg_name2, (sEmpty(), AlphaEqVars(arg_name1, arg_name2))), body2)).
   expectBetaEq_((s1, FnDestruct(fn1, arg1)), (s2, FnDestruct(fn2, arg2))) :-
   	expectBetaEq((s1, fn1), (s2, fn2)), expectBetaEq((s1, arg1), (s2, arg2)).
   	

@@ -25,7 +25,7 @@ rules
   typeOfExpr : scope * Expr -> (Expr * Expr)
   typeOfExpr(s, e) = (q, T) :-
     typeOfExpr_(s, e) == (q, T),
-    @e.type := betaReduce((empty_scope(), T)).
+    @e.type := betaReduce((sEmpty(), T)).
 //	@e.type := T.
   
   typeOfExpr_ : scope * Expr -> (Expr * Expr)

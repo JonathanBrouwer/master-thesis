@@ -18,7 +18,7 @@ rules
   kRebuild((s, e), [arg | args]) = kRebuild(kApply((s, e), arg), args).
   
   kApply : (scope * Expr) * (scope * Expr) -> (scope * Expr)
-  kApply((s, f), arg) = (scopePutSubst(s, t, arg), FnDestruct(f, Var(t))) :- {stemp}
+  kApply((s, f), arg) = (sPutSubst(s, t, arg), FnDestruct(f, Var(t))) :- {stemp}
   	new stemp, t == ScopedName(stemp, "temp").
   
   betaReduce : (scope * Expr) -> Expr

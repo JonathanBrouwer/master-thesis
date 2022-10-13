@@ -10,7 +10,7 @@ rules
 
   programOk : Start
   programOk(Program(expr)) :-
-  	typeOfExpr(empty_scope(), expr) == _.
+  	typeOfExpr(sEmpty(), expr) == _.
   	
   	
   

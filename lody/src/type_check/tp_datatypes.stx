@@ -17,7 +17,7 @@ rules
   typeOfExpr_(s, DataTypeDecl(n, cs, b)) = (DataTypeDecl(n', cs', b'), b_type) :- {s' s''}
   	scopeName(s', n) == n',
   	
-  	scopePutSubst(s, n', (s, DataType(n', cs'))) == s',
+  	sPutSubst(s, n', (s, DataType(n', cs'))) == s',
   	dataTypeConstrs(n', s', s', cs) == (s'', cs'),
   	typeOfExpr(s'', b) == (b', b_type).
   	
@@ -29,9 +29,9 @@ rules
   	
   	typeOfExpr(sb, e) == (e', e_type),
   	checkConstructorPositive(dn, e'),
-  	expectBetaEq((empty_scope(), e_type), (empty_scope(), Type())),
+  	expectBetaEq((sEmpty(), e_type), (sEmpty(), Type())),
   	
-  	scopePutType(s, n', betaReduce((sb, e'))) == s',
+  	sPutType(s, n', betaReduce((sb, e'))) == s',
   	dataTypeConstrs(dn, sb, s', cs) == (s'', cs').// | error $[Constructor [n] of datatype [dn] is not strictly positive.].
   	
   // Check if a specific constructor is strictly positive
@@ -55,7 +55,7 @@ rules
   // We need to generate the type of the eliminator
   // It is beta reduced since it may contain variables
   typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
-  	scopeGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
+  	sGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
   	new sp, p == ScopedName(sp, "P"),
   	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
   	
@@ -92,7 +92,7 @@ rules
   //First, parse the arguments (at least one argument is guaranteed)
   // betaReduceHeadFnConstructorArgs will parse the arguments
   betaReduceHead((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, p, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
-  	scopeGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
+  	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
   
   // Checks if we have enough arguments
   // s, n, original args, return value of betaReduceHeadFnConstructorArgs, data constructors -> result

@@ -1,5 +1,12 @@
 \begin{thebibliography}{1}
 
+\bibitem{lambda_cube}
+Henk Barendregt.
+\newblock Introduction to generalized type systems.
+\newblock {\em Journal of Functional Programming}, 1(2):125–154, 1991.
+\newblock \href {https://doi.org/10.1017/S0956796800020025}
+  {\path{doi:10.1017/S0956796800020025}}.
+
 \bibitem{Coquand_Huet_1988}
 Thierry Coquand and Gérard Huet.
 \newblock The calculus of constructions.
@@ -22,5 +29,18 @@ Jean-Louis Krivine.
 \newblock {\em Higher Order Symbol. Comput.}, 20(3):199–207, sep 2007.
 \newblock \href {https://doi.org/10.1007/s10990-007-9018-9}
   {\path{doi:10.1007/s10990-007-9018-9}}.
+
+\bibitem{scopes_as_types}
+Hendrik van Antwerpen, Casper Bach~Poulsen, Arjen Rouvoet, and Eelco Visser.
+\newblock Scopes as types.
+\newblock {\em Proceedings of the ACM on Programming Languages},
+  2(OOPSLA):1–30, 2018.
+\newblock \href {https://doi.org/10.1145/3276484} {\path{doi:10.1145/3276484}}.
+
+\bibitem{pi_forall}
+Stephanie Weirich.
+\newblock Implementing dependent types in pi-forall, August 2022.
+\newblock URL:
+  \url{https://github.com/sweirich/pi-forall/blob/7187f5e8f2bc4871d92fcf5c42f51c00693efb6e/doc/oplss.pdf}.
 
 \end{thebibliography}

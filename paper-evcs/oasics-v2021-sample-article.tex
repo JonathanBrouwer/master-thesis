@@ -21,11 +21,12 @@
 % Feel free to remove this if it breaks anything
 \pdfminorversion=6
 
+% Package is used to create inference rules
 \usepackage{mathpartir}
 
-\bibliographystyle{plainurl}% the mandatory bibstyle
+\bibliographystyle{plainurl}
 
-\title{Dependently Typed Languages in Statix} %TODO Please add
+\title{Dependently Typed Languages in Statix}
 
 \author{Jonathan Brouwer}{Delft University of Technology, The Netherlands \and \url{http://jonathanb.nl}}{j.t.brouwer@student.tudelft.nl}{}{}
 
@@ -83,7 +84,7 @@
 \maketitle
 
 \begin{abstract}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent convallis orci arcu, eu mollis dolor. Aliquam eleifend suscipit lacinia. Maecenas quam mi, porta ut lacinia sed, convallis ac dui. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse potenti. 
+When working with the Spoofax workbench, the Statix meta-language can be used for the specification of Static Semantics. Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. Type-checking dependent languages is challenging since there is a need to evaluate terms during type-checking. This paper presents how to make a dependent language by implementing the calculus of constructions in Statix. 
 \end{abstract}
 
 \section{Introduction}
@@ -96,9 +97,26 @@ This goal of this paper is to investigate how well Statix is fit for the task of
 
 We will first show the base language and explain the way that Statix was used to implement this language. Next, we will explore several features and see how well they can be expressed in Statix.
 
+The implementation of the language is available at \url{https://github.com/JonathanBrouwer/master-thesis/}. The \verb|final-simple| branch contains the implementation that is relevant for this paper. 
+
+\section{Background}
+
+There is no reason to assume that implementing the Calculus of Constructions in Statix is easy. For example, implementing Hindley Milner type inference is Statix is not possible, since generalization requires knowing which meta-variables are free, which is a language feature that Statix does not support. 
+
 \section{Calculus of Constructions}
 
-The base language that was implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube. One extra feature was added that is not present in the Calculus of Constructions, let bindings.
+\subsection{The language}
+
+The base language that was implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions, let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful.
+
+\begin{lstlisting}
+Type        : Expr
+Let         : ID * Expr * Expr -> Expr
+Var         : ID -> Expr
+FnType      : ID * Expr * Expr -> Expr
+FnConstruct : ID * Expr * Expr -> Expr
+FnDestruct  : Expr * Expr -> Expr
+\end{lstlisting}
 
 \subsection{Scope Graphs}
 
@@ -128,63 +146,129 @@ The \verb|sPutType| and \verb|sPutSubsts| relations generate a new scope given a
 
 \subsection{Beta Reductions}
 
-A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using Krivine abstract machines\cite{krivine}. We define a rule \verb|betaReduceHead|, that takes a scoped expression and a stack of applications. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. Furthermore, we can define \verb|expectBetaEq|, which asserts that two terms are equal. This calls \verb|expectBetaEq_| with \verb|betaReduceHead| applied.
+A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using Krivine abstract machines\cite{krivine}. We define a rule \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. Furthermore, we can define \verb|expectBetaEq|, which asserts that two terms are equal. This calls \verb|expectBetaEq_| with \verb|betaReduceHead| applied.
 
 \begin{lstlisting}
 betaReduceHead : (scope * Expr) * list((scope * Expr))
                                      -> (scope * Expr)
+betaReduce : (scope * Expr) -> Expr
 expectBetaEq   : (scope * Expr) * (scope * Expr)
 expectBetaEq(e1, e2) :- 
     expectBetaEq_(betaReduceHead(e1, []), betaReduceHead(e2, [])).
 expectBetaEq_  : (scope * Expr) * (scope * Expr)
 \end{lstlisting}	
 
-\subsection{Type-checking programs}
+\subsection{Type-checking the Calculus of Constructions}
+
+\begin{figure}
+	
+	\begin{mathpar}	
+		\inferrule{ 
+		} {s \vdash Type() : Type()}
+		
+		\inferrule{ 
+			s \vdash v : vt
+			\\sPutSubst(s, n, (s, v)) \vdash b : t 
+		}{s \vdash Let(n, v, b) : t }
+		
+		\\
+		
+		\inferrule{ 
+			sGetName(s, n) = NType(t) 
+		}{ s \vdash Var(n) : t }
+		
+		\inferrule{ 
+			sGetName(s, n) = NSubst(se, e) 
+			\\ se \vdash e : t 
+		}{ s \vdash Var(n) : t }
+		
+		\inferrule{ 
+			s \vdash a : at 
+			\\ at \underset{\beta}{=} Type() 
+			\\ s \vdash a \underset{\beta}{\Rightarrow} a' 
+			\\\\ sPutType(s, n, a') \vdash b : bt 
+			\\ bt \underset{\beta}{=} Type() 
+		} { s \vdash FnType(n, a, b) : Type() }
+		
+		\inferrule{ 
+			s \vdash a : at 
+			\\ at \underset{\beta}{=} Type() 
+			\\ s \vdash a \underset{\beta}{\Rightarrow} a' 
+			\\\\ sPutType(s, n, a') \vdash b : bt
+		} { s \vdash FnConstruct(n, a, b) : FnType(n, a', bt) }
+		
+		\inferrule{ 
+			s \vdash f : ft 
+			\\ s \vdash ft \underset{\beta h}{\Rightarrow} s' \vdash FnType(da, dt, db) 
+			\\\\ s \vdash a : at 
+			\\ at \underset{\beta}{=} sf \vdash dt
+			\\ s' \vdash db \underset{\beta}{\Rightarrow} db'
+		} { s \vdash FnDestruct(f, a) : db' }
+		
+		
+	\end{mathpar}
+	\caption{Rules for type-checking the Calculus of Constructions}
+	\label{fig:type-check-rules}
+\end{figure}
 
 We will define a Statix relation \verb|typeOfExpr| that takes a scope and an expression and type-checks the scope in the expression. It returns the type of the expression.
 
 \begin{lstlisting}
 typeOfExpr : scope * Expr -> Expr
 \end{lstlisting}
+We can then start defining type-checking rules for the language. We use some syntax in order to make the rules a bit more compact. 
+\begin{enumerate}
+	\item $s \vdash e : t$ is the same as \verb|typeOfExpr(s, e) == t|
+	\item $s1 \vdash e1 \underset{\beta}{=} s2 \vdash e2$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
+	\item $s1 \vdash e1 \underset{\beta h}{\Rightarrow} s2 \vdash e2$ is the same as \verb|betaReduceHead((s1, e1)) == (s2, e2)|
+	\item $s1 \vdash e1 \underset{\beta h}{\Rightarrow} e2$ is the same as \verb|betaReduce((s1, e1)) == e2|
+	\item $sEmpty \vdash e$ is the same as $e$ (empty scopes can be left out)
+\end{enumerate}
 
-
-We can then start defining concepts in this language. First, we present the inference rules of the language:
-
-\begin{figure}
-
-\begin{mathpar}
-\inferrule{ }{s \vdash Type() : Type()}
-
-\inferrule{ sPutSubst(s, n, (s, v)) \vdash b : t }{s \vdash Let(n, v, b) : t }
-
-\inferrule{ sGetName(s, n) = NType(t) }{ s \vdash Var(n) : t }
-
-\inferrule{ sGetName(s, n) = NSubst(se, e) \and se \vdash e : t }{ s \vdash Var(n) : t }
-
-\inferrule{ s \vdash a : at \and at \underset{\beta}{=} Type() \and a \underset{\beta}{\Rightarrow} a' \and sPutType(s, n, a') \vdash b : bt \and bt \underset{\beta}{=} Type() } { s \vdash FnType(n, a, b) : Type() }
-
-\inferrule{ s \vdash a : at \and at \underset{\beta}{=} Type() \and a \underset{\beta}{\Rightarrow} a' \and sPutType(s, n, a') \vdash b : bt } { s \vdash FnConstruct(n, a, b) : FnType(n, a', bt) }
-
-
-
-\end{mathpar}
-\caption{Rules for type-checking the Calculus of Constructions}
-\label{fig:type-check-rules}
-\end{figure}
-
-\begin{figure}
-\begin{mathpar}
-\inferrule{ }{ s, Type(), [] \Rightarrow s, Type() }
-
-\inferrule{ sPutSubst(s, n, (s, v)) \vdash b : t }{s \vdash Let(n, v, b) : t }
-\end{mathpar}
-\caption{Rules for beta reducing the Calculus of Constructions}
-\label{fig:beta-head-rules}
-\end{figure}
+The inference rules above can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
+\begin{lstlisting}
+typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
+    typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
+\end{lstlisting}
 
 
 
 
+
+
+%\begin{figure}
+%\begin{mathpar}
+%\inferrule{ }{ s, Type(), [] \Rightarrow s, Type() }
+%
+%\inferrule{ sPutSubst(s, n, (s, v)) \vdash b : t }{s \vdash Let(n, v, b) : t }
+%\end{mathpar}
+%\caption{Rules for beta reducing the Calculus of Constructions}
+%\label{fig:beta-head-rules}
+%\end{figure}
+
+\section{Extensions}
+
+\subsection{Avoiding variable capture}
+One problem with the current implementation is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, the correct type is not possible to express without renaming!
+
+The problem is that there are multiple names, and there is no way to distinguish between them. This can be solved by using scopes to distinguish names. 
+
+\subsection{Inference}
+
+Ideally, 
+
+\subsection{Data Types}
+
+
+
+\section{Related Work}
+The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. In section 2.5 of Scopes as Types \cite{scopes_as_types}, an implementation of System F is shown that does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can contain terms. 
+
+Another interesting comparison is to see how implementing a dependently typed language in Statix differs from implementing it in a general purpose language. The pi-forall language\cite{pi_forall} is a good example of a language with a similar complexity to the language presented in this paper. In principle, the implementations are very similar. For example, figure 3 of pi-forall is similar to figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system, whereas this paper does not.
+
+\section{Conclusion}
+
+We have demonstrated that the Calculus of Constructions can be implemented concisely in Statix, by storing substitutions in the scope graph. We have also presented a few extensions to the Calculus of Constructions and discussed how they could be implemented.
 
 
 

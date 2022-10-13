@@ -8,44 +8,44 @@ Reallocated glb_str_end (elt_size=8) to 20 items from 10.
 Reallocated singl_function (elt_size=8) to 100 items from 50.
 Reallocated singl_function (elt_size=8) to 100 items from 50.
 Database file #1: oasics-v2021-sample-article.bib
-You've used 3 entries,
+You've used 6 entries,
             2882 wiz_defined-function locations,
-            653 strings with 5636 characters,
-and the built_in function-call counts, 1471 in all, are:
-= -- 154
-> -- 39
+            675 strings with 6208 characters,
+and the built_in function-call counts, 2767 in all, are:
+= -- 287
+> -- 81
 < -- 0
-+ -- 16
-- -- 10
-* -- 104
-:= -- 226
-add.period$ -- 12
-call.type$ -- 3
-change.case$ -- 14
++ -- 31
+- -- 22
+* -- 186
+:= -- 405
+add.period$ -- 23
+call.type$ -- 6
+change.case$ -- 29
 chr.to.int$ -- 0
-cite$ -- 3
-duplicate$ -- 35
-empty$ -- 142
-format.name$ -- 10
-if$ -- 371
+cite$ -- 6
+duplicate$ -- 66
+empty$ -- 274
+format.name$ -- 22
+if$ -- 710
 int.to.chr$ -- 0
-int.to.str$ -- 3
-missing$ -- 3
-newline$ -- 21
-num.names$ -- 6
-pop$ -- 20
+int.to.str$ -- 6
+missing$ -- 5
+newline$ -- 38
+num.names$ -- 12
+pop$ -- 49
 preamble$ -- 1
-purify$ -- 11
+purify$ -- 23
 quote$ -- 0
-skip$ -- 101
+skip$ -- 193
 stack$ -- 0
-substring$ -- 90
-swap$ -- 9
+substring$ -- 150
+swap$ -- 16
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 12
+type$ -- 24
 warning$ -- 0
-while$ -- 9
-width$ -- 4
-write$ -- 42
+while$ -- 17
+width$ -- 7
+write$ -- 78

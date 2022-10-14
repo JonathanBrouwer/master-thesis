@@ -30,6 +30,14 @@ Jean-Louis Krivine.
 \newblock \href {https://doi.org/10.1007/s10990-007-9018-9}
   {\path{doi:10.1007/s10990-007-9018-9}}.
 
+\bibitem{codecompletion}
+Daniel Pelsmaeker, Hendrik Antwerpen, and Eelco Visser.
+\newblock Towards language-parametric semantic editor services based on
+  declarative type system specifications.
+\newblock pages 19--20, 10 2019.
+\newblock \href {https://doi.org/10.1145/3359061.3362782}
+  {\path{doi:10.1145/3359061.3362782}}.
+
 \bibitem{scopes_as_types}
 Hendrik van Antwerpen, Casper Bach~Poulsen, Arjen Rouvoet, and Eelco Visser.
 \newblock Scopes as types.

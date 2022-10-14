@@ -87,12 +87,12 @@
 \maketitle
 
 \begin{abstract}
-When working with the Spoofax workbench, the Statix meta-language can be used for the specification of Static Semantics. Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. Type-checking dependent languages is challenging since there is a need to evaluate terms during type-checking. This paper presents how to make a dependent language by implementing the calculus of constructions in Statix. 
+When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. Type-checking dependent languages is challenging since there is a need to evaluate terms during type-checking. This paper presents how to make a dependent language by implementing the calculus of constructions in Statix. 
 \end{abstract}
 
 \section{Introduction}
 
-Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of Static Semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. 
+Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. 
 
 Dependently typed languages are different from other languages, because they allow types to be parameterized by values. This allows more rigorous reasoning over types and the values that are inhabited by a type. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires evaluation of the terms they are parameterized by. 
 
@@ -100,14 +100,14 @@ This goal of this paper is to investigate how well Statix is fit for the task of
 
 We will first show the base language and explain the way that Statix was used to implement this language. Next, we will explore several features and see how well they can be expressed in Statix.
 
-The implementation of the language is available on github. The \verb|final-simple| branch contains the implementation that is relevant for this paper. \\
+The implementation of the language is available on GitHub. The \verb|final-simple| branch contains the implementation that is relevant for this paper. \\
 \url{https://github.com/JonathanBrouwer/master-thesis/}
 
 \section{Calculus of Constructions}
 
 \subsection{The language}
 
-The base language that was implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions, let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The abstract syntax of the language is available in figure \ref{fig:syntax}.
+The base language that has been implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions, let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The abstract syntax of the language is available in figure \ref{fig:syntax}.
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -127,17 +127,9 @@ FnDestruct  : Expr * Expr -> Expr
 
 To type-check the base language, we need to store information about the names we have encountered. There are two different situations, names that we encounter that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
 
-Both of these need to be stored in the scope graph. The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a substitution corresponding to a name. 
+Both of these need to be stored in the scope graph. The scope graph only has a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. 
 
-\begin{lstlisting}
-signature sorts	NameEntry
-constructors    NType : Expr -> NameEntry
-                NSubst : scope * Expr -> NameEntry
-relations       name : ID -> NameEntry
-name-resolution	labels P
-\end{lstlisting}
-
-These are all the definitions we will need to type-check programs. Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
+Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
 
 \begin{lstlisting}
 sPutType  : scope * ID * Expr -> scope
@@ -146,15 +138,14 @@ sGetName  : scope * ID -> NameEntry
 sGetNames : scope * ID -> list((path * (ID * NameEntry)))
 sEmpty    : -> scope
 \end{lstlisting}
-
 The \verb|sPutType| and \verb|sPutSubsts| relations generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|sGetName| or \verb|sGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
 
+\newpage
 \subsection{Beta Reductions}
 
 A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using a Krivine abstract machine\cite{krivine}. 
 
-We need to define multiple relations that will be used later for type-checking. First, the primary relation is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $s1 \vdash e1 \bhr s2 \vdash e2$ to express \verb|betaReduceHead((s1, e1)) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One relation that is used for this is the \verb|rebuild| relation, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
-
+We need to define multiple relations that will be used later for type-checking. First, the primary relation is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $s1 \vdash e1, t \bhr s2 \vdash e2$ to express \verb|betaReduceHead((s1, e1)) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One relation that is used for this is the \verb|rebuild| relation, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
 
 Additionally, we define \verb|betaReduce| fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
 
@@ -166,7 +157,8 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		} {s \vdash Type(), [] \bhr s \vdash Type()}
 		
 		\inferrule{ 
-		}{s \vdash Let(n, v, b), [] \bhr sPutSubst(s, n, (s, v)) \vdash b }
+			sPutSubst(s, n, (s, v)) \vdash b, t \bhr s' \vdash e'
+		}{s \vdash Let(n, v, b), t \bhr s' \vdash e' }
 		
 		\inferrule{ 
 			sGetName(s, n) = NSubst(se, e) 

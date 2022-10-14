@@ -24,6 +24,9 @@
 % Package is used to create inference rules
 \usepackage{mathpartir}
 
+% Commands used
+\newcommand{\bhr}{\underset{\beta h}{\Rightarrow}}
+
 \bibliographystyle{plainurl}
 
 \title{Dependently Typed Languages in Statix}
@@ -100,16 +103,13 @@ We will first show the base language and explain the way that Statix was used to
 The implementation of the language is available on github. The \verb|final-simple| branch contains the implementation that is relevant for this paper. \\
 \url{https://github.com/JonathanBrouwer/master-thesis/}
 
-\section{Background}
-
-There is no reason to assume that implementing the Calculus of Constructions in Statix is easy. For example, implementing Hindley Milner type inference is Statix is not possible, since generalization requires knowing which meta-variables are free, which is a language feature that Statix does not support. 
-
 \section{Calculus of Constructions}
 
 \subsection{The language}
 
-The base language that was implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions, let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful.
+The base language that was implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions, let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The abstract syntax of the language is available in figure \ref{fig:syntax}.
 
+\begin{figure}[h]
 \begin{lstlisting}
 Type        : Expr
 Let         : ID * Expr * Expr -> Expr
@@ -118,6 +118,10 @@ FnType      : ID * Expr * Expr -> Expr
 FnConstruct : ID * Expr * Expr -> Expr
 FnDestruct  : Expr * Expr -> Expr
 \end{lstlisting}
+\caption{The syntax for the base language. FnConstruct is a lambda function, FnDestruct is application of a lambda function.}
+\label{fig:syntax}
+\end{figure}
+
 
 \subsection{Scope Graphs}
 
@@ -147,22 +151,76 @@ The \verb|sPutType| and \verb|sPutSubsts| relations generate a new scope given a
 
 \subsection{Beta Reductions}
 
-A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using Krivine abstract machines\cite{krivine}. We define a rule \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. Furthermore, we can define \verb|expectBetaEq|, which asserts that two terms are equal. This calls \verb|expectBetaEq_| with \verb|betaReduceHead| applied.
+A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare. Beta reduction is done using a Krivine abstract machine\cite{krivine}. 
 
-\begin{lstlisting}
-betaReduceHead : (scope * Expr) * list((scope * Expr))
-                                     -> (scope * Expr)
-betaReduce : (scope * Expr) -> Expr
-expectBetaEq   : (scope * Expr) * (scope * Expr)
-expectBetaEq(e1, e2) :- 
-    expectBetaEq_(betaReduceHead(e1, []), betaReduceHead(e2, [])).
-expectBetaEq_  : (scope * Expr) * (scope * Expr)
-\end{lstlisting}	
+We need to define multiple relations that will be used later for type-checking. First, the primary relation is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $s1 \vdash e1 \bhr s2 \vdash e2$ to express \verb|betaReduceHead((s1, e1)) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One relation that is used for this is the \verb|rebuild| relation, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
 
+
+Additionally, we define \verb|betaReduce| fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
+
+Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality, that it, two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with placeholders. 
+
+\begin{figure}[h]
+	\begin{mathpar}	
+		\inferrule{ 
+		} {s \vdash Type(), [] \bhr s \vdash Type()}
+		
+		\inferrule{ 
+		}{s \vdash Let(n, v, b), [] \bhr sPutSubst(s, n, (s, v)) \vdash b }
+		
+		\inferrule{ 
+			sGetName(s, n) = NSubst(se, e) 
+			\\ se \vdash e, t \bhr se', e' 
+		}{ s \vdash Var(n), t \bhr se', e' }
+		
+		\inferrule{ 
+			sGetName(s, n) = NType(t) 
+		}{ s \vdash Var(n), t \bhr rebuild(s, Var(n), t)  }
+		
+		\inferrule{ 
+		} { s \vdash FnType(n, a, b), [] \bhr s \vdash FnType(n, a, b) }
+		
+		\inferrule{ 
+		} { s \vdash FnConstruct(n, a, b), [] \bhr s \vdash FnConstruct(n, a, b) }
+		
+		\inferrule{ 
+			sPutSubst(s, n, a) \vdash b, ts \bhr s' \vdash e'
+		} { s \vdash FnConstruct(n, a, b), t :: ts \bhr s' \vdash e' }
+		
+		\inferrule{ 
+			s \vdash f, a :: ts \bhr s' \vdash e'
+		} { s \vdash FnDestruct(f, a), ts \bhr s' \vdash e' }
+		
+		
+	\end{mathpar}
+	\caption{Rules for beta head reducing the Calculus of Constructions}
+	\label{fig:beta-head-reduce-rules}
+\end{figure}
+
+\newpage
 \subsection{Type-checking the Calculus of Constructions}
 
-\begin{figure}
-	
+We will define a Statix relation \verb|typeOfExpr| that takes a scope and an expression and type-checks the scope in the expression. It returns the type of the expression.
+
+\begin{lstlisting}
+typeOfExpr : scope * Expr -> Expr
+\end{lstlisting}
+We can then start defining type-checking rules for the language. We use some syntax in order to make the rules a bit more compact. 
+\begin{enumerate}
+	\item $s \vdash e : t$ is the same as \verb|typeOfExpr(s, e) == t|
+	\item $s1 \vdash e1 \underset{\beta}{=} s2 \vdash e2$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
+	\item $s1 \vdash e1 \bhr s2 \vdash e2$ is the same as \verb|betaReduceHead((s1, e1)) == (s2, e2)|
+	\item $s1 \vdash e1 \underset{\beta}{\Rightarrow} e2$ is the same as \verb|betaReduce((s1, e1)) == e2|
+	\item $sEmpty \vdash e$ is the same as $e$ (empty scopes can be left out)
+\end{enumerate}
+
+The inference rules above can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
+\begin{lstlisting}
+typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
+    typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
+\end{lstlisting}
+
+\begin{figure}[h]
 	\begin{mathpar}	
 		\inferrule{ 
 		} {s \vdash Type() : Type()}
@@ -200,7 +258,7 @@ expectBetaEq_  : (scope * Expr) * (scope * Expr)
 		
 		\inferrule{ 
 			s \vdash f : ft 
-			\\ s \vdash ft \underset{\beta h}{\Rightarrow} s' \vdash FnType(da, dt, db) 
+			\\ s \vdash ft \bhr s' \vdash FnType(da, dt, db) 
 			\\\\ s \vdash a : at 
 			\\ at \underset{\beta}{=} sf \vdash dt
 			\\ s' \vdash db \underset{\beta}{\Rightarrow} db'
@@ -212,26 +270,7 @@ expectBetaEq_  : (scope * Expr) * (scope * Expr)
 	\label{fig:type-check-rules}
 \end{figure}
 
-We will define a Statix relation \verb|typeOfExpr| that takes a scope and an expression and type-checks the scope in the expression. It returns the type of the expression.
-
-\begin{lstlisting}
-typeOfExpr : scope * Expr -> Expr
-\end{lstlisting}
-We can then start defining type-checking rules for the language. We use some syntax in order to make the rules a bit more compact. 
-\begin{enumerate}
-	\item $s \vdash e : t$ is the same as \verb|typeOfExpr(s, e) == t|
-	\item $s1 \vdash e1 \underset{\beta}{=} s2 \vdash e2$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
-	\item $s1 \vdash e1 \underset{\beta h}{\Rightarrow} s2 \vdash e2$ is the same as \verb|betaReduceHead((s1, e1)) == (s2, e2)|
-	\item $s1 \vdash e1 \underset{\beta}{\Rightarrow} e2$ is the same as \verb|betaReduce((s1, e1)) == e2|
-	\item $sEmpty \vdash e$ is the same as $e$ (empty scopes can be left out)
-\end{enumerate}
-
-The inference rules above can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
-\begin{lstlisting}
-typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
-    typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
-\end{lstlisting}
-
+\newpage
 \section{Extensions}
 This section will discuss some further ideas that can be explored to build upon what has already been shown. These will be fully described in the master thesis that this paper is based on, this is just a look into what is possible.
 

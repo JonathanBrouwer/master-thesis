@@ -86,59 +86,55 @@ rules
   // -- Beta reduction rules
   betaReduceHead((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
   
-  // Head with no arguments stays the same
-  betaReduceHead((s, e@DataElim(_)), []) = (s, e).
+  betaReduceHead((s, e@DataElim(_)), as) = betaReduceHeadChoose((s, e), as, 1).
+  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
+  betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
+  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, as, (vn, va), [va | a]), r) :-
+  	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _),
+  	brhDoGetAVR(cs, as) == (a, (vn, va), r).
   
-  //First, parse the arguments (at least one argument is guaranteed)
-  // betaReduceHeadFnConstructorArgs will parse the arguments
-  betaReduceHead((s, DataElim(n)), as@[p | args]) = betaReduceHeadFnElim1(s, n, p, as, betaReduceHeadFnConstructorArgs(args, cs), cs) :-
-  	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
   
-  // Checks if we have enough arguments
-  // s, n, original args, return value of betaReduceHeadFnConstructorArgs, data constructors -> result
-  betaReduceHeadFnElim1 : scope * ID * (scope * Expr) * list((scope * Expr)) * (list((scope * Expr)) * list((scope * Expr)) * int) * list(DataConstructor) -> (scope * Expr)
-  betaReduceHeadFnElim1(s, n, _,  as_original, (_, _, 0), _) = kRebuild((s, DataElim(n)), as_original). // Not enough
-  betaReduceHeadFnElim1(s, n, _, as_original, ([], _, 1), _) = kRebuild((s, DataElim(n)), as_original). // Enough for args, not enough for v.
-  // There are enough, we remove one more called v. Then we call betaReduceHeadFnElim2 with that information. 
-  betaReduceHeadFnElim1(_, n, p, _, ([v | as_after], as_cs, 1), cs) = betaReduceHead(betaReduceHeadFnElim3(n, betaReduceHeadFnElim2(betaReduceHead(v, []), cs, as_cs), [p | as_cs]), as_after). 
+  // FINDS MATCHING CONSTRUCTOR
+  // Given a
+  // - Data type name
+  // - Constructors of datatype
+  // - Args applied to elimination
+  // - Value that is elimininated, split up in original value and constructor name
+  // - List of arguments to the original function, for recursive applications
+  // Returns beta reduced value
+  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) -> (scope * Expr)
+  brhDo(s, n, [Constructor(c, ce) | cs], [p, a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
+  brhDo(s, n, [Constructor(_, ce) | cs], [p, _ | as], (c, ve), ar) = brhDo(s, n, cs, [p | as], (c, ve), ar).
   
-  // Removes an argument for each constructor. Returns 1 if successful.
-  // list of arguments in * constructors -> (arguments out * results * success boolean)
-  betaReduceHeadFnConstructorArgs : list((scope * Expr)) * list(DataConstructor) -> (list((scope * Expr)) * list((scope * Expr)) * int)
-  betaReduceHeadFnConstructorArgs([a|as], [_|cs]) = (a_after, [a | a_res], suc) :- betaReduceHeadFnConstructorArgs(as, cs) == (a_after, a_res, suc).
-  betaReduceHeadFnConstructorArgs(as, []) = (as, [], 1).
-  betaReduceHeadFnConstructorArgs([], [_|_]) = (_, _, 0). // Not enough args
+  // APPLIES ARGUMENTS TO FUNCTION
+  // Given a
+  // - Data type name
+  // - Constructor definition expression
+  // - Function .. -> .. -> p (constructor) that was given to the eliminator for constructor
+  // - Value that is elimininated, original value
+  // - List of arguments to the original function, for recursive applications
+  // Returns beta reduced value
+  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  brhDo2(s, n, Var(n), f, (vs, Var(_)), _) = f.
+  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
+  	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
+  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
   
-  // Finds the correct constructor to apply, and apply it
-  // v, constructors left for current iteration, functions left for current iteration
-  betaReduceHeadFnElim2 : (scope * Expr) * list(DataConstructor) * list((scope * Expr)) -> ((scope * Expr) * Expr * int)
-  // We found the correct constructor, replace the var with the f function
-  //TODO move this betaReduceHead to the proper place
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v, ce) | _], [f | _]) = (betaReduceHead(f, []), ce, 1).
-  // No more constructors left, we did not find it
-  betaReduceHeadFnElim2((s, Var(v)), [], []) = (_, _, 0).
-  // Did not find the correct one yet, keep searching
-  betaReduceHeadFnElim2((s, Var(v)), [Constructor(v', _) | vs], [_ | fs]) = betaReduceHeadFnElim2((s, Var(v)), vs, fs) :- v != v'.
-  // FnDestruct 
-  betaReduceHeadFnElim2((s, FnDestruct(f, a)), vs, fs) = (kApply(e, (s, a)), c, succ) :-
-  	betaReduceHeadFnElim2(betaReduceHead((s, f), []), vs, fs) == (e, c, succ).
+  // Get the `v` argument and everything after that, given constructors and arguments
+  brhDoGetAVR : list(DataConstructor) * list((scope * Expr)) -> (list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)))
+  brhDoGetAVR([], [_, v | as]) = ([], (brhDoGetV2(betaReduceHead(v, [])), v), as).
+  brhDoGetAVR([_|cs], [a|as]) = ([a | ra], rv, rr) :- (ra, rv, rr) == brhDoGetAVR(cs, as).
   
-  // Inserts recursive calls where necessary, and beta reduces result
-  // Name of datatype, result of betaReduceHeadFnElim2, values for recursive calls
-  betaReduceHeadFnElim3 : ID * ((scope * Expr) * Expr * int) * list((scope * Expr)) -> (scope * Expr)
-  // If failed
-  betaReduceHeadFnElim3(n, ((s, v), _, 0), r) = _. //TODO return original value
-  // We are at the base case
-  // e is now the root function, note that it is not necesarrily var anymore
-  betaReduceHeadFnElim3(_, (e, Var(_), 1), _) = e.
-  // Recursive case for self-recursive types
-  betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, Var(n), fc), 1), r) = kApply(kApply(base, (s, ae)), recarg) :-
-  	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe), []), fc, 1), r),
-  	recarg == kApply(betaReduceHead((s, DataElim(n)), r), (s, ae)).
-  // Normal recursive case
-  betaReduceHeadFnElim3(n, ((s, FnDestruct(fe, ae)), FnType(_, _, fc), 1), r) = kApply(base, (s, ae)) :-
-  	base == betaReduceHeadFnElim3(n, (betaReduceHead((s, fe), []), fc, 1), r).
+  // Get the `v` argument from the `v` argument applied to things
+  brhDoGetV2 : (scope * Expr) -> ID
+  brhDoGetV2((s, FnDestruct(f, a))) = brhDoGetV2(betaReduceHead((s, f), [])).
+  brhDoGetV2((s, Var(n))) = n.
   
+  append : list((scope * Expr)) * (scope * Expr) -> list((scope * Expr))
+  append([], x) = [x].
+  append([e | es], x) = [e | append(es, x)].
+  
+
   betaReduce_((s, e@DataType(_, _))) = e.
   expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
   

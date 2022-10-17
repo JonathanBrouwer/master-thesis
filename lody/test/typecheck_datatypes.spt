@@ -187,3 +187,11 @@ x
 //postulate y : (elim MyBool) (\_: MyBool. Type) Type Bool x;
 //y
 //]] 0 errors
+
+test elim use bool can reduce 1 [[
+data MyBool =
+	MyFalse : MyBool,
+	MyTrue : MyBool;
+\x: Type. (elim MyBool) (\_: MyBool. Type) Type
+]] 0 errors
+

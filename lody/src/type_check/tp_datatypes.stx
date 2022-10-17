@@ -86,12 +86,28 @@ rules
   // -- Beta reduction rules
   betaReduceHead((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
   
-  betaReduceHead((s, e@DataElim(_)), as) = betaReduceHeadChoose((s, e), as, 1).
+  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(cs, cs, as)) :-
+  	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
   betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
   betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
   betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, as, (vn, va), [va | a]), r) :-
   	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _),
   	brhDoGetAVR(cs, as) == (a, (vn, va), r).
+  	
+  	
+  // CHECKS IF WE HAVE ENOUGH ARGUMENTS
+  // Given constructors and arguments, we need at least len(constructors) + 2 arguments
+  bhrCheck : list(DataConstructor) * list(DataConstructor) * list((scope * Expr)) -> int
+  bhrCheck(cso, [_ | cs], [_ | as]) = bhrCheck(cso, cs, as).
+  bhrCheck(cso, [], [_, v | _]) = bhrCheckV(cso, betaReduceHead(v, [])).
+  bhrCheck(cso, [], [_]) = 0.     // no cs, 1 arg
+  bhrCheck(cso, _, [])   = 0.     // no args
+  
+  bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
+  bhrCheckV([], (s, Var(n))) = 0.
+  bhrCheckV([Constructor(n, _) | _], (s, Var(n))) = 1.
+  bhrCheckV([Constructor(_, _) | cs], (s, Var(n))) = bhrCheckV(cs, (s, Var(n))).
+  bhrCheckV(cs, (s, FnDestruct(f, _))) = bhrCheckV(cs, betaReduceHead((s, f), [])).
   
   
   // FINDS MATCHING CONSTRUCTOR
@@ -136,6 +152,7 @@ rules
   
 
   betaReduce_((s, e@DataType(_, _))) = e.
+  betaReduce_((s, e@DataElim(_))) = e.
   expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
   
   

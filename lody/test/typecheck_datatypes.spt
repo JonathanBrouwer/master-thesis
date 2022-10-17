@@ -163,5 +163,27 @@ data Nat =
 Type
 ]] >= 1 errors 
 
+test elim use bool can reduce 1 [[
+data MyBool =
+	MyFalse : MyBool,
+	MyTrue : MyBool;
+postulate f : (_: Type -> Type);
+postulate x : f ((elim MyBool) (\_: MyBool. Type) Type Bool MyFalse);
+x
+]] 0 errors
 
-
+//test elim use bool cannot reduce 1 [[
+//data MyBool = ;
+//postulate f : (_: (_: MyBool -> Type) -> Type);
+//postulate x : f ((elim MyBool) (\_: MyBool. Type));
+//x
+//]] 0 errors
+//
+//test elim use bool cannot reduce 2 [[
+//data MyBool =
+//	MyFalse : MyBool,
+//	MyTrue : MyBool;
+//postulate x : MyBool;
+//postulate y : (elim MyBool) (\_: MyBool. Type) Type Bool x;
+//y
+//]] 0 errors

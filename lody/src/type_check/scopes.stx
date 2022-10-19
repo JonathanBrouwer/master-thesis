@@ -13,6 +13,7 @@ constructors
   NameSubst : scope * Expr -> NameEntry
 relations
   name : ID -> NameEntry
+  datatype : ID -> Expr
 name-resolution
   labels P
   
@@ -45,5 +46,16 @@ rules
   rid : ID -> RID
   rid(Syn(n)) = n.
   rid(ScopedName(_, n)) = n.
+  
+  sPutDataTypeDecl : scope * ID * Expr -> scope
+  sPutDataTypeDecl(s, id, e) = s' :-
+  	new s', s' -P-> s,
+  	!datatype[id, e] in s'.
+  	
+  sGetDataTypeDecl : scope * ID -> Expr
+  sGetDataTypeDecl(s, Syn(n)) = e :-
+  	query datatype filter P* and { id' :- rid(id') == n } min $ < P in s |-> [(_, (_, e)) | _].
+   sGetDataTypeDecl(s, id@ScopedName(_, _)) = e :-
+  	query datatype filter P* and { id' :- id' == id } min $ < P in s |-> [(_, (_, e))].
 
   

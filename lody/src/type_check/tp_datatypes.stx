@@ -11,15 +11,20 @@ rules
 
   //---- Type of DataType
   // A datatype is a type
-  typeOfExpr_(_, e@DataType(_, _)) = (e, Type()).
+  typeOfExpr_(_, e@DataType(_, _, _)) = (e, Type()).
   
   // If we find a declaration
-  typeOfExpr_(s, DataTypeDecl(n, cs, b)) = (DataTypeDecl(n', cs', b'), b_type) :- {s' s''}
+  typeOfExpr_(s, DataTypeDecl(n, ps, cs, b)) = (DataTypeDecl(n', ps', cs', b'), b_type) :- {s' s''}
   	scopeName(s', n) == n',
   	
-  	sPutSubst(s, n', (s, DataType(n', cs'))) == s',
+  	dataTypeParams(s, n', ps) ==  ps',
+  	sPutSubst(s, n', (s, DataType(n', ps', cs'))) == s',
   	dataTypeConstrs(n', s', s', cs) == (s'', cs'),
   	typeOfExpr(s'', b) == (b', b_type).
+  	
+  dataTypeParams : scope * ID * list(DataParam) -> list(DataParam)
+  dataTypeParams(_, _, []) = [].
+  
   	
   // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother0
   dataTypeConstrs : ID * scope * scope * list(DataConstructor) -> (scope * list(DataConstructor))
@@ -55,7 +60,7 @@ rules
   // We need to generate the type of the eliminator
   // It is beta reduced since it may contain variables
   typeOfExpr_(s, DataElim(id)) = (DataElim(n), betaReduce((s, t))) :- {cs sp p}
-  	sGetName(s, id) == (NameSubst(_, DataType(n, cs)), _),
+  	sGetName(s, id) == (NameSubst(_, DataType(n, _, cs)), _),
   	new sp, p == ScopedName(sp, "P"),
   	t == FnType(p, FnType(Syn("_"), Var(n), Type()), dataTypeElimsGen(n, p, cs)).
   	
@@ -84,14 +89,14 @@ rules
   dataTypeElimsGenSub(n, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(n, p, b, FnDestruct(base, Var(m)))).
   
   // -- Beta reduction rules
-  betaReduceHead((s, e@DataType(n, cs)), []) = (s, DataType(n, cs)).
+  betaReduceHead((s, e@DataType(n, ps, cs)), []) = (s, DataType(n, ps, cs)).
   
   betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(cs, cs, as)) :-
-  	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _).
+  	sGetName(s, n) == (NameSubst(_, DataType(n, _, cs)), _).
   betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
   betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
   betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, as, (vn, va), [va | a]), r) :-
-  	sGetName(s, n) == (NameSubst(_, DataType(n, cs)), _),
+  	sGetName(s, n) == (NameSubst(_, DataType(n, _, cs)), _),
   	brhDoGetAVR(cs, as) == (a, (vn, va), r).
   	
   	
@@ -151,9 +156,9 @@ rules
   append([e | es], x) = [e | append(es, x)].
   
 
-  betaReduce_((s, e@DataType(_, _))) = e.
+  betaReduce_((s, e@DataType(_, _, _))) = e.
   betaReduce_((s, e@DataElim(_))) = e.
-  expectBetaEq_((_, DataType(n, _)), (_, DataType(n, _))).
+  expectBetaEq_((_, DataType(n, _, _)), (_, DataType(n, _, _))).
   
   
   

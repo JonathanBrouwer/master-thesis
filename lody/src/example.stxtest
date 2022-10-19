@@ -7,7 +7,7 @@ resolve {s cs n sp p s' n' cs' s'' s3 x y z nx s8 s9 t' t_type t''}
   
   	// Data type decl
   	scopeName(s', n) == n',
-  	sPutSubst(s, n', (s, DataType(n', cs'))) == s',
+  	sPutSubst(s, n', (s, DataType(n', _, cs'))) == s',
   	dataTypeConstrs(n', s', s', cs) == (s'', cs'),
   	
   	// postulate f

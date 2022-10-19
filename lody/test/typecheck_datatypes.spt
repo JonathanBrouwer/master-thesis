@@ -200,13 +200,67 @@ data Maybe (T : Type) = ;
 Maybe : (T : Type -> Type)
 ]] 0 errors 
 
-test param data type 0 elim [[
-data Maybe (T : Type) =
-	None : Maybe;
-(elim Maybe) : (P : (_: Maybe T) -> Type) -> _: (P (Maybe T)) -> v: Maybe T -> P v
+test param data type 0 type [[
+data Maybe (T : Type) = ;
+Maybe Bool : Type
 ]] 0 errors 
-//(elim Maybe) : (P : (_: Maybe T) -> Type) -> _: (P (Maybe T)) -> v: Maybe T -> P v
 
+test param data type 1 type [[
+data Maybe (T : Type) = 
+	None : Maybe T;
+Maybe : (T : Type -> Type)
+]] 0 errors 
+
+test param data type 2 type [[
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+Maybe : (T : Type -> Type)
+]] 0 errors 
+
+test param data type 2 type applied [[
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+Maybe Bool : Type
+]] 0 errors 
+
+test param data type 2 none [[
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+None : (T : Type -> Maybe T)
+]] 0 errors 
+
+test param data type 2 some [[
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+None : (T : Type -> v : T -> Maybe T)
+]] 0 errors 
+
+test param data T does not leak [[
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+T
+]] >= 1 errors 
+
+test param data type 0 elim [[
+data Maybe (T : Type) = ;
+(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
+]] 0 errors 
+
+test param data type 1 elim [[
+data Maybe (T : Type) = 
+	None : Maybe T;
+(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P None -> v: Maybe T -> P v)
+]] 0 errors 
+
+test param data type 2 elim [[
+data Maybe (T : Type) = ;
+(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
+]] 0 errors 
 
 test param data type 1 [[
 data Maybe (T : Type) =

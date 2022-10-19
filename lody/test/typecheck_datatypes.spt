@@ -172,22 +172,6 @@ postulate x : f ((elim MyBool) (\_: MyBool. Type) Type Bool MyFalse);
 x
 ]] 0 errors
 
-//test elim use bool cannot reduce 1 [[
-//data MyBool = ;
-//postulate f : (_: (_: MyBool -> Type) -> Type);
-//postulate x : f ((elim MyBool) (\_: MyBool. Type));
-//x
-//]] 0 errors
-//
-//test elim use bool cannot reduce 2 [[
-//data MyBool =
-//	MyFalse : MyBool,
-//	MyTrue : MyBool;
-//postulate x : MyBool;
-//postulate y : (elim MyBool) (\_: MyBool. Type) Type Bool x;
-//y
-//]] 0 errors
-
 test elim use bool can reduce 1 [[
 data MyBool =
 	MyFalse : MyBool,
@@ -236,7 +220,7 @@ test param data type 2 some [[
 data Maybe (T : Type) = 
 	None : Maybe T,
 	Some : _: T -> Maybe T;
-None : (T : Type -> v : T -> Maybe T)
+Some : (T : Type -> v : T -> Maybe T)
 ]] 0 errors 
 
 test param data T does not leak [[
@@ -254,7 +238,7 @@ data Maybe (T : Type) = ;
 test param data type 1 elim [[
 data Maybe (T : Type) = 
 	None : Maybe T;
-(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P None -> v: Maybe T -> P v)
+(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 2 elim [[
@@ -262,9 +246,4 @@ data Maybe (T : Type) = ;
 (elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
 ]] 0 errors 
 
-test param data type 1 [[
-data Maybe (T : Type) =
-	None : Maybe,
-	Some : _: T -> Maybe;
-]] 0 errors
 

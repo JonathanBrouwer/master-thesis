@@ -18,42 +18,46 @@ rules
   	scopeName(s2, n) == n',
 
 	// Declare datatype
-  	sPutType(s, n', createCoreType(ps')) == s1,
+  	sPutType(s, n', createCoreType(Type(), ps')) == s1,
   	sPutDataTypeDecl(s1, n', DataType(n', ps', cs')) == s2,
   	
   	// Typecheck params in s, add their definitions to s2
-  	dataTypeParams(s, s2, ps) == (s3, ps'),
+  	dataTypeParams(s2, ps) == (s3, ps'),
   	
-  	dataTypeConstrs(n', s2, s3, cs, createCoreElim(Var(n'), ps')) == (s4, cs'),
+  	// Add all constructors to s2 to create s4. Type check them in the context of s3.
+  	dataTypeConstrs(n', s3, s2, cs, createCoreElim(Var(n'), ps'), ps') == (s4, cs'),
+  	
+  	// Type check body in s4
   	typeOfExpr(s4, b) == (b', b_type).
   	
-  // Creates the Expression `T -> Type`
-  createCoreType : list(DataParam) -> Expr
-  createCoreType([]) = Type().
-  createCoreType([Param(p, e) | ps]) = FnType(p, e, createCoreType(ps)).
+  // Creates the Expression `T -> e`
+  createCoreType : Expr * list(DataParam) -> Expr
+  createCoreType(c, []) = c.
+  createCoreType(c, [Param(p, e) | ps]) = FnType(p, e, createCoreType(c, ps)).
   	
-  // scope to check * scope to put def * params -> scope that def was put * checked params
-  dataTypeParams : scope * scope * list(DataParam) -> (scope * list(DataParam))
-  dataTypeParams(s0, s, []) = (s, []).
-  dataTypeParams(s0, s, [Param(n, e) | ps]) = (s'', [Param(n', e') | ps']) :- {s'}
+  // scope to put def * params -> scope that def was put * checked params
+  dataTypeParams : scope * list(DataParam) -> (scope * list(DataParam))
+  dataTypeParams(s, []) = (s, []).
+  dataTypeParams(s, [Param(n, e) | ps]) = (s'', [Param(n', e') | ps']) :- {s'}
   	scopeName(s, n) == n',
   	typeOfExpr(s, e) == (e', _),
   	sPutType(s, n', e') == s',
-  	dataTypeParams(s0, s', ps) == (s'', ps').
+  	dataTypeParams(s', ps) == (s'', ps').
   
   	
-  // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother0
-  dataTypeConstrs : ID * scope * scope * list(DataConstructor) * Expr -> (scope * list(DataConstructor))
-  dataTypeConstrs(_, _, s, [], _) = (s, []).
-  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs], c) = (s'', [Constructor(n', e') | cs']) :- {s' e_type}
+  // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother)
+  dataTypeConstrs : ID * scope * scope * list(DataConstructor) * Expr * list(DataParam) -> (scope * list(DataConstructor))
+  dataTypeConstrs(_, _, s, [], _, _) = (s, []).
+  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs], c, ps) = (s'', [Constructor(n', e') | cs']) :- {s' e_type e''}
   	scopeName(s', n) == n',
   	
   	typeOfExpr(sb, e) == (e', e_type),
   	checkConstructorPositive(c, dn, e'),
   	expectBetaEq((sEmpty(), e_type), (sEmpty(), Type())),
   	
-  	sPutType(s, n', betaReduce((sb, e'))) == s',
-  	dataTypeConstrs(dn, sb, s', cs, c) == (s'', cs').
+  	createCoreType(e', ps) == e'',
+  	sPutType(s, n', betaReduce((sb, e''))) == s',
+  	dataTypeConstrs(dn, sb, s', cs, c, ps) == (s'', cs').
   	
   // Creates the expression `Maybe T1 T2..`
   createCoreElim : Expr * list(DataParam) -> Expr
@@ -116,72 +120,72 @@ rules
   // We add `(base m)` to the rest
   dataTypeElimsGenSub(d, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(d, p, b, FnDestruct(base, Var(m)))).
   
-//  // -- Beta reduction rules
-//  betaReduceHead((s, e@DataType(n, ps, cs)), []) = (s, DataType(n, ps, cs)).
-//  
-//  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(cs, cs, as)) :-
-//  	sGetDataTypeDecl(s, n) == DataType(n, _, cs).
-//  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
-//  betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
-//  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, as, (vn, va), [va | a]), r) :-
-//  	sGetDataTypeDecl(s, n) == DataType(n, _, cs),
-//  	brhDoGetAVR(cs, as) == (a, (vn, va), r).
-//  	
-//  	
-//  // CHECKS IF WE HAVE ENOUGH ARGUMENTS
-//  // Given constructors and arguments, we need at least len(constructors) + 2 arguments
-//  bhrCheck : list(DataConstructor) * list(DataConstructor) * list((scope * Expr)) -> int
-//  bhrCheck(cso, [_ | cs], [_ | as]) = bhrCheck(cso, cs, as).
-//  bhrCheck(cso, [], [_, v | _]) = bhrCheckV(cso, betaReduceHead(v, [])).
-//  bhrCheck(cso, [], [_]) = 0.     // no cs, 1 arg
-//  bhrCheck(cso, _, [])   = 0.     // no args
-//  
-//  bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
-//  bhrCheckV([], (s, Var(n))) = 0.
-//  bhrCheckV([Constructor(n, _) | _], (s, Var(n))) = 1.
-//  bhrCheckV([Constructor(_, _) | cs], (s, Var(n))) = bhrCheckV(cs, (s, Var(n))).
-//  bhrCheckV(cs, (s, FnDestruct(f, _))) = bhrCheckV(cs, betaReduceHead((s, f), [])).
-//  
-//  
-//  // FINDS MATCHING CONSTRUCTOR
-//  // Given a
-//  // - Data type name
-//  // - Constructors of datatype
-//  // - Args applied to elimination
-//  // - Value that is elimininated, split up in original value and constructor name
-//  // - List of arguments to the original function, for recursive applications
-//  // Returns beta reduced value
-//  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) -> (scope * Expr)
-//  brhDo(s, n, [Constructor(c, ce) | cs], [p, a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
-//  brhDo(s, n, [Constructor(_, ce) | cs], [p, _ | as], (c, ve), ar) = brhDo(s, n, cs, [p | as], (c, ve), ar).
-//  
-//  // APPLIES ARGUMENTS TO FUNCTION
-//  // Given a
-//  // - Data type name
-//  // - Constructor definition expression
-//  // - Function .. -> .. -> p (constructor) that was given to the eliminator for constructor
-//  // - Value that is elimininated, original value
-//  // - List of arguments to the original function, for recursive applications
-//  // Returns beta reduced value
-//  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
-//  brhDo2(s, n, Var(n), f, (vs, Var(_)), _) = f.
-//  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
-//  	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
-//  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
-//  
-//  // Get the `v` argument and everything after that, given constructors and arguments
-//  brhDoGetAVR : list(DataConstructor) * list((scope * Expr)) -> (list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)))
-//  brhDoGetAVR([], [_, v | as]) = ([], (brhDoGetV2(betaReduceHead(v, [])), v), as).
-//  brhDoGetAVR([_|cs], [a|as]) = ([a | ra], rv, rr) :- (ra, rv, rr) == brhDoGetAVR(cs, as).
-//  
-//  // Get the `v` argument from the `v` argument applied to things
-//  brhDoGetV2 : (scope * Expr) -> ID
-//  brhDoGetV2((s, FnDestruct(f, a))) = brhDoGetV2(betaReduceHead((s, f), [])).
-//  brhDoGetV2((s, Var(n))) = n.
-//  
-//  append : list((scope * Expr)) * (scope * Expr) -> list((scope * Expr))
-//  append([], x) = [x].
-//  append([e | es], x) = [e | append(es, x)].
+  // -- Beta reduction rules
+  betaReduceHead((s, e@DataType(n, ps, cs)), []) = (s, DataType(n, ps, cs)).
+  
+  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(cs, cs, as)) :-
+  	sGetDataTypeDecl(s, n) == DataType(n, _, cs).
+  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
+  betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
+  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, as, (vn, va), [va | a]), r) :-
+  	sGetDataTypeDecl(s, n) == DataType(n, _, cs),
+  	brhDoGetAVR(cs, as) == (a, (vn, va), r).
+  	
+  	
+  // CHECKS IF WE HAVE ENOUGH ARGUMENTS
+  // Given constructors and arguments, we need at least len(constructors) + 2 arguments
+  bhrCheck : list(DataConstructor) * list(DataConstructor) * list((scope * Expr)) -> int
+  bhrCheck(cso, [_ | cs], [_ | as]) = bhrCheck(cso, cs, as).
+  bhrCheck(cso, [], [_, v | _]) = bhrCheckV(cso, betaReduceHead(v, [])).
+  bhrCheck(cso, [], [_]) = 0.     // no cs, 1 arg
+  bhrCheck(cso, _, [])   = 0.     // no args
+  
+  bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
+  bhrCheckV([], (s, Var(n))) = 0.
+  bhrCheckV([Constructor(n, _) | _], (s, Var(n))) = 1.
+  bhrCheckV([Constructor(_, _) | cs], (s, Var(n))) = bhrCheckV(cs, (s, Var(n))).
+  bhrCheckV(cs, (s, FnDestruct(f, _))) = bhrCheckV(cs, betaReduceHead((s, f), [])).
+  
+  
+  // FINDS MATCHING CONSTRUCTOR
+  // Given a
+  // - Data type name
+  // - Constructors of datatype
+  // - Args applied to elimination
+  // - Value that is elimininated, split up in original value and constructor name
+  // - List of arguments to the original function, for recursive applications
+  // Returns beta reduced value
+  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) -> (scope * Expr)
+  brhDo(s, n, [Constructor(c, ce) | cs], [p, a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
+  brhDo(s, n, [Constructor(_, ce) | cs], [p, _ | as], (c, ve), ar) = brhDo(s, n, cs, [p | as], (c, ve), ar).
+  
+  // APPLIES ARGUMENTS TO FUNCTION
+  // Given a
+  // - Data type name
+  // - Constructor definition expression
+  // - Function .. -> .. -> p (constructor) that was given to the eliminator for constructor
+  // - Value that is elimininated, original value
+  // - List of arguments to the original function, for recursive applications
+  // Returns beta reduced value
+  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  brhDo2(s, n, Var(n), f, (vs, Var(_)), _) = f.
+  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
+  	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
+  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
+  
+  // Get the `v` argument and everything after that, given constructors and arguments
+  brhDoGetAVR : list(DataConstructor) * list((scope * Expr)) -> (list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)))
+  brhDoGetAVR([], [_, v | as]) = ([], (brhDoGetV2(betaReduceHead(v, [])), v), as).
+  brhDoGetAVR([_|cs], [a|as]) = ([a | ra], rv, rr) :- (ra, rv, rr) == brhDoGetAVR(cs, as).
+  
+  // Get the `v` argument from the `v` argument applied to things
+  brhDoGetV2 : (scope * Expr) -> ID
+  brhDoGetV2((s, FnDestruct(f, a))) = brhDoGetV2(betaReduceHead((s, f), [])).
+  brhDoGetV2((s, Var(n))) = n.
+  
+  append : list((scope * Expr)) * (scope * Expr) -> list((scope * Expr))
+  append([], x) = [x].
+  append([e | es], x) = [e | append(es, x)].
   
 
   betaReduce_((s, e@DataType(_, _, _))) = e.

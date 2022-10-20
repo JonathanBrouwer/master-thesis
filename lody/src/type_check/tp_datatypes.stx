@@ -123,38 +123,24 @@ rules
   // -- Beta reduction rules
   betaReduceHead((s, e@DataType(n, ps, cs)), []) = (s, DataType(n, ps, cs)).
   
-  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(ps, cs, cs, as)) :-
-  	sGetDataTypeDecl(s, n) == DataType(n, ps, cs).
-  	
-  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
-  betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
-  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, a, (vn, v), [p | a]), r) :- {ps}
+  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, i, j) :- {ps cs v}
   	sGetDataTypeDecl(s, n) == DataType(n, ps, cs),
+  	bhrDataSplitArgs(as, ps, cs, 0) == (i, _, _, v, _),
+  	bhrCheckV(cs, v) == j.
   	
-  	bhrDataSplitArgs(as, ps, cs, 0) == (p, a, v, r),
-  	brhDataCoreV(v) == vn.
-  	
-  	
-  // CHECKS IF WE HAVE ENOUGH ARGUMENTS
-  // Given constructors and arguments, we need at least len(constructors) + 2 arguments
-  bhrCheck : list(DataParam) * list(DataConstructor) * list(DataConstructor) * list((scope * Expr)) -> int
-  // Skip data params
-  bhrCheck([_|ps], cso, cs, [_ | as]) = bhrCheck(ps, cso, cs, as).
-  bhrCheck([_|ps], cso, cs, []) = 0.
-  // Skip one constructor, skip one argument
-  bhrCheck([], cso, [_ | cs], [_ | as]) = bhrCheck([], cso, cs, as).
-  // We have enough, check if v is fine!
-  bhrCheck([], cso, [], [_, v | _]) = bhrCheckV(cso, betaReduceHead(v, [])).
-  // Not enough
-  bhrCheck([], cso, [], [_]) = 0.     // no cs, 1 arg
-  bhrCheck([], cso, _, [])   = 0.     // no args
-  
   bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
   bhrCheckV([], (s, Var(n))) = 0.
   bhrCheckV([Constructor(n, _) | _], (s, Var(n))) = 1.
   bhrCheckV([Constructor(_, _) | cs], (s, Var(n))) = bhrCheckV(cs, (s, Var(n))).
   bhrCheckV(cs, (s, FnDestruct(f, _))) = bhrCheckV(cs, betaReduceHead((s, f), [])).
-  
+  	
+  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int * int -> (scope * Expr)
+  betaReduceHeadChoose(e, as, _, _) = kRebuild(e, as).
+  betaReduceHeadChoose((s, DataElim(n)), as, 1, 1) = betaReduceHead(brhDo(s, n, cs, a, (vn, v), [p | a]), r) :- {ps}
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, cs),
+  	
+  	bhrDataSplitArgs(as, ps, cs, 0) == (1, p, a, v, r),
+  	brhDataCoreV(v) == vn.  
   
   // FINDS MATCHING CONSTRUCTOR
   // Given a
@@ -189,13 +175,14 @@ rules
   
   // Arguments look like PS P AS V R
   // Function returns P AS V R
-  bhrDataSplitArgs : list((scope * Expr)) * list(DataParam) * list(DataConstructor) * int -> ((scope * Expr) * list((scope * Expr)) * (scope * Expr) * list((scope * Expr)))
+  bhrDataSplitArgs : list((scope * Expr)) * list(DataParam) * list(DataConstructor) * int -> (int * (scope * Expr) * list((scope * Expr)) * (scope * Expr) * list((scope * Expr)))
   bhrDataSplitArgs([_|as], [_|ps], cs, 0) = bhrDataSplitArgs(as, ps, cs, 0). // skip ps arg
-  bhrDataSplitArgs([p|as], [], cs, 0) = (p, r1, r2, r3) :-                   // grab p arg
-  	bhrDataSplitArgs(as, [], cs, 1) == (_, r1, r2, r3).     
-  bhrDataSplitArgs([a|as], [], [_|cs], 1) = (_, [a|r1], r2, r3) :-              // grab a arg
-  	bhrDataSplitArgs(as, [], cs, 1) == (_, r1, r2, r3).
-  bhrDataSplitArgs([v|rs], [], [], 1) = (_, [], betaReduceHead(v, []), rs).                         // grab v arg
+  bhrDataSplitArgs([p|as], [], cs, 0) = (r0, p, r1, r2, r3) :-                   // grab p arg
+  	bhrDataSplitArgs(as, [], cs, 1) == (r0, _, r1, r2, r3).     
+  bhrDataSplitArgs([a|as], [], [_|cs], 1) = (r0, _, [a|r1], r2, r3) :-           // grab a arg
+  	bhrDataSplitArgs(as, [], cs, 1) == (r0, _, r1, r2, r3).
+  bhrDataSplitArgs([v|rs], [], [], 1) = (1, _, [], betaReduceHead(v, []), rs).  // grab v arg
+  bhrDataSplitArgs([], _, _, _) = (0, _, _, _, _). // no args left
   
   // Get the `v` argument from the `v` argument applied to things
   brhDataCoreV : (scope * Expr) -> ID

@@ -1,4 +1,5 @@
-data Maybe =
-	None : Maybe,
-	Some : x: Bool -> Maybe;
-Maybe
+let T = Bool;
+data Bol = 
+	My : _: (_: Bol -> Bool) -> Bol;
+	
+Type

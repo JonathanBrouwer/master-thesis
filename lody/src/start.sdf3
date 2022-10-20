@@ -38,7 +38,7 @@ context-free syntax
   ID.Syn = RID
   
 context-free priorities
-  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.TypeAssert > Expr.FnDestruct > Expr.FnType > Expr.FnConstruct > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
+  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.FnDestruct > Expr.TypeAssert > Expr.FnType > Expr.FnConstruct > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
   
 context-free restrictions
 

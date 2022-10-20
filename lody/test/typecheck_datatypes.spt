@@ -242,8 +242,16 @@ data Maybe (T : Type) =
 ]] 0 errors 
 
 test param data type 2 elim [[
-data Maybe (T : Type) = ;
-(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> _: (x: T -> P (Some T x)) -> v: Maybe T -> P v)
 ]] 0 errors 
 
+test param data type 2 elim 2 [[
+data Maybe (T : Type) = 
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+true : (elim Maybe) Type (\_: Maybe Type. Type) Type (\T: Type. T) (Some Type Bool)
+]] 0 errors
 

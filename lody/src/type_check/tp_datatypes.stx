@@ -123,22 +123,31 @@ rules
   // -- Beta reduction rules
   betaReduceHead((s, e@DataType(n, ps, cs)), []) = (s, DataType(n, ps, cs)).
   
-  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(cs, cs, as)) :-
-  	sGetDataTypeDecl(s, n) == DataType(n, _, cs).
+  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, bhrCheck(ps, cs, cs, as)) :-
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, cs).
+  	
   betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
   betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
-  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, as, (vn, va), [va | a]), r) :-
-  	sGetDataTypeDecl(s, n) == DataType(n, _, cs),
-  	brhDoGetAVR(cs, as) == (a, (vn, va), r).
+  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(brhDo(s, n, cs, a, (vn, v), [p | a]), r) :- {ps}
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, cs),
+  	
+  	bhrDataSplitArgs(as, ps, cs, 0) == (p, a, v, r),
+  	brhDataCoreV(v) == vn.
   	
   	
   // CHECKS IF WE HAVE ENOUGH ARGUMENTS
   // Given constructors and arguments, we need at least len(constructors) + 2 arguments
-  bhrCheck : list(DataConstructor) * list(DataConstructor) * list((scope * Expr)) -> int
-  bhrCheck(cso, [_ | cs], [_ | as]) = bhrCheck(cso, cs, as).
-  bhrCheck(cso, [], [_, v | _]) = bhrCheckV(cso, betaReduceHead(v, [])).
-  bhrCheck(cso, [], [_]) = 0.     // no cs, 1 arg
-  bhrCheck(cso, _, [])   = 0.     // no args
+  bhrCheck : list(DataParam) * list(DataConstructor) * list(DataConstructor) * list((scope * Expr)) -> int
+  // Skip data params
+  bhrCheck([_|ps], cso, cs, [_ | as]) = bhrCheck(ps, cso, cs, as).
+  bhrCheck([_|ps], cso, cs, []) = 0.
+  // Skip one constructor, skip one argument
+  bhrCheck([], cso, [_ | cs], [_ | as]) = bhrCheck([], cso, cs, as).
+  // We have enough, check if v is fine!
+  bhrCheck([], cso, [], [_, v | _]) = bhrCheckV(cso, betaReduceHead(v, [])).
+  // Not enough
+  bhrCheck([], cso, [], [_]) = 0.     // no cs, 1 arg
+  bhrCheck([], cso, _, [])   = 0.     // no args
   
   bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
   bhrCheckV([], (s, Var(n))) = 0.
@@ -156,8 +165,11 @@ rules
   // - List of arguments to the original function, for recursive applications
   // Returns beta reduced value
   brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) -> (scope * Expr)
-  brhDo(s, n, [Constructor(c, ce) | cs], [p, a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
-  brhDo(s, n, [Constructor(_, ce) | cs], [p, _ | as], (c, ve), ar) = brhDo(s, n, cs, [p | as], (c, ve), ar).
+  
+  // Constructor matches, use brhDo2 on the result
+  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
+  // Constructor does not match, skip
+  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar) = brhDo(s, n, cs, as, (c, ve), ar).
   
   // APPLIES ARGUMENTS TO FUNCTION
   // Given a
@@ -173,15 +185,22 @@ rules
   	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
   brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
   
-  // Get the `v` argument and everything after that, given constructors and arguments
-  brhDoGetAVR : list(DataConstructor) * list((scope * Expr)) -> (list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)))
-  brhDoGetAVR([], [_, v | as]) = ([], (brhDoGetV2(betaReduceHead(v, [])), v), as).
-  brhDoGetAVR([_|cs], [a|as]) = ([a | ra], rv, rr) :- (ra, rv, rr) == brhDoGetAVR(cs, as).
+ 
+  
+  // Arguments look like PS P AS V R
+  // Function returns P AS V R
+  bhrDataSplitArgs : list((scope * Expr)) * list(DataParam) * list(DataConstructor) * int -> ((scope * Expr) * list((scope * Expr)) * (scope * Expr) * list((scope * Expr)))
+  bhrDataSplitArgs([_|as], [_|ps], cs, 0) = bhrDataSplitArgs(as, ps, cs, 0). // skip ps arg
+  bhrDataSplitArgs([p|as], [], cs, 0) = (p, r1, r2, r3) :-                   // grab p arg
+  	bhrDataSplitArgs(as, [], cs, 1) == (_, r1, r2, r3).     
+  bhrDataSplitArgs([a|as], [], [_|cs], 1) = (_, [a|r1], r2, r3) :-              // grab a arg
+  	bhrDataSplitArgs(as, [], cs, 1) == (_, r1, r2, r3).
+  bhrDataSplitArgs([v|rs], [], [], 1) = (_, [], betaReduceHead(v, []), rs).                         // grab v arg
   
   // Get the `v` argument from the `v` argument applied to things
-  brhDoGetV2 : (scope * Expr) -> ID
-  brhDoGetV2((s, FnDestruct(f, a))) = brhDoGetV2(betaReduceHead((s, f), [])).
-  brhDoGetV2((s, Var(n))) = n.
+  brhDataCoreV : (scope * Expr) -> ID
+  brhDataCoreV((s, FnDestruct(f, a))) = brhDataCoreV(betaReduceHead((s, f), [])).
+  brhDataCoreV((s, Var(n))) = n.
   
   append : list((scope * Expr)) * (scope * Expr) -> list((scope * Expr))
   append([], x) = [x].

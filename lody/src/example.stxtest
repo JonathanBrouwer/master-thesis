@@ -1,44 +1,10 @@
-resolve {s cs n sp p s' n' cs' s'' s3 x y z nx s8 s9 t' t_type t''}
-    new s,
-    
-    n == Syn("MyBool"),
-    cs == []
-    
-  
-//  	// Data type decl
-//  	scopeName(s', n) == n',
-//  	sPutSubst(s, n', (s, DataType(n', _, cs'))) == s',
-//  	dataTypeConstrs(n', s', s', cs) == (s'', cs'),
-//  	
-//  	// postulate f
-////  	scopeName(s8, Syn("f")) == nx,
-////    typeOfExpr(s'', FnType(Syn("_"), FnType(Syn("_"), Var(Syn("MyBool")), Type()), Type())) == (t', t_type),
-////    betaReduce((s'', t')) == t'',
-////  	sPutType(s'', nx, t'') == s8
-//  	
-//  	
-//  	
-//  	
-//  	
-//  	
-//  	
-//  	typeOfExpr(s'', 
-//  		Postulate(Syn("f"), FnType(Syn("_"), FnType(Syn("_"), Var(Syn("MyBool")), Type()), Type()), 
-//  			Postulate(Syn("x"), FnDestruct(Var(Syn("f")), FnDestruct(DataElim(n), FnConstruct(Syn("_"), Var(Syn("MyBool")), Type()))), 
-//  				Var(Syn("x"))
-//  			)
-//  		)
-//  	) == (x, y)
-  	
-  	
-//  	s3 == scopePutType(s'', ScopedVar(_, ""), _),
-//  	
-//  	typeOfExpr(s'', FnDestruct(DataElim(n), FnConstruct(Syn("_"), Var(Syn("MyBool")), Type()))) == (x, y),
-//    betaReduce((s'', x)) == z
-  	
-//  	typeOfExpr(s'', b) == (b', b_type)
-  	
-
+resolve {a1 a2 a3 a4 a5 a6 a7 x y}
+//    new s,
+//    
+//    n == Syn("MyBool"),
+//    cs == []
+//    
+    bhrDataSplitArgs([a1, a2, a3, a4, a5, a6, a7], [], [Constructor(Syn(""), Type()), Constructor(Syn(""), Type())], 0) == x
 
 
 imports

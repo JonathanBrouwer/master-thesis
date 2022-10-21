@@ -38,7 +38,10 @@ x
 ]] 0 errors
 
 
-
+test empty create elim [[
+data Empty = ;
+elim Empty : P: (_ : Empty -> Type) -> v: Empty -> P v
+]] 0 errors
 
 
 
@@ -286,10 +289,16 @@ data IsTrue = (b : Bool)
 isTrue : IsTrue true
 ]] 0 errors
 
-test index data type 3 [[
+test index data type 4 [[
 data IsTrue = (b : Bool)
 	isTrue : b : Bool -> IsTrue b;
 isTrue : (b: Bool -> IsTrue b)
+]] 0 errors
+
+test index data type elim 1 [[
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+(elim IsTrue) : (P : (b: Bool -> _: IsTrue b -> Type) -> _: P true (isTrue) -> b : Bool -> v: IsTrue b -> P b v)
 ]] 0 errors
 
 

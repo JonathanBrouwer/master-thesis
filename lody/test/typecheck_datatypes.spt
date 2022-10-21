@@ -279,3 +279,17 @@ data IsTrue = (b : Bool)
 	isTrue : IsTrue true;
 IsTrue : (_: Bool -> Type)
 ]] 0 errors
+
+test index data type 3 [[
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+isTrue : IsTrue true
+]] 0 errors
+
+test index data type 3 [[
+data IsTrue = (b : Bool)
+	isTrue : b : Bool -> IsTrue b;
+isTrue : (b: Bool -> IsTrue b)
+]] 0 errors
+
+

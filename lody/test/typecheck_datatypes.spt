@@ -261,3 +261,21 @@ data Maybe (T : Type) =
 true : (elim Maybe) Type (\_: Maybe Type. Type) Type (\T: Type. T) (Some Type Bool)
 ]] 0 errors
 
+
+test param data type 2 elim 2 [[
+data MaybeRec (T : Type) = 
+	None : MaybeRec T,
+	Some : _: MaybeRec T -> MaybeRec T;
+(elim MaybeRec) : (T : Type -> P : (_: MaybeRec T -> Type) -> _: P (None T) -> _: (x: MaybeRec T -> y : P x -> P (Some T x)) -> v: MaybeRec T -> P v)
+]] 0 errors
+
+test index data type 1 [[
+data IsTrue = (b : Bool) (c : Bool);
+IsTrue : (_: Bool -> _: Bool -> Type)
+]] 0 errors
+
+test index data type 2 [[
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+IsTrue : (_: Bool -> Type)
+]] 0 errors

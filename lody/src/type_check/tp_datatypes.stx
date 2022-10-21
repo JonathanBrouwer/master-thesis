@@ -11,29 +11,31 @@ rules
 
   //---- Type of DataType
   // A datatype is a type
-  typeOfExpr_(_, e@DataType(_, _, _)) = (e, Type()).
+  typeOfExpr_(_, e@DataType(_, _, _, _)) = (e, Type()).
   
   // If we find a declaration
-  typeOfExpr_(s, DataTypeDecl(n, ps, cs, b)) = (DataTypeDecl(n', ps', cs', b'), b_type) :- {s1 s2 s3 s4}
+  typeOfExpr_(s, DataTypeDecl(n, ps, is, cs, b)) = (DataTypeDecl(n', ps', is', cs', b'), b_type) :- {s1 s2 s3a s3 s4}
   	scopeName(s2, n) == n',
 
 	// Declare datatype
-  	sPutType(s, n', createCoreType(Type(), ps')) == s1,
-  	sPutDataTypeDecl(s1, n', DataType(n', ps', cs')) == s2,
+  	sPutType(s, n', createCoreType(Type(), ps', is')) == s1,
+  	sPutDataTypeDecl(s1, n', DataType(n', ps', is', cs')) == s2,
   	
   	// Typecheck params in s, add their definitions to s2
   	dataTypeParams(s2, ps) == (s3, ps'),
+  	dataTypeParams(s3, is) == (_, is'),
   	
   	// Add all constructors to s2 to create s4. Type check them in the context of s3.
-  	dataTypeConstrs(n', s3, s2, cs, createCoreElim(Var(n'), ps'), ps') == (s4, cs'),
+  	dataTypeConstrs(n', s3, s2, cs, createCoreElim(Var(n'), ps'), ps', is') == (s4, cs'),
   	
   	// Type check body in s4
   	typeOfExpr(s4, b) == (b', b_type).
   	
-  // Creates the Expression `T -> e`
-  createCoreType : Expr * list(DataParam) -> Expr
-  createCoreType(c, []) = c.
-  createCoreType(c, [Param(p, e) | ps]) = FnType(p, e, createCoreType(c, ps)).
+  // Creates the Expression `T -> e`, given params and indices
+  createCoreType : Expr * list(DataParam) * list(DataParam) -> Expr
+  createCoreType(c, [], []) = c.
+  createCoreType(c, [Param(p, e) | ps], is) = FnType(p, e, createCoreType(c, ps, is)).
+  createCoreType(c, [], [Param(p, e) | is]) = FnType(p, e, createCoreType(c, [], is)).
   	
   // scope to put def * params -> scope that def was put * checked params
   dataTypeParams : scope * list(DataParam) -> (scope * list(DataParam))
@@ -46,18 +48,18 @@ rules
   
   	
   // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother)
-  dataTypeConstrs : ID * scope * scope * list(DataConstructor) * Expr * list(DataParam) -> (scope * list(DataConstructor))
-  dataTypeConstrs(_, _, s, [], _, _) = (s, []).
-  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs], c, ps) = (s'', [Constructor(n', e') | cs']) :- {s' e_type e''}
+  dataTypeConstrs : ID * scope * scope * list(DataConstructor) * Expr * list(DataParam) * list(DataParam) -> (scope * list(DataConstructor))
+  dataTypeConstrs(_, _, s, [], _, _, _) = (s, []).
+  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs], c, ps, is) = (s'', [Constructor(n', e') | cs']) :- {s' e_type e''}
   	scopeName(s', n) == n',
   	
   	typeOfExpr(sb, e) == (e', e_type),
-  	checkConstructorPositive(c, dn, e'),
+  	checkConstructor(e', dn, ps, is),
   	expectBetaEq((sEmpty(), e_type), (sEmpty(), Type())),
   	
-  	createCoreType(e', ps) == e'',
+  	createCoreType(e', ps, []) == e'',
   	sPutType(s, n', betaReduce((sb, e''))) == s',
-  	dataTypeConstrs(dn, sb, s', cs, c, ps) == (s'', cs').
+  	dataTypeConstrs(dn, sb, s', cs, c, ps, is) == (s'', cs').
   	
   // Creates the expression `Maybe T1 T2..`
   createCoreElim : Expr * list(DataParam) -> Expr
@@ -67,27 +69,35 @@ rules
   	
   // Check if a specific constructor is strictly positive'
   // c = Core elim
-  checkConstructorPositive : Expr * ID * Expr
-  checkConstructorPositive(c, _, c).
-  checkConstructorPositive(c, n, FnType(_, c, b)) :- checkConstructorPositive(c, n, b).
-  checkConstructorPositive(c, n, FnType(_, e, b)) :- 
-  	checkConstructorPositiveSub(n, e),
-  	checkConstructorPositive(c, n, b).
+  checkConstructor : Expr * ID * list(DataParam) * list(DataParam)
+  // Core type checks
+  checkConstructor(Var(n), n, [], []).
+  // Match a param arg, this is must be exactly equal
+  checkConstructor(FnDestruct(b, Var(m)), n, [Param(m, _) | ps], is) :- checkConstructor(b, n, ps, is).
+  // Match a indexed arg, this can be anything
+  checkConstructor(FnDestruct(b, _), n, [], [Param(_, _) | is]) :- checkConstructor(b, n, [], is).
+  checkConstructor(FnType(_, v, b), n, ps, is) :- checkConstructorPos(v, n), checkConstructor(b, n, ps, is).
   
-  // Check if a specific constructor does not reference the ID
-  checkConstructorPositiveSub : ID * Expr
-  checkConstructorPositiveSub(n, Var(m)) :- n != m.
-  checkConstructorPositiveSub(n, FnType(_, e1, e2)) :- 
-  	checkConstructorPositiveSub(n, e1),
-  	checkConstructorPositiveSub(n, e2).
-  checkConstructorPositiveSub(n, Type()).
-  checkConstructorPositiveSub(n, BoolType()).
+  // Check that an expression is strictly positive
+  checkConstructorPos : Expr * ID
+  checkConstructorPos(FnDestruct(e1, e2), n) :- checkConstructorPos(e1, n), checkConstructorPos(e2, n).
+  checkConstructorPos(FnType(_, e1, e2), n) :- checkConstructorNeg(e1, n), checkConstructorNeg(e2, n).
+  checkConstructorPos(Var(_), _).
+  checkConstructorPos(Type(), _).
+  checkConstructorPos(BoolType(), _).
+  
+  // Check that an expression does not contain ID
+  checkConstructorNeg : Expr * ID
+  checkConstructorNeg(Var(n), m) :- n != m.
+  checkConstructorNeg(FnType(_, e1, e2), n) :- checkConstructorNeg(e1, n), checkConstructorNeg(e2, n).
+  checkConstructorNeg(Type(), _).
+  checkConstructorNeg(BoolType(), _).
    	
   // -- Type of DataElim
   // We need to generate the type of the eliminator
   // It is beta reduced since it may contain variables
   typeOfExpr_(s, DataElim(n)) = (DataElim(n'), betaReduce((s, t))) :- {ps cs sp p c}
-  	sGetDataTypeDecl(s, n) == DataType(n', ps, cs),
+  	sGetDataTypeDecl(s, n) == DataType(n', ps, _, cs),
   	new sp, p == ScopedName(sp, "P"),
   	c == createCoreElim(Var(n'), ps),
   	t == parameterElimsGen(ps, FnType(p, FnType(Syn("_"), c, Type()), dataTypeElimsGen(c, p, cs))).
@@ -120,11 +130,9 @@ rules
   // We add `(base m)` to the rest
   dataTypeElimsGenSub(d, p, FnType(m, a, b), base) = FnType(m, a, dataTypeElimsGenSub(d, p, b, FnDestruct(base, Var(m)))).
   
-  // -- Beta reduction rules
-  betaReduceHead((s, e@DataType(n, ps, cs)), []) = (s, DataType(n, ps, cs)).
-  
+  // -- Beta reduction rules  
   betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, i, j) :- {ps cs v}
-  	sGetDataTypeDecl(s, n) == DataType(n, ps, cs),
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, _, cs),
   	bhrDataSplitArgs(as, ps, cs, 0) == (i, _, _, v, _),
   	bhrCheckV(cs, v) == j.
   	
@@ -137,7 +145,7 @@ rules
   betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int * int -> (scope * Expr)
   betaReduceHeadChoose(e, as, _, _) = kRebuild(e, as).
   betaReduceHeadChoose((s, DataElim(n)), as, 1, 1) = betaReduceHead(brhDo(s, n, cs, a, (vn, v), [p | a], createCoreElim(Var(n), ps)), r) :- 
-  	sGetDataTypeDecl(s, n) == DataType(n, ps, cs),
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, _, cs),
   	
   	bhrDataSplitArgs(as, ps, cs, 0) == (1, p, a, v, r),
   	brhDataCoreV(v) == vn.  
@@ -196,10 +204,7 @@ rules
   append([], x) = [x].
   append([e | es], x) = [e | append(es, x)].
   
-
-  betaReduce_((s, e@DataType(_, _, _))) = e.
   betaReduce_((s, e@DataElim(_))) = e.
-  expectBetaEq_((_, DataType(n, _, _)), (_, DataType(n, _, _))).
   
   
   

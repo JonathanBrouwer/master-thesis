@@ -1,1 +1,1 @@
-P (b: Bool -> IsTrue b -> Type_) -> _: P true (isTrue) -> b : Bool -> v: IsTrue b -> P b v
+P : (b: Bool -> IsTrue b -> Type_) -> _: P true (isTrue) -> b : Bool -> v: IsTrue b -> P b v

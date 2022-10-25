@@ -322,6 +322,12 @@ Type
 test eq 2 [[
 data Eq (T : Type) = (e1: T) (e2 : T)
 	refl : e : T -> Eq T e e;
+(elim Eq) : T: Type -> P: (e1: T -> e2: T -> _: Eq T e1 e2 -> Type) -> _: (e: T -> P e e (refl T e)) -> e1 : T -> e2 : T -> v: Eq T e1 e2 -> P e1 e2 v
+]] 0 errors
+
+test tuple [[
+data Tuple (T1 : Type) (T2 : Type) =
+    mktp : e1 : T2 -> e2 : T2 -> Tuple T1 T2;
 Type
 ]] 0 errors
 

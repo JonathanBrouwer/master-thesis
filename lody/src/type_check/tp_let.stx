@@ -12,7 +12,7 @@ rules
     //Convert arg_name
   	typeOfExpr(s, v) == (v', _),
   	sPutSubst(s, n', (s, v')) == s',
-  	typeOfExpr(s', b) == (b', b_type),
-  	@l.Inferred := betaReduce((s, v')).
+  	typeOfExpr(s', b) == (b', b_type).
+//  	@l.Inferred := betaReduce((s, v')).
   	
   betaReduceHead((s, Let(n, v, b)), args) = betaReduceHead((sPutSubst(s, n, (s, v)), b), args).

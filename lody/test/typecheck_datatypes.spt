@@ -298,7 +298,18 @@ isTrue : (b: Bool -> IsTrue b)
 test index data type elim 1 [[
 data IsTrue = (b : Bool)
 	isTrue : IsTrue true;
-(elim IsTrue) : (P : (b: Bool -> _: IsTrue b -> Type) -> _: P true (isTrue) -> b : Bool -> v: IsTrue b -> P b v)
+(elim IsTrue) : (P : (b: Bool -> _: IsTrue b -> Type) -> _: P true isTrue -> b : Bool -> v: IsTrue b -> P b v)
 ]] 0 errors
 
+test index data type use elim 1 [[
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+(elim IsTrue) (\b: Bool. \it: IsTrue b. Type) : (_: Type -> b: Bool -> v: IsTrue b -> Type)
+]] 0 errors
+
+test index data type use elim 2 [[
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+(elim IsTrue) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
+]] 0 errors
 

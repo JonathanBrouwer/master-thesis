@@ -1,5 +1,5 @@
-let T = Bool;
-data Bol = 
-	My : _: (_: Bol -> Bool) -> Bol;
-	
-Type
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+
+(elim IsTrue) (\b: Bool. \v: IsTrue b. Type) Bool true isTrue
+

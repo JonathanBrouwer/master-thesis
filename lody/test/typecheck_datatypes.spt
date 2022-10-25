@@ -313,3 +313,15 @@ data IsTrue = (b : Bool)
 (elim IsTrue) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
 ]] 0 errors
 
+test eq 1 [[
+data Eq = (e1: Bool) (e2 : Bool)
+	refl : e : Bool -> Eq e e;
+Type
+]] 0 errors
+
+test eq 2 [[
+data Eq (T : Type) = (e1: T) (e2 : T)
+	refl : e : T -> Eq T e e;
+Type
+]] 0 errors
+

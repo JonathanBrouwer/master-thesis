@@ -54,7 +54,7 @@ rules
   	scopeName(s', n) == n',
   	
   	typeOfExpr(sb, e) == (e', e_type),
-  	checkConstructor(e', dn, ps, is),
+  	checkConstructor(e', dn, ps, is, []),
   	expectBetaEq((sEmpty(), e_type), (sEmpty(), Type())),
   	
   	createCoreType(e', ps, []) == e'',
@@ -70,14 +70,17 @@ rules
   	
   // Check if a specific constructor is strictly positive'
   // c = Core elim
-  checkConstructor : Expr * ID * list(DataParam) * list(DataParam)
+  checkConstructor : Expr * ID * list(DataParam) * list(DataParam) * list(Expr)
   // Core type checks
-  checkConstructor(Var(n), n, [], []).
-  // Match a param arg, this is must be exactly equal
-  checkConstructor(FnDestruct(b, Var(m)), n, [Param(m, _) | ps], is) :- checkConstructor(b, n, ps, is).
-  // Match a indexed arg, this can be anything
-  checkConstructor(FnDestruct(b, _), n, [], [Param(_, _) | is]) :- checkConstructor(b, n, [], is).
-  checkConstructor(FnType(_, v, b), n, ps, is) :- checkConstructorPos(v, n), checkConstructor(b, n, ps, is).
+  checkConstructor(Var(n), n, ps, is, as) :- checkConstructorArgs(ps, is, as).
+  checkConstructor(FnDestruct(b, a), n, ps, is, as) :- checkConstructor(b, n, ps, is, [a | as]).
+  checkConstructor(FnType(_, v, b), n, ps, is, []) :- checkConstructorPos(v, n), checkConstructor(b, n, ps, is, []).
+  
+  // Checks if argument count is correct, and if all parameters are exact
+  checkConstructorArgs : list(DataParam) * list(DataParam) * list(Expr)
+  checkConstructorArgs([Param(m, _) | ps], is, [Var(m) | as]) :- checkConstructorArgs(ps, is, as). 
+  checkConstructorArgs([], [_ | is], [_ | as]) :- checkConstructorArgs([], is, as). 
+  checkConstructorArgs([], [], []).
   
   // Check that an expression is strictly positive
   checkConstructorPos : Expr * ID

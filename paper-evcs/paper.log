@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.14)  17 OCT 2022 19:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  25 OCT 2022 14:40
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -732,6 +732,8 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 85.
 LaTeX Info: Redefining \pageref on input line 85.
 LaTeX Info: Redefining \nameref on input line 85.
+
+(./paper.out) (./paper.out)
 \@outlinefile=\write5
 \openout5 = `paper.out'.
 
@@ -740,8 +742,7 @@ Package caption Info: rotating package is loaded.
 Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    Trying to load font information for T1+lmss on input line 8
 8.
-
-(/usr/share/texmf-dist/tex/latex/lm/t1lmss.fd
+ (/usr/share/texmf-dist/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 Package microtype Info: Loading generic protrusion settings for font family
@@ -816,10 +817,7 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-
-Underfull \vbox (badness 1590) has occurred while \output is active []
-
-<cc-by.pdf, id=16, 88.33pt x 31.11626pt>
+<cc-by.pdf, id=52, 88.33pt x 31.11626pt>
 File: cc-by.pdf Graphic file (type pdf)
 <use cc-by.pdf>
 Package pdftex.def Info: cc-by.pdf  used on input line 111.
@@ -830,7 +828,7 @@ LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
 (/usr/share/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-<oasics-logo-bw.pdf, id=19, 599.8691pt x 144.42657pt>
+<oasics-logo-bw.pdf, id=55, 599.8691pt x 144.42657pt>
 File: oasics-logo-bw.pdf Graphic file (type pdf)
 <use oasics-logo-bw.pdf>
 Package pdftex.def Info: oasics-logo-bw.pdf  used on input line 111.
@@ -854,21 +852,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 49--53
  []
 
 ) [6.6] (./paper.aux)
-
-Package rerunfilecheck Warning: File `paper.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `paper.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  E83474A7D1C66FF5E4D06816B7AF2AD1;1385.
+Package rerunfilecheck Info: File `paper.out' has not changed.
+(rerunfilecheck)             Checksum: E83474A7D1C66FF5E4D06816B7AF2AD1;1385.
  ) 
 Here is how much of TeX's memory you used:
- 24035 strings out of 478238
- 419043 string characters out of 5850455
- 755524 words of memory out of 5000000
- 41654 multiletter control sequences out of 15000+600000
- 584603 words of font info for 198 fonts, out of 8000000 for 9000
+ 24055 strings out of 478238
+ 419260 string characters out of 5850455
+ 755597 words of memory out of 5000000
+ 41664 multiletter control sequences out of 15000+600000
+ 584870 words of font info for 201 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  85i,15n,90p,1002b,1220s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf-dist/fo
@@ -888,10 +880,10 @@ hare/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/fonts
 pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf-di
 st/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/l
 m/lmtt9.pfb>
-Output written on paper.pdf (6 pages, 351794 bytes).
+Output written on paper.pdf (6 pages, 352987 bytes).
 PDF statistics:
- 236 PDF objects out of 1000 (max. 8388607)
- 184 compressed objects within 2 object streams
+ 265 PDF objects out of 1000 (max. 8388607)
+ 212 compressed objects within 3 object streams
  54 named destinations out of 1000 (max. 500000)
- 68625 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 68697 words of extra memory for PDF output out of 74296 (max. 10000000)
 

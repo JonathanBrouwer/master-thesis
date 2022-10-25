@@ -87,7 +87,7 @@
 \maketitle
 
 \begin{abstract}
-When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. Type-checking dependent languages is challenging since there is a need to evaluate terms during type-checking. This paper presents how to make a dependent language by implementing the calculus of constructions in Statix. 
+Static type systems can greatly enhance the quality of programs, but implementing a type checker that is both expressive and user-friendly is challenging and error-prone. The Statix meta-language (part of the Spoofax language workbench) aims to make this task easier by automatically deriving a type checker from a declarative specification of the type system. However, so far Statix has not yet been used to implement dependent types, an expressive class of type systems which require evaluation of terms during type checking. In this paper, we present an implementation of a simple dependently typed language in Statix, and discuss how to extend it with several common features such as inductive data types, universes, and inference of implicit arguments. While we encountered some challenges in the implementation, our conclusion is that Statix is already usable as a tool for implementing dependent types.
 \end{abstract}
 
 \section{Introduction}

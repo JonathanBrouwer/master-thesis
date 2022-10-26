@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  26 OCT 2022 11:47
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  26 OCT 2022 11:59
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -853,11 +853,11 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 89118E7F808FAF1F3AA62D5F857B1DFD;1597.
  ) 
 Here is how much of TeX's memory you used:
- 24099 strings out of 478238
- 419865 string characters out of 5850455
+ 24101 strings out of 478238
+ 419885 string characters out of 5850455
  758977 words of memory out of 5000000
  41674 multiletter control sequences out of 15000+600000
- 585463 words of font info for 208 fonts, out of 8000000 for 9000
+ 585546 words of font info for 209 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  85i,15n,90p,1002b,1856s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf-dist/fo
@@ -877,7 +877,7 @@ hare/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/fonts
 pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf-di
 st/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/l
 m/lmtt9.pfb>
-Output written on paper.pdf (7 pages, 362241 bytes).
+Output written on paper.pdf (7 pages, 362323 bytes).
 PDF statistics:
  305 PDF objects out of 1000 (max. 8388607)
  251 compressed objects within 3 object streams

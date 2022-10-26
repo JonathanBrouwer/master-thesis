@@ -10,11 +10,15 @@ imports
   
 rules
 
+  // BEFORE: params -> P: (indices -> v: D indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
+  // AFTER:  params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
+  // CONSTRUCTORS: args+inductions -> P indices (C pars args)
+
   // -- Beta reduction rules  
-  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, i, j) :- {ps cs v}
-  	sGetDataTypeDecl(s, n) == DataType(n, ps, _, cs),
-  	bhrDataSplitArgs(as, ps, cs, 0) == (i, _, _, v, _),
-  	bhrCheckV(cs, v) == j.
+  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, i, j) :- {ps is cs V}
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, is, cs),
+  	bhrDataSplitArgs(as, ps, is, cs, 0) == (i, _, _, _, _, V, _),
+  	bhrCheckV(cs, V) == j.
   	
   bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
   bhrCheckV([], (s, Var(n))) = 0.
@@ -24,11 +28,12 @@ rules
   	
   betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int * int -> (scope * Expr)
   betaReduceHeadChoose(e, as, _, _) = kRebuild(e, as).
-  betaReduceHeadChoose((s, DataElim(n)), as, 1, 1) = betaReduceHead(brhDo(s, n, cs, a, (vn, v), [p | a], createCoreElim(Var(n), ps, [])), r) :- 
-  	sGetDataTypeDecl(s, n) == DataType(n, ps, _, cs),
+  betaReduceHeadChoose((s, DataElim(n)), as, 1, 1) = betaReduceHead(res, r) :- {ps cs is PS P CS IS V Vn R}
+  	sGetDataTypeDecl(s, n) == DataType(n, ps, is, cs),
   	
-  	bhrDataSplitArgs(as, ps, cs, 0) == (1, p, a, v, r),
-  	brhDataCoreV(v) == vn.  
+  	bhrDataSplitArgs(as, ps, is, cs, 0) == (1, PS, P, CS, IS, V, R),
+  	brhDataCoreV(V) == Vn,
+  	brhDo(s, n, cs, CS, (Vn, V), [P | CS]) == res.
   
   // FINDS MATCHING CONSTRUCTOR
   // Given a
@@ -38,12 +43,12 @@ rules
   // - Value that is elimininated, split up in original value and constructor name
   // - List of arguments to the original function, for recursive applications
   // Returns beta reduced value
-  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) * Expr -> (scope * Expr)
+  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) -> (scope * Expr)
   
   // Constructor matches, use brhDo2 on the result
-  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar, core) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar, core).
+  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
   // Constructor does not match, skip
-  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar, core) = brhDo(s, n, cs, as, (c, ve), ar, core).
+  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar) = brhDo(s, n, cs, as, (c, ve), ar).
   
   // APPLIES ARGUMENTS TO FUNCTION
   // Given a
@@ -56,24 +61,27 @@ rules
   // Ex 1: Bool Bool f _ 			=> f
   // Ex 2: Bool (.. -> c) f (vf va) => Bool c (f va) vf
   // Ex 3: Maybe (Maybe T) f _ 		=> f
-  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * list((scope * Expr)) * Expr -> (scope * Expr)
-  brhDo2(s, n, core, f, _, _, core) = f.
-  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar, core) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar, core) :-
+  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+  brhDo2(s, n, Var(_), f, _, _) = f.
+  brhDo2(s, n, FnDestruct(_, _), f, _, _) = f.
+  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
   	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
-  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar, core) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar, core).
+  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
   
  
-  
-  // Arguments look like PS P AS V R
-  // Function returns P AS V R
-  bhrDataSplitArgs : list((scope * Expr)) * list(DataParam) * list(DataConstructor) * int -> (int * (scope * Expr) * list((scope * Expr)) * (scope * Expr) * list((scope * Expr)))
-  bhrDataSplitArgs([_|as], [_|ps], cs, 0) = bhrDataSplitArgs(as, ps, cs, 0). // skip ps arg
-  bhrDataSplitArgs([p|as], [], cs, 0) = (r0, p, r1, r2, r3) :-                   // grab p arg
-  	bhrDataSplitArgs(as, [], cs, 1) == (r0, _, r1, r2, r3).     
-  bhrDataSplitArgs([a|as], [], [_|cs], 1) = (r0, _, [a|r1], r2, r3) :-           // grab a arg
-  	bhrDataSplitArgs(as, [], cs, 1) == (r0, _, r1, r2, r3).
-  bhrDataSplitArgs([v|rs], [], [], 1) = (1, _, [], betaReduceHead(v, []), rs).  // grab v arg
-  bhrDataSplitArgs([], _, _, _) = (0, _, _, _, _). // no args left
+  //P: params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
+  // Arguments look like PS P CS IS V R
+  bhrDataSplitArgs : list((scope * Expr)) * list(DataParam) * list(DataParam) * list(DataConstructor) * int -> (int * list((scope * Expr)) * (scope * Expr) * list((scope * Expr)) * list((scope * Expr)) * (scope * Expr) * list((scope * Expr)))
+  bhrDataSplitArgs([a|as], [_|ps], is, cs, 0) = (r0, [a | r1], r2, r3, r4, r5, r6) :- // PS
+  	bhrDataSplitArgs(as, ps, is, cs, 0) == (r0, r1, r2, r3, r4, r5, r6).
+  bhrDataSplitArgs([a|as], [], is, cs, 0) = (r0, r1, a, r3, r4, r5, r6) :- // P
+  	bhrDataSplitArgs(as, [], is, cs, 1) == (r0, r1, _, r3, r4, r5, r6).
+  bhrDataSplitArgs([a|as], [], is, [_|cs], 1) = (r0, r1, r2, [a|r3], r4, r5, r6) :- // CS
+  	bhrDataSplitArgs(as, [], is, cs, 1) == (r0, r1, r2, r3, r4, r5, r6).
+  bhrDataSplitArgs([a|as], [], [_|is], [], 1) = (r0, r1, r2, r3, [a|r4], r5, r6) :- // IS
+  	bhrDataSplitArgs(as, [], is, [], 1) == (r0, r1, r2, r3, r4, r5, r6).
+  bhrDataSplitArgs([a|as], [], [], [], 1) = (1, [], _, [], [], a, as). // V R
+  bhrDataSplitArgs([], _, _, _, _) = (0, _, _, _, _, _, _). // Ran out of arguments
   
   // Get the `v` argument from the `v` argument applied to things
   brhDataCoreV : (scope * Expr) -> ID

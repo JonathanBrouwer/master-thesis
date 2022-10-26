@@ -104,7 +104,7 @@ rules
   	sGetDataTypeDecl(s, n) == DataType(n', ps, is, cs),
   	
   	// The general structure is:
-  	// params -> P: (indices -> v: D indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
+  	// params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
   	
   	// Create 		`N params indices` for future use
   	c == createCoreElim(Var(n'), ps, is),
@@ -138,7 +138,6 @@ rules
   // generate the next constructor, using dataTypeElimsGenSub to find the constructor
   // C = args -> N pars indices
   // -----------------------------------------
-  // old: args+inductions -> P (C pars indices args)
   // args+inductions -> P indices (C pars args)
   dataTypeElimsGen(d, p, [Constructor(c, e) | cs], n, ps, is) = FnType(Syn("_"), e2, dataTypeElimsGen(d, p, cs, n, ps, is)) :- {e1 e3}
   	// C pars args

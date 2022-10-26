@@ -30,6 +30,7 @@
 \newcommand{\toe}[3]{ \scope{#1}{#2} : #3 }
 \newcommand{\bred}[3]{ \scope{#1}{#2} \underset{\beta}{\Rightarrow} #3 }
 \newcommand{\beq}[2]{ #1 \underset{\beta}{=} #2 }
+\newcommand{\co}[1]{ \mathsf{#1} }
 
 \bibliographystyle{plainurl}
 
@@ -172,7 +173,7 @@ The \verb|sPutType| and \verb|sPutSubsts| relations generate a new scope given a
 
 A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare.
 
-We implement beta reduction using a Krivine abstract machine\cite{krivine}. This turned out to be the more natural way of expressing this over substitution-based evaluation relation. We originally tried to implement a substitution-based evaluation relation, which works fine for the base language. However, it runs into trouble when implementing inductive data types, more information about this will be in the full master thesis. Furthermore, abstract machines are usually more efficient than substitution-based approaches.
+We implement beta reduction using a Krivine abstract machine\cite{krivine}. This turned out to be the more natural way of expressing this over substitution-based evaluation relation. We originally tried to implement a substitution-based evaluation relation, which works fine for the base language. However, it runs into trouble when implementing inductive data types, more information about this will be in the full master thesis. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
 
 Note that the evaluator uses names rather than De Bruijn indices. In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, since the aim of this paper is to use the features of Statix, and scope graphs work based on names, we chose to use names. It would also stop us from using editor services that rely on \verb|.ref| annotations, such as renaming.
 
@@ -382,7 +383,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 \end{figure}
 
 \subsection{Avoiding variable capture}
-One problem with the current implementation is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, the correct type is not possible to express without renaming! The problem is that there are multiple names, and there is no way to distinguish between them. This can be solved by using scopes to distinguish names. 
+One problem with the current implementation is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, the correct type is not possible to express without renaming! The problem is that there are multiple names, and there is no way to distinguish between them. This can be solved by using scopes to distinguish names. A full explanation of this will be in the master thesis. 
 
 \section{Extensions}
 This section will discuss some further ideas that can be explored to build upon what has already been shown. These will be fully described in the master thesis that this paper is based on, this is just a look into what is possible.

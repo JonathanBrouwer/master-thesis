@@ -1,53 +1,53 @@
 This is BibTeX, Version 0.99d (TeX Live 2022/Arch Linux)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
-The top-level auxiliary file: oasics-v2021-sample-article.aux
+The top-level auxiliary file: paper.aux
 The style file: plainurl.bst
 Reallocated glb_str_ptr (elt_size=8) to 20 items from 10.
 Reallocated global_strs (elt_size=200001) to 20 items from 10.
 Reallocated glb_str_end (elt_size=8) to 20 items from 10.
 Reallocated singl_function (elt_size=8) to 100 items from 50.
 Reallocated singl_function (elt_size=8) to 100 items from 50.
-Database file #1: oasics-v2021-sample-article.bib
+Database file #1: paper.bib
 Warning--empty booktitle in codecompletion
-You've used 7 entries,
+You've used 8 entries,
             2882 wiz_defined-function locations,
-            681 strings with 6413 characters,
-and the built_in function-call counts, 3326 in all, are:
-= -- 343
-> -- 100
-< -- 1
-+ -- 38
-- -- 28
-* -- 220
-:= -- 477
-add.period$ -- 27
-call.type$ -- 7
-change.case$ -- 35
+            694 strings with 6759 characters,
+and the built_in function-call counts, 4103 in all, are:
+= -- 429
+> -- 128
+< -- 3
++ -- 49
+- -- 37
+* -- 279
+:= -- 578
+add.period$ -- 32
+call.type$ -- 8
+change.case$ -- 42
 chr.to.int$ -- 0
-cite$ -- 8
-duplicate$ -- 86
-empty$ -- 327
-format.name$ -- 28
-if$ -- 857
+cite$ -- 9
+duplicate$ -- 112
+empty$ -- 397
+format.name$ -- 37
+if$ -- 1059
 int.to.chr$ -- 0
-int.to.str$ -- 7
-missing$ -- 6
-newline$ -- 44
-num.names$ -- 14
-pop$ -- 63
+int.to.str$ -- 8
+missing$ -- 7
+newline$ -- 50
+num.names$ -- 18
+pop$ -- 76
 preamble$ -- 1
-purify$ -- 28
+purify$ -- 34
 quote$ -- 0
-skip$ -- 231
+skip$ -- 280
 stack$ -- 0
-substring$ -- 175
-swap$ -- 26
-text.length$ -- 1
+substring$ -- 209
+swap$ -- 43
+text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 28
+type$ -- 32
 warning$ -- 1
-while$ -- 21
-width$ -- 8
-write$ -- 90
+while$ -- 26
+width$ -- 9
+write$ -- 107
 (There was 1 warning)

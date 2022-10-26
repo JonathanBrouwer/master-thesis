@@ -48,7 +48,7 @@ true : f
 ]] 0 errors
 
 test infer function type [[
-(\x: _. true) true
+(\x: _. x) true
 ]] 0 errors
 
 test infer function type via type assert [[

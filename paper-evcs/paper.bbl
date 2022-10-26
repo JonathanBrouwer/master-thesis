@@ -30,6 +30,18 @@ Jean-Louis Krivine.
 \newblock \href {https://doi.org/10.1007/s10990-007-9018-9}
   {\path{doi:10.1007/s10990-007-9018-9}}.
 
+\bibitem{scope_graphs}
+Pierre Néron, Andrew~P. Tolmach, Eelco Visser, and Guido Wachsmuth.
+\newblock A theory of name resolution.
+\newblock In Jan Vitek, editor, {\em Programming Languages and Systems - 24th
+  European Symposium on Programming, ESOP 2015, Held as Part of the European
+  Joint Conferences on Theory and Practice of Software, ETAPS 2015, London, UK,
+  April 11-18, 2015. Proceedings}, volume 9032 of {\em Lecture Notes in
+  Computer Science}, pages 205--231. Springer, 2015.
+\newblock URL: \url{http://dx.doi.org/10.1007/978-3-662-46669-8_9}, \href
+  {https://doi.org/10.1007/978-3-662-46669-8_9}
+  {\path{doi:10.1007/978-3-662-46669-8_9}}.
+
 \bibitem{codecompletion}
 Daniel Pelsmaeker, Hendrik Antwerpen, and Eelco Visser.
 \newblock Towards language-parametric semantic editor services based on
@@ -47,8 +59,9 @@ Hendrik van Antwerpen, Casper Bach~Poulsen, Arjen Rouvoet, and Eelco Visser.
 
 \bibitem{pi_forall}
 Stephanie Weirich.
-\newblock Implementing dependent types in pi-forall, August 2022.
-\newblock URL:
-  \url{https://github.com/sweirich/pi-forall/blob/7187f5e8f2bc4871d92fcf5c42f51c00693efb6e/doc/oplss.pdf}.
+\newblock Implementing dependent types in pi-forall, 2022.
+\newblock URL: \url{https://arxiv.org/abs/2207.02129}, \href
+  {https://doi.org/10.48550/ARXIV.2207.02129}
+  {\path{doi:10.48550/ARXIV.2207.02129}}.
 
 \end{thebibliography}

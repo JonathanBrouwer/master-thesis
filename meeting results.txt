@@ -1,0 +1,5 @@
+<s | E>
+Example semantic code completion
+
+Type theory and functional programming - Universes
+Make project plan

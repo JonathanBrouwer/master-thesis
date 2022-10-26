@@ -337,3 +337,25 @@ data IsTrue = (b : Bool)
 true : (elim IsTrue) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
 ]] 0 errors
 
+test term [[
+data Nat =
+	z : Nat,
+	s : n : Nat -> Nat;
+data Fin = (i : Nat)
+	fz : n : Nat -> Fin (s n),
+	fs : n : Nat -> _: Fin n -> Fin (s n);
+	
+data Term = (k: Nat)
+	var : n : Nat -> _: Fin n -> Term n,
+	app : n : Nat -> _: Term n -> _: Term n -> Term n,
+	abs : n : Nat -> _: Term (s n) -> Term n;
+
+(elim Term)
+]] 0 errors
+
+test x [[
+data X =
+  x : T : Type -> x : T -> X;
+X
+]] 0 errors
+

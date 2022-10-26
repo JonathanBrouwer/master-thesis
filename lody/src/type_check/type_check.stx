@@ -6,6 +6,7 @@ imports
   type_check/scopes
   type_check/tp_bools
   type_check/tp_datatypes
+  type_check/tp_datatypes_reduce
   type_check/tp_fn
   type_check/tp_infer
   type_check/tp_let

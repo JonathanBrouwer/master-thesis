@@ -331,3 +331,9 @@ data Tuple (T1 : Type) (T2 : Type) =
 Type
 ]] 0 errors
 
+test index data type use elim 2 [[
+data IsTrue = (b : Bool)
+	isTrue : IsTrue true;
+true : (elim IsTrue) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
+]] 0 errors
+

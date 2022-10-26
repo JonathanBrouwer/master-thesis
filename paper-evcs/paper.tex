@@ -25,7 +25,11 @@
 \usepackage{mathpartir}
 
 % Commands used
-\newcommand{\bhr}{\underset{\beta h}{\Rightarrow}}
+\newcommand{\scope}[2]{\langle#1 \: | \: #2\rangle}
+\newcommand{\bhr}[3]{ #1 \: #2 \underset{\beta h}{\Rightarrow} #3 }
+\newcommand{\toe}[3]{ \scope{#1}{#2} : #3 }
+\newcommand{\bred}[3]{ \scope{#1}{#2} \underset{\beta}{\Rightarrow} #3 }
+\newcommand{\beq}[2]{ #1 \underset{\beta}{=} #2 }
 
 \bibliographystyle{plainurl}
 
@@ -172,45 +176,105 @@ We implement beta reduction using a Krivine abstract machine\cite{krivine}. This
 
 Note that the evaluator uses names rather than De Bruijn indices. In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, since the aim of this paper is to use the features of Statix, and scope graphs work based on names, we chose to use names. It would also stop us from using editor services that rely on \verb|.ref| annotations, such as renaming.
 
-We need to define multiple relations that will be used later for type-checking. First, the primary relation is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $s1 \vdash e1, t \bhr s2 \vdash e2$ to express \verb|betaReduceHead((s1, e1)) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One relation that is used for this is the \verb|rebuild| relation, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
+We need to define multiple relations that will be used later for type-checking. First, the primary relation is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine} paper, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ to express \verb|betaReduceHead((s1, e1), t) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One relation that is used for this is the \verb|rebuild| relation, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
 
 Additionally, we define \verb|betaReduce| fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
 
 Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality, that it, two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with placeholders. 
 
+
+
 \begin{figure}[h]
 	\begin{mathpar}	
+		% Type rule
 		\inferrule{ 
-		} {s \vdash Type(), [] \bhr s \vdash Type()}
+		} { 
+			\bhr
+			{ \scope{s}{Type} }
+			{ [] }
+			{ \scope{s}{Type}} 
+		}
 		
+		% Let rule
 		\inferrule{ 
-			sPutSubst(s, n, (s, v)) \vdash b, t \bhr s' \vdash e'
-		}{s \vdash Let(n, v, b), t \bhr s' \vdash e' }
-		
+			\bhr 
+			{ \scope{ sPutSubst(s, n, (s, v))}{b} } 
+			{ t }
+			{ \scope{ s' } { e' } }
+		}{
+			\bhr
+			{ \scope{ s }{ Let(n, v, b) } }
+			{ t }
+			{ \scope { s' } { e' } }
+		}
+	
+		% Var rule - NSubst
 		\inferrule{ 
 			sGetName(s, n) = NSubst(se, e) 
-			\\ se \vdash e, t \bhr se' \vdash  e' 
-		}{ s \vdash Var(n), t \bhr se' \vdash e' }
-		
+			\\ \bhr
+			{\scope{se}{e}}
+			{t}
+			{\scope{se'}{e'}} 
+		}{
+			\bhr
+			{\scope{s}{Var(n)}}
+			{t}
+			{\scope{se'}{e'}} 
+		}
+	
+		% Var rule - NType
 		\inferrule{ 
 			sGetName(s, n) = NType(t) 
-		}{ s \vdash Var(n), t \bhr rebuild(s, Var(n), t)  }
+		}{ 
+			\bhr
+			{\scope{s}{Var(n)}}
+			{t}
+			{rebuild(s, Var(n), t)} 
+		}
 		
+		% FnType rule
 		\inferrule{ 
-		} { s \vdash FnType(n, a, b), [] \bhr s \vdash FnType(n, a, b) }
+		} { 
+			\bhr
+			{\scope{s}{FnType(n, a, b)}}
+			{[]}
+			{\scope{s}{FnType(n, a, b)}} 
+		}
 		
+		% FnConstruct rule - No args
 		\inferrule{ 
-		} { s \vdash FnConstruct(n, a, b), [] \bhr s \vdash FnConstruct(n, a, b) }
+		} { 
+			\bhr
+			{\scope{s}{FnConstruct(n, a, b)}}
+			{[]}
+			{\scope{s}{FnConstruct(n, a, b)}} 
+		}
 		
+		% FnConstruct rule - Args
 		\inferrule{ 
-			sPutSubst(s, n, a) \vdash b, ts \bhr s' \vdash e'
-		} { s \vdash FnConstruct(n, a, b), t :: ts \bhr s' \vdash e' }
+			\bhr
+			{\scope{sPutSubst(s, n, a)}{b}}
+			{ts}
+			{\scope{s'}{e'}} 
+		} { 
+			\bhr
+			{\scope{s}{FnConstruct(n, a, b)}}
+			{(t::ts)}
+			{\scope{s'}{e'}} 
+		}
 		
+		% FnDestruct rule
 		\inferrule{ 
-			s \vdash f, a :: ts \bhr s' \vdash e'
-		} { s \vdash FnDestruct(f, a), ts \bhr s' \vdash e' }
-		
-		
+			\bhr
+			{\scope{s}{f}}
+			{(a::ts)}
+			{\scope{s'}{e'}} 
+		} { 
+			\bhr
+			{\scope{s}{FnDestruct(f, a)}}
+			{ts}
+			{\scope{s'}{e'}} 
+		}
 	\end{mathpar}
 	\caption{Rules for beta head reducing the Calculus of Constructions}
 	\label{fig:beta-head-reduce-rules}
@@ -226,11 +290,11 @@ typeOfExpr : scope * Expr -> Expr
 \end{lstlisting}
 We can then start defining type-checking rules for the language. We introduce a number of judgements for typing and equality together with their counterparts in Statix.
 \begin{enumerate}
-	\item $s \vdash e : t$ is the same as \verb|typeOfExpr(s, e) == t|
-	\item $s1 \vdash e1 \underset{\beta}{=} s2 \vdash e2$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
-	\item $s1 \vdash e1 \bhr s2 \vdash e2$ is the same as \verb|betaReduceHead((s1, e1)) == (s2, e2)|
-	\item $s1 \vdash e1 \underset{\beta}{\Rightarrow} e2$ is the same as \verb|betaReduce((s1, e1)) == e2|
-	\item $sEmpty \vdash e$ is the same as $e$ (empty scopes can be left out)
+	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|
+	\item $\beq{\scope{s1}{e1}}{\scope{s2}{e2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
+	\item $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ is the same as \verb|betaReduceHead((s1, e1)) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
+	\item $\bred{s1}{e1}{e2}$ is the same as \verb|betaReduce((s1, e1)) == e2|
+	\item $\scope{sEmpty}{e}$ is the same as $e$ (empty scopes can be left out)
 \end{enumerate}
 
 The inference rules above can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
@@ -241,47 +305,75 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 
 \begin{figure}[h]
 	\begin{mathpar}	
+		% Type rule
 		\inferrule{ 
-		} {s \vdash Type() : Type()}
+		} {
+			\toe{s}{Type()}{Type()}
+		}
 		
+		% Let rule
 		\inferrule{ 
-			s \vdash v : vt
-			\\sPutSubst(s, n, (s, v)) \vdash b : t 
-		}{s \vdash Let(n, v, b) : t }
+			\toe{s}{v}{vt}
+			\\ \toe{sPutSubst(s, n, (s, v))}{b}{t}
+		}{
+			\toe{s}{Let(n, v, b)}{t}
+		}
 		
 		\\
 		
+		% Var rule - NType
 		\inferrule{ 
 			sGetName(s, n) = NType(t) 
-		}{ s \vdash Var(n) : t }
+		}{ 
+			\toe{s}{Var(n)}{t}
+		}
 		
+		% Var rule - NSubst
 		\inferrule{ 
 			sGetName(s, n) = NSubst(se, e) 
-			\\ se \vdash e : t 
-		}{ s \vdash Var(n) : t }
+			\\ \toe{se}{e}{t}
+		}{
+		 	\toe{s}{Var(n)}{t}
+		}
 		
+		% FnType rule
 		\inferrule{ 
-			s \vdash a : at 
-			\\ at \underset{\beta}{=} Type() 
-			\\ s \vdash a \underset{\beta}{\Rightarrow} a' 
-			\\\\ sPutType(s, n, a') \vdash b : bt 
-			\\ bt \underset{\beta}{=} Type() 
-		} { s \vdash FnType(n, a, b) : Type() }
+			\toe{s}{a}{at}
+			\\ \beq{at}{Type()} 
+			\\ \bred{s}{a}{a'}
+			\\\\  \toe{sPutType(s, n, a')}{b}{bt}
+			\\ \beq{bt}{Type()}
+		} { 
+			\toe{s}{FnType(n, a, b)}{Type()}
+		}
+	
+		% Force these to be on the same line, using negative spaces
+		\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
+
 		
+		% FnConstruct rule
 		\inferrule{ 
-			s \vdash a : at 
-			\\ at \underset{\beta}{=} Type() 
-			\\ s \vdash a \underset{\beta}{\Rightarrow} a' 
-			\\\\ sPutType(s, n, a') \vdash b : bt
-		} { s \vdash FnConstruct(n, a, b) : FnType(n, a', bt) }
+			\toe{s}{a}{at}
+			\\ \beq{at}{Type()}
+			\\ \bred{s}{a}{a'} 
+			\\\\ \toe{sPutType(s, n, a')}{b}{bt}
+		} { 
+			\toe{s}{FnConstruct(n, a, b)}{FnType(n, a', bt)}
+		}
 		
+		% FnDestruct rule
 		\inferrule{ 
-			s \vdash f : ft 
-			\\ s \vdash ft \bhr s' \vdash FnType(da, dt, db) 
-			\\\\ s \vdash a : at 
-			\\ at \underset{\beta}{=} sf \vdash dt
-			\\ s' \vdash db \underset{\beta}{\Rightarrow} db'
-		} { s \vdash FnDestruct(f, a) : db' }
+			\toe{s}{f}{ft}
+			\\ \bhr
+				{\scope{s}{ft}}
+				{[]}
+				{\scope{s'}{FnType(da, dt, db)}} 
+			\\\\ \toe{s}{a}{at} 
+			\\ \beq{at}{\scope{sf}{dt}}
+			\\ \bred{s'}{db}{db'}
+		} { 
+			\toe{s}{FnDestruct(f, a)}{db'}
+	 	}
 		
 		
 	\end{mathpar}

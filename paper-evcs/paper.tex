@@ -191,75 +191,75 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		\inferrule{ 
 		} { 
 			\bhr
-			{ \scope{s}{Type} }
+			{ \scope{s}{\co{Type}()} }
 			{ [] }
-			{ \scope{s}{Type}} 
+			{ \scope{s}{\co{Type}()}} 
 		}
 		
 		% Let rule
 		\inferrule{ 
 			\bhr 
-			{ \scope{ sPutSubst(s, n, (s, v))}{b} } 
+			{ \scope{ \co{sPutSubst}(s, n, (s, v))}{b} } 
 			{ t }
 			{ \scope{ s' } { e' } }
 		}{
 			\bhr
-			{ \scope{ s }{ Let(n, v, b) } }
+			{ \scope{ s }{ \co{Let}(n, v, b) } }
 			{ t }
 			{ \scope { s' } { e' } }
 		}
 	
 		% Var rule - NSubst
 		\inferrule{ 
-			sGetName(s, n) = NSubst(se, e) 
+			\co{sGetName}(s, n) = \co{NSubst}(se, e) 
 			\\ \bhr
 			{\scope{se}{e}}
 			{t}
 			{\scope{se'}{e'}} 
 		}{
 			\bhr
-			{\scope{s}{Var(n)}}
+			{\scope{s}{\co{Var}(n)}}
 			{t}
 			{\scope{se'}{e'}} 
 		}
 	
 		% Var rule - NType
 		\inferrule{ 
-			sGetName(s, n) = NType(t) 
+			\co{sGetName}(s, n) = \co{NType}(t) 
 		}{ 
 			\bhr
-			{\scope{s}{Var(n)}}
+			{\scope{s}{\co{Var}(n)}}
 			{t}
-			{rebuild(s, Var(n), t)} 
+			{\co{rebuild}(s, \co{Var}(n), t)} 
 		}
 		
 		% FnType rule
 		\inferrule{ 
 		} { 
 			\bhr
-			{\scope{s}{FnType(n, a, b)}}
+			{\scope{s}{\co{FnType}(n, a, b)}}
 			{[]}
-			{\scope{s}{FnType(n, a, b)}} 
+			{\scope{s}{\co{FnType}(n, a, b)}} 
 		}
 		
 		% FnConstruct rule - No args
 		\inferrule{ 
 		} { 
 			\bhr
-			{\scope{s}{FnConstruct(n, a, b)}}
+			{\scope{s}{\co{FnConstruct}(n, a, b)}}
 			{[]}
-			{\scope{s}{FnConstruct(n, a, b)}} 
+			{\scope{s}{\co{FnConstruct}(n, a, b)}} 
 		}
 		
 		% FnConstruct rule - Args
 		\inferrule{ 
 			\bhr
-			{\scope{sPutSubst(s, n, a)}{b}}
+			{\scope{\co{sPutSubst}(s, n, a)}{b}}
 			{ts}
 			{\scope{s'}{e'}} 
 		} { 
 			\bhr
-			{\scope{s}{FnConstruct(n, a, b)}}
+			{\scope{s}{\co{FnConstruct}(n, a, b)}}
 			{(t::ts)}
 			{\scope{s'}{e'}} 
 		}
@@ -272,7 +272,7 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 			{\scope{s'}{e'}} 
 		} { 
 			\bhr
-			{\scope{s}{FnDestruct(f, a)}}
+			{\scope{s}{\co{FnDestruct}(f, a)}}
 			{ts}
 			{\scope{s'}{e'}} 
 		}
@@ -309,43 +309,43 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 		% Type rule
 		\inferrule{ 
 		} {
-			\toe{s}{Type()}{Type()}
+			\toe{s}{\co{Type}()}{\co{Type}()}
 		}
 		
 		% Let rule
 		\inferrule{ 
 			\toe{s}{v}{vt}
-			\\ \toe{sPutSubst(s, n, (s, v))}{b}{t}
+			\\ \toe{\co{sPutSubst}(s, n, (s, v))}{b}{t}
 		}{
-			\toe{s}{Let(n, v, b)}{t}
+			\toe{s}{\co{Let}(n, v, b)}{t}
 		}
 		
 		\\
 		
 		% Var rule - NType
 		\inferrule{ 
-			sGetName(s, n) = NType(t) 
+			\co{sGetName}(s, n) = \co{NType}(t) 
 		}{ 
-			\toe{s}{Var(n)}{t}
+			\toe{s}{\co{Var}(n)}{t}
 		}
 		
 		% Var rule - NSubst
 		\inferrule{ 
-			sGetName(s, n) = NSubst(se, e) 
+			\co{sGetName}(s, n) = \co{NSubst}(se, e) 
 			\\ \toe{se}{e}{t}
 		}{
-		 	\toe{s}{Var(n)}{t}
+		 	\toe{s}{\co{Var}(n)}{t}
 		}
 		
 		% FnType rule
 		\inferrule{ 
 			\toe{s}{a}{at}
-			\\ \beq{at}{Type()} 
+			\\ \beq{at}{\co{Type}()} 
 			\\ \bred{s}{a}{a'}
-			\\\\  \toe{sPutType(s, n, a')}{b}{bt}
-			\\ \beq{bt}{Type()}
+			\\\\  \toe{\co{sPutType}(s, n, a')}{b}{bt}
+			\\ \beq{bt}{\co{Type}()}
 		} { 
-			\toe{s}{FnType(n, a, b)}{Type()}
+			\toe{s}{\co{FnType}(n, a, b)}{\co{Type}()}
 		}
 	
 		% Force these to be on the same line, using negative spaces
@@ -355,11 +355,11 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 		% FnConstruct rule
 		\inferrule{ 
 			\toe{s}{a}{at}
-			\\ \beq{at}{Type()}
+			\\ \beq{at}{\co{Type}()}
 			\\ \bred{s}{a}{a'} 
-			\\\\ \toe{sPutType(s, n, a')}{b}{bt}
+			\\\\ \toe{\co{sPutType}(s, n, a')}{b}{bt}
 		} { 
-			\toe{s}{FnConstruct(n, a, b)}{FnType(n, a', bt)}
+			\toe{s}{\co{FnConstruct}(n, a, b)}{\co{FnType}(n, a', bt)}
 		}
 		
 		% FnDestruct rule
@@ -368,12 +368,12 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 			\\ \bhr
 				{\scope{s}{ft}}
 				{[]}
-				{\scope{s'}{FnType(da, dt, db)}} 
+				{\scope{s'}{\co{FnType}(da, dt, db)}} 
 			\\\\ \toe{s}{a}{at} 
 			\\ \beq{at}{\scope{sf}{dt}}
 			\\ \bred{s'}{db}{db'}
 		} { 
-			\toe{s}{FnDestruct(f, a)}{db'}
+			\toe{s}{\co{FnDestruct}(f, a)}{db'}
 	 	}
 		
 		

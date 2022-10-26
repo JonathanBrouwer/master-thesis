@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  26 OCT 2022 18:43
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  26 OCT 2022 18:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -845,6 +845,17 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <4.25> on input line 156.
  [2.2] [3.3]
+LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 
+197.
+
+(/usr/share/texmf-dist/tex/latex/lm/ot1lmss.fd
+File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+)
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `lmss' (encoding: OT1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -853,16 +864,16 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 89118E7F808FAF1F3AA62D5F857B1DFD;1597.
  ) 
 Here is how much of TeX's memory you used:
- 24106 strings out of 478238
- 419902 string characters out of 5850455
+ 24164 strings out of 478238
+ 420880 string characters out of 5850455
  759073 words of memory out of 5000000
- 41679 multiletter control sequences out of 15000+600000
- 585546 words of font info for 209 fonts, out of 8000000 for 9000
+ 41711 multiletter control sequences out of 15000+600000
+ 600149 words of font info for 224 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  85i,15n,90p,1002b,1856s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf-dist/fo
-nts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mat
-hit.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf-d
+nts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.
+enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-d
 ist/fonts/enc/dvips/lm/lm-ts1.enc}{/usr/share/texmf-dist/fonts/enc/dvips/fontaw
 esome5/fa5free1.enc}</usr/share/texmf-dist/fonts/type1/public/fontawesome5/Font
 Awesome5Free-Regular.pfb></usr/share/texmf-dist/fonts/type1/public/fontawesome5
@@ -872,15 +883,15 @@ dist/fonts/type1/public/lm/lmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/
 lm/lmr10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/share/
 texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf-dist/fonts/type1/pu
 blic/lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri9.pfb></usr/s
-hare/texmf-dist/fonts/type1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/fonts
-/type1/public/lm/lmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy7.
-pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf-di
-st/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/l
-m/lmtt9.pfb>
-Output written on paper.pdf (7 pages, 362927 bytes).
+hare/texmf-dist/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/t
+ype1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy10
+.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf-d
+ist/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf-dist/fonts/type1/public/l
+m/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt9.pfb>
+Output written on paper.pdf (7 pages, 379395 bytes).
 PDF statistics:
- 306 PDF objects out of 1000 (max. 8388607)
- 252 compressed objects within 3 object streams
+ 311 PDF objects out of 1000 (max. 8388607)
+ 255 compressed objects within 3 object streams
  74 named destinations out of 1000 (max. 500000)
- 68705 words of extra memory for PDF output out of 74296 (max. 10000000)
+ 78945 words of extra memory for PDF output out of 89155 (max. 10000000)
 

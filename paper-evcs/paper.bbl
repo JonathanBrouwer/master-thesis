@@ -1,4 +1,4 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{10}
 
 \bibitem{lambda_cube}
 Henk Barendregt.
@@ -6,6 +6,26 @@ Henk Barendregt.
 \newblock {\em Journal of Functional Programming}, 1(2):125–154, 1991.
 \newblock \href {https://doi.org/10.1017/S0956796800020025}
   {\path{doi:10.1017/S0956796800020025}}.
+
+\bibitem{BauerHP20}
+Andrej Bauer, Philipp~G. Haselwarter, and Anja Petkovic.
+\newblock Equality checking for general type theories in andromeda 2.
+\newblock In Anna~Maria Bigatti, Jacques Carette, James~H. Davenport, Michael
+  Joswig, and Timo de~Wolff, editors, {\em Mathematical Software - ICMS 2020 -
+  7th International Conference, Braunschweig, Germany, July 13-16, 2020,
+  Proceedings}, volume 12097 of {\em Lecture Notes in Computer Science}, pages
+  253--259. Springer, 2020.
+\newblock \href {https://doi.org/10.1007/978-3-030-52200-1_25}
+  {\path{doi:10.1007/978-3-030-52200-1_25}}.
+
+\bibitem{BoespflugCH12}
+Mathieu Boespflug, Quentin Carbonneaux, and Olivier Hermant.
+\newblock The λΠ-calculus modulo as a universal proof language.
+\newblock In David Pichardie and Tjark Weber, editors, {\em Proceedings of the
+  Second International Workshop on Proof Exchange for Theorem Proving, PxTP
+  2012, Manchester, UK, June 30, 2012}, volume 878 of {\em CEUR Workshop
+  Proceedings}, pages 28--43. CEUR-WS.org, 2012.
+\newblock URL: \url{http://ceur-ws.org/Vol-878/paper2.pdf}.
 
 \bibitem{Coquand_Huet_1988}
 Thierry Coquand and Gérard Huet.
@@ -30,6 +50,23 @@ Jean-Louis Krivine.
 \newblock \href {https://doi.org/10.1007/s10990-007-9018-9}
   {\path{doi:10.1007/s10990-007-9018-9}}.
 
+\bibitem{MagnussonN93}
+Lena Magnusson and Bengt Nordström.
+\newblock The alf proof editor and its proof engine.
+\newblock In Henk Barendregt and Tobias Nipkow, editors, {\em Types for Proofs
+  and Programs, International Workshop TYPES 93, Nijmegen, The Netherlands, May
+  24-28, 1993, Selected Papers}, volume 806 of {\em Lecture Notes in Computer
+  Science}, pages 213--237. Springer, 1993.
+
+\bibitem{Miller89}
+Dale Miller.
+\newblock A logic programming language with lambda-abstraction, function
+  variables, and simple unification.
+\newblock In Peter Schroeder-Heister, editor, {\em Extensions of Logic
+  Programming, International Workshop, Tübingen, FRG, December 8-10, 1989,
+  Proceedings}, volume 475 of {\em Lecture Notes in Computer Science}, pages
+  253--281. Springer, 1989.
+
 \bibitem{scope_graphs}
 Pierre Néron, Andrew~P. Tolmach, Eelco Visser, and Guido Wachsmuth.
 \newblock A theory of name resolution.
@@ -49,6 +86,24 @@ Daniel Pelsmaeker, Hendrik Antwerpen, and Eelco Visser.
 \newblock pages 19--20, 10 2019.
 \newblock \href {https://doi.org/10.1145/3359061.3362782}
   {\path{doi:10.1145/3359061.3362782}}.
+
+\bibitem{pfenning_1991}
+Frank Pfenning.
+\newblock {\em Logic programming in the LF logical framework}, page 149–182.
+\newblock Cambridge University Press, 1991.
+\newblock \href {https://doi.org/10.1017/CBO9780511569807.008}
+  {\path{doi:10.1017/CBO9780511569807.008}}.
+
+\bibitem{PfenningS99}
+Frank Pfenning and Carsten Schürmann.
+\newblock System description: Twelf - a meta-logical framework for deductive
+  systems.
+\newblock In Harald Ganzinger, editor, {\em Automated Deduction - CADE-16, 16th
+  International Conference on Automated Deduction, Trento, Italy, July 7-10,
+  1999, Proceedings}, volume 1632 of {\em Lecture Notes in Computer Science},
+  pages 202--206. Springer, 1999.
+\newblock URL:
+  \url{http://link.springer.de/link/service/series/0558/bibs/1632/16320202.htm}.
 
 \bibitem{scopes_as_types}
 Hendrik van Antwerpen, Casper Bach~Poulsen, Arjen Rouvoet, and Eelco Visser.

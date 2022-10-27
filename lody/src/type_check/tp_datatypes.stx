@@ -141,13 +141,13 @@ rules
   // args+inductions -> P indices (C pars args)
   dataTypeElimsGen(d, p, [Constructor(c, e) | cs], n, ps, is) = FnType(Syn("_"), e2, dataTypeElimsGen(d, p, cs, n, ps, is)) :- {e1 e3}
   	// C pars args
-  	e1 == dataTypeElimsGenSub2x(e, dataTypeElimsGenSub1(e, c, is)),
+  	e1 == dataTypeElimsGenSub2(e, dataTypeElimsGenSub1(e, c, is)),
   	
   	// P indices (C pars args)
   	e3 == FnDestruct(dataTypeElimsGenSub3(e, p, is), e1),
   	
   	// args+inductions -> P indices (C pars args)
-  	e2 == dataTypeElimsGenSub2(e, e3, p, n).
+  	e2 == dataTypeElimsGenSub4(e, e3, p, n, ps, is).
   
   // Constructor expr * C
   // args -> N pars indices  => C pars
@@ -158,10 +158,10 @@ rules
   dataTypeElimsGenSub1(FnType(m, _, b), c, is) = FnDestruct(dataTypeElimsGenSub1(b, c, is), Var(m)).
   
   // C pars => C pars args
-  dataTypeElimsGenSub2x : Expr * Expr -> Expr
-  dataTypeElimsGenSub2x(Var(_), r) = r.
-  dataTypeElimsGenSub2x(FnDestruct(_, _), r) = r.
-  dataTypeElimsGenSub2x(FnType(m, a, b), r) = dataTypeElimsGenSub2x(b, FnDestruct(r, Var(m))).
+  dataTypeElimsGenSub2 : Expr * Expr -> Expr
+  dataTypeElimsGenSub2(Var(_), r) = r.
+  dataTypeElimsGenSub2(FnDestruct(_, _), r) = r.
+  dataTypeElimsGenSub2(FnType(m, a, b), r) = dataTypeElimsGenSub2(b, FnDestruct(r, Var(m))).
   
   // Constructor expr * Return of dataTypeElimsGenSub1 * P * Indices
   // Create `P indices`
@@ -173,15 +173,15 @@ rules
   
   // Constructor expr * Return of dataTypeElimsGenSub1 * P * N
   // Wrap with `A -> ...`
-  dataTypeElimsGenSub2 : Expr * Expr * ID * ID -> Expr
-  dataTypeElimsGenSub2(Var(_), r, p, _) = r.
-  dataTypeElimsGenSub2(FnDestruct(_, _), r, p, _) = r.
-  dataTypeElimsGenSub2(FnType(m, a, b), r, p, n) = dataTypeElimsGenSub2a(p, m, a, isRec(a, n), base) :-
-  	base == dataTypeElimsGenSub2(b, r, p, n).
+  dataTypeElimsGenSub4 : Expr * Expr * ID * ID * list(DataParam) * list(DataParam) -> Expr
+  dataTypeElimsGenSub4(Var(_), r, p, _, _, _) = r.
+  dataTypeElimsGenSub4(FnDestruct(_, _), r, p, _, _, _) = r.
+  dataTypeElimsGenSub4(FnType(m, a, b), r, p, n, ps, is) = dataTypeElimsGenSub4a(p, m, a, isRec(a, n), base, ps, is) :-
+  	base == dataTypeElimsGenSub4(b, r, p, n, ps, is).
   // Check if we need an inductive argument or not
-  dataTypeElimsGenSub2a : ID * ID * Expr * int * Expr -> Expr
-  dataTypeElimsGenSub2a(p, m, a, 0, b) = FnType(m, a, b).
-  dataTypeElimsGenSub2a(p, m, a, 1, b) = FnType(m, a, FnType(Syn("_"), FnDestruct(Var(p), Var(m)), b)).
+  dataTypeElimsGenSub4a : ID * ID * Expr * int * Expr * list(DataParam) * list(DataParam) -> Expr
+  dataTypeElimsGenSub4a(p, m, a, 0, b, _, _) = FnType(m, a, b).
+  dataTypeElimsGenSub4a(p, m, a, 1, b, ps, is) = FnType(m, a, FnType(Syn("_"), FnDestruct(Var(p), Var(m)), b)).
   isRec : Expr * ID -> int
   isRec(Var(n), n) = 1.
   isRec(FnDestruct(b, _), n) = isRec(b, n).

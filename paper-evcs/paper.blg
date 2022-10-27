@@ -9,45 +9,46 @@ Reallocated singl_function (elt_size=8) to 100 items from 50.
 Reallocated singl_function (elt_size=8) to 100 items from 50.
 Database file #1: paper.bib
 Warning--empty booktitle in codecompletion
-You've used 8 entries,
+Warning--can't use both author and editor fields in pfenning_1991
+You've used 14 entries,
             2882 wiz_defined-function locations,
-            694 strings with 6759 characters,
-and the built_in function-call counts, 4103 in all, are:
-= -- 429
-> -- 128
-< -- 3
-+ -- 49
-- -- 37
-* -- 279
-:= -- 578
-add.period$ -- 32
-call.type$ -- 8
-change.case$ -- 42
+            752 strings with 8642 characters,
+and the built_in function-call counts, 7994 in all, are:
+= -- 847
+> -- 251
+< -- 14
++ -- 93
+- -- 72
+* -- 504
+:= -- 1079
+add.period$ -- 59
+call.type$ -- 14
+change.case$ -- 71
 chr.to.int$ -- 0
-cite$ -- 9
-duplicate$ -- 112
-empty$ -- 397
-format.name$ -- 37
-if$ -- 1059
+cite$ -- 16
+duplicate$ -- 266
+empty$ -- 763
+format.name$ -- 72
+if$ -- 2101
 int.to.chr$ -- 0
-int.to.str$ -- 8
-missing$ -- 7
-newline$ -- 50
-num.names$ -- 18
-pop$ -- 76
+int.to.str$ -- 14
+missing$ -- 14
+newline$ -- 84
+num.names$ -- 40
+pop$ -- 143
 preamble$ -- 1
-purify$ -- 34
+purify$ -- 58
 quote$ -- 0
-skip$ -- 280
+skip$ -- 564
 stack$ -- 0
-substring$ -- 209
-swap$ -- 43
-text.length$ -- 3
+substring$ -- 392
+swap$ -- 131
+text.length$ -- 14
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 32
-warning$ -- 1
-while$ -- 26
-width$ -- 9
-write$ -- 107
-(There was 1 warning)
+type$ -- 54
+warning$ -- 2
+while$ -- 54
+width$ -- 16
+write$ -- 191
+(There were 2 warnings)

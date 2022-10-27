@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  26 OCT 2022 20:04
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  27 OCT 2022 12:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -634,39 +634,42 @@ erence Rules
 \mpr@vlist=\box62
 \mpr@right=\box63
 )
+   defining Unicode char U+03BB (decimal 955)
+   defining Unicode char U+03A0 (decimal 928)
+
 Excluding 'CCSXML' comment. (./paper.aux)
 \openout1 = `paper.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 90.
-LaTeX Font Info:    ... okay on input line 90.
-LaTeX Info: Redefining \microtypecontext on input line 90.
-Package microtype Info: Applying patch `item' on input line 90.
-Package microtype Info: Applying patch `toc' on input line 90.
-Package microtype Info: Applying patch `eqnum' on input line 90.
-Package microtype Info: Applying patch `footnote' on input line 90.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 93.
+LaTeX Font Info:    ... okay on input line 93.
+LaTeX Info: Redefining \microtypecontext on input line 93.
+Package microtype Info: Applying patch `item' on input line 93.
+Package microtype Info: Applying patch `toc' on input line 93.
+Package microtype Info: Applying patch `eqnum' on input line 93.
+Package microtype Info: Applying patch `footnote' on input line 93.
 Package microtype Info: Generating PDF output.
 Package microtype Info: Character protrusion enabled (level 2).
 Package microtype Info: Using default protrusion set `alltext'.
 Package microtype Info: Automatic font expansion enabled (level 2),
 (microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
 Package microtype Info: Using default expansion set `alltext-nott'.
-LaTeX Info: Redefining \showhyphens on input line 90.
+LaTeX Info: Redefining \showhyphens on input line 93.
 Package microtype Info: No adjustment of tracking.
 Package microtype Info: No adjustment of interword spacing.
 Package microtype Info: No adjustment of character kerning.
@@ -716,7 +719,7 @@ File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
 \c@lstlisting=\count321
-Package hyperref Info: Link coloring OFF on input line 90.
+Package hyperref Info: Link coloring OFF on input line 93.
 
 (/usr/share/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2021-04-02 v2.47 Cross-referencing by name of section
@@ -729,9 +732,9 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 )
 \c@section@level=\count322
 )
-LaTeX Info: Redefining \ref on input line 90.
-LaTeX Info: Redefining \pageref on input line 90.
-LaTeX Info: Redefining \nameref on input line 90.
+LaTeX Info: Redefining \ref on input line 93.
+LaTeX Info: Redefining \pageref on input line 93.
+LaTeX Info: Redefining \nameref on input line 93.
 
 (./paper.out) (./paper.out)
 \@outlinefile=\write5
@@ -741,7 +744,7 @@ Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: rotating package is loaded.
 Package caption Info: End \AtBeginDocument code.
 LaTeX Font Info:    Trying to load font information for T1+lmss on input line 9
-3.
+6.
  (/usr/share/texmf-dist/tex/latex/lm/t1lmss.fd
 File: t1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
@@ -750,36 +753,36 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
 LaTeX Font Info:    Trying to load font information for OT1+lmr on input line 9
-3.
+6.
 
 (/usr/share/texmf-dist/tex/latex/lm/ot1lmr.fd
 File: ot1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OML+lmm on input line 9
-3.
+6.
 
 (/usr/share/texmf-dist/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-93.
+96.
 
 (/usr/share/texmf-dist/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-93.
+96.
 
 (/usr/share/texmf-dist/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 93.
+(Font)              <10> on input line 96.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 93.
+(Font)              <7> on input line 96.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 93.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 93.
+(Font)              <5> on input line 96.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 96.
 
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsa.fd
@@ -788,7 +791,7 @@ File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 (/usr/share/texmf-dist/tex/latex/microtype/mt-msa.cfg
 File: mt-msa.cfg 2006/02/04 v1.1 microtype config. file: AMS symbols (a) (RS)
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 93.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 96.
 
 
 (/usr/share/texmf-dist/tex/latex/amsfonts/umsb.fd
@@ -798,17 +801,17 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 )
 LaTeX Font Info:    Trying to load font information for U+fontawesomefree1 on i
-nput line 93.
+nput line 96.
 
 (/usr/share/texmf-dist/tex/latex/fontawesome5/ufontawesomefree1.fd)
 \openout3 = `paper.vtc'.
 
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <9> on input line 96.
+(Font)              <9> on input line 99.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 96.
+(Font)              <6> on input line 99.
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-09.
+12.
 
 (/usr/share/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -820,10 +823,10 @@ Package microtype Info: Loading generic protrusion settings for font family
 <cc-by.pdf, id=55, 88.33pt x 31.11626pt>
 File: cc-by.pdf Graphic file (type pdf)
 <use cc-by.pdf>
-Package pdftex.def Info: cc-by.pdf  used on input line 110.
+Package pdftex.def Info: cc-by.pdf  used on input line 113.
 (pdftex.def)             Requested size: 39.74274pt x 14.0pt.
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-10.
+13.
 
 (/usr/share/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -831,22 +834,22 @@ File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 <oasics-logo-bw.pdf, id=58, 599.8691pt x 144.42657pt>
 File: oasics-logo-bw.pdf Graphic file (type pdf)
 <use oasics-logo-bw.pdf>
-Package pdftex.def Info: oasics-logo-bw.pdf  used on input line 110.
+Package pdftex.def Info: oasics-logo-bw.pdf  used on input line 113.
 (pdftex.def)             Requested size: 64.91487pt x 14.0pt.
  [1.1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./cc-by.pdf> <./oasics-log
 o-bw.pdf>]
-LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 157.
+LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 160.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8.5> on input line 157.
+(Font)              <8.5> on input line 160.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5.94997> on input line 157.
+(Font)              <5.94997> on input line 160.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <4.25> on input line 157.
+(Font)              <4.25> on input line 160.
  [2.2] [3.3]
 LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 
-198.
+201.
 
 (/usr/share/texmf-dist/tex/latex/lm/ot1lmss.fd
 File: ot1lmss.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -864,13 +867,13 @@ Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: 89118E7F808FAF1F3AA62D5F857B1DFD;1597.
  ) 
 Here is how much of TeX's memory you used:
- 24163 strings out of 478238
- 420899 string characters out of 5850455
- 759214 words of memory out of 5000000
- 41715 multiletter control sequences out of 15000+600000
- 599817 words of font info for 220 fonts, out of 8000000 for 9000
+ 24220 strings out of 478238
+ 421545 string characters out of 5850455
+ 759428 words of memory out of 5000000
+ 41725 multiletter control sequences out of 15000+600000
+ 606258 words of font info for 241 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 85i,15n,90p,1002b,1856s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 85i,15n,90p,1083b,1856s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf-dist/fo
 nts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.
 enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-d
@@ -882,16 +885,17 @@ Awesome5Free-Regular.pfb></usr/share/texmf-dist/fonts/type1/public/fontawesome5
 dist/fonts/type1/public/lm/lmmi7.pfb></usr/share/texmf-dist/fonts/type1/public/
 lm/lmr10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmr6.pfb></usr/share/
 texmf-dist/fonts/type1/public/lm/lmr7.pfb></usr/share/texmf-dist/fonts/type1/pu
-blic/lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri9.pfb></usr/s
-hare/texmf-dist/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/t
-ype1/public/lm/lmssbx10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy10
-.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf-d
-ist/fonts/type1/public/lm/lmsy9.pfb></usr/share/texmf-dist/fonts/type1/public/l
-m/lmtt10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt9.pfb>
-Output written on paper.pdf (7 pages, 380737 bytes).
+blic/lm/lmr9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmri10.pfb></usr/
+share/texmf-dist/fonts/type1/public/lm/lmri9.pfb></usr/share/texmf-dist/fonts/t
+ype1/public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmssbx10
+.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf-
+dist/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/
+lm/lmsy9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/shar
+e/texmf-dist/fonts/type1/public/lm/lmtt9.pfb>
+Output written on paper.pdf (7 pages, 407486 bytes).
 PDF statistics:
- 317 PDF objects out of 1000 (max. 8388607)
- 261 compressed objects within 3 object streams
- 77 named destinations out of 1000 (max. 500000)
- 78945 words of extra memory for PDF output out of 89155 (max. 10000000)
+ 340 PDF objects out of 1000 (max. 8388607)
+ 282 compressed objects within 3 object streams
+ 83 named destinations out of 1000 (max. 500000)
+ 80993 words of extra memory for PDF output out of 89155 (max. 10000000)
 

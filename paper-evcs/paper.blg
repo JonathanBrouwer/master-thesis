@@ -12,7 +12,7 @@ Warning--empty booktitle in codecompletion
 Warning--can't use both author and editor fields in pfenning_1991
 You've used 14 entries,
             2882 wiz_defined-function locations,
-            752 strings with 8642 characters,
+            752 strings with 8640 characters,
 and the built_in function-call counts, 7994 in all, are:
 = -- 847
 > -- 251

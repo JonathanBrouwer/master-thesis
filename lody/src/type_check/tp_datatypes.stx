@@ -176,16 +176,29 @@ rules
   dataTypeElimsGenSub4 : Expr * Expr * ID * ID * list(DataParam) * list(DataParam) -> Expr
   dataTypeElimsGenSub4(Var(_), r, p, _, _, _) = r.
   dataTypeElimsGenSub4(FnDestruct(_, _), r, p, _, _, _) = r.
-  dataTypeElimsGenSub4(FnType(m, a, b), r, p, n, ps, is) = dataTypeElimsGenSub4a(p, m, a, isRec(a, n), base, ps, is) :-
+  dataTypeElimsGenSub4(FnType(m, a, b), r, p, n, ps, is) = dataTypeElimsGenSub4a(p, m, a, isRec(a, createCoreElim(Var(n), ps, [])), base, ps, is) :-
   	base == dataTypeElimsGenSub4(b, r, p, n, ps, is).
   // Check if we need an inductive argument or not
   dataTypeElimsGenSub4a : ID * ID * Expr * int * Expr * list(DataParam) * list(DataParam) -> Expr
   dataTypeElimsGenSub4a(p, m, a, 0, b, _, _) = FnType(m, a, b).
-  dataTypeElimsGenSub4a(p, m, a, 1, b, ps, is) = FnType(m, a, FnType(Syn("_"), FnDestruct(Var(p), Var(m)), b)).
-  isRec : Expr * ID -> int
-  isRec(Var(n), n) = 1.
+  dataTypeElimsGenSub4a(p, m, a, 1, b, ps, is) = FnType(m, a, FnType(Syn("_"), FnDestruct(pe, Var(m)), b)) :-
+  	dataTypeElimsGenSub4b(foldApps(a, []), ps, is, p) == pe.
+  // Generates P subindices 
+  dataTypeElimsGenSub4b : list(Expr) * list(DataParam) * list(DataParam) * ID -> Expr
+  dataTypeElimsGenSub4b([], [], [], p) = Var(p).
+  dataTypeElimsGenSub4b([Var(m)|as], [Param(m, _)|ps], is, p) = dataTypeElimsGenSub4b(as, ps, is, p).
+  dataTypeElimsGenSub4b([a|as], [], [i|is], p) = FnDestruct(dataTypeElimsGenSub4b(as, [], is, p), a).
+  
+  foldApps : Expr * list(Expr) -> list(Expr)
+  foldApps(Var(_), l) = l.
+  foldApps(FnDestruct(b, a), l) = foldApps(b, [a | l]).
+  
+  isRec : Expr * Expr -> int
+  isRec(FnDestruct(c1, c2), FnDestruct(c1, c2)) = 1.
+  isRec(c, c) = 1.
   isRec(FnDestruct(b, _), n) = isRec(b, n).
   isRec(_, _) = 0.
+  
   
   
   

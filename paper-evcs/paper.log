@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  27 OCT 2022 12:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  28 OCT 2022 10:42
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -808,7 +808,7 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 LaTeX Font Info:    External font `lmex10' loaded for size
 (Font)              <6> on input line 96.
 LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1
-09.
+12.
 
 (/usr/share/texmf-dist/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
@@ -817,33 +817,33 @@ Package microtype Info: Loading generic protrusion settings for font family
 (microtype)             `lmtt' (encoding: T1).
 (microtype)             For optimal results, create family-specific settings.
 (microtype)             See the microtype manual for details.
-<cc-by.pdf, id=55, 88.33pt x 31.11626pt>
+<cc-by.pdf, id=59, 88.33pt x 31.11626pt>
 File: cc-by.pdf Graphic file (type pdf)
 <use cc-by.pdf>
-Package pdftex.def Info: cc-by.pdf  used on input line 110.
+Package pdftex.def Info: cc-by.pdf  used on input line 113.
 (pdftex.def)             Requested size: 39.74274pt x 14.0pt.
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-10.
+13.
 
 (/usr/share/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
-<oasics-logo-bw.pdf, id=58, 599.8691pt x 144.42657pt>
+<oasics-logo-bw.pdf, id=62, 599.8691pt x 144.42657pt>
 File: oasics-logo-bw.pdf Graphic file (type pdf)
 <use oasics-logo-bw.pdf>
-Package pdftex.def Info: oasics-logo-bw.pdf  used on input line 110.
+Package pdftex.def Info: oasics-logo-bw.pdf  used on input line 113.
 (pdftex.def)             Requested size: 64.91487pt x 14.0pt.
  [1.1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map} <./cc-by.pdf> <./oasics-log
 o-bw.pdf>]
-LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 157.
+LaTeX Font Info:    Calculating math sizes for size <8.5> on input line 155.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8.5> on input line 157.
+(Font)              <8.5> on input line 155.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5.94997> on input line 157.
+(Font)              <5.94997> on input line 155.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <4.25> on input line 157.
+(Font)              <4.25> on input line 155.
  [2.2] [3.3]
 LaTeX Font Info:    Trying to load font information for OT1+lmss on input line 
 198.
@@ -861,16 +861,16 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 [4.4] [5.5] (./paper.bbl [6.6]) [7.7] (./paper.aux)
 Package rerunfilecheck Info: File `paper.out' has not changed.
-(rerunfilecheck)             Checksum: 89118E7F808FAF1F3AA62D5F857B1DFD;1597.
+(rerunfilecheck)             Checksum: BF6CB33D44AFC6283916032C9EE54BC3;1600.
  ) 
 Here is how much of TeX's memory you used:
  24216 strings out of 478238
- 421515 string characters out of 5850455
- 759417 words of memory out of 5000000
+ 421517 string characters out of 5850455
+ 761417 words of memory out of 5000000
  41723 multiletter control sequences out of 15000+600000
- 606169 words of font info for 240 fonts, out of 8000000 for 9000
+ 606163 words of font info for 240 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 85i,15n,90p,1083b,1856s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 85i,15n,90p,1061b,1218s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf-dist/fo
 nts/enc/dvips/lm/lm-mathsy.enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-rm.
 enc}{/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf-d
@@ -889,7 +889,7 @@ ype1/public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmssbx10
 dist/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/
 lm/lmsy9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/shar
 e/texmf-dist/fonts/type1/public/lm/lmtt9.pfb>
-Output written on paper.pdf (7 pages, 407485 bytes).
+Output written on paper.pdf (7 pages, 409190 bytes).
 PDF statistics:
  340 PDF objects out of 1000 (max. 8388607)
  282 compressed objects within 3 object streams

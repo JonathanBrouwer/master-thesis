@@ -92,31 +92,29 @@
 \maketitle
 
 \begin{abstract}
-Static type systems can greatly enhance the quality of programs, but implementing a type checker that is both expressive and user-friendly is challenging and error-prone. The Statix meta-language (part of the Spoofax language workbench) aims to make this task easier by automatically deriving a type checker from a declarative specification of the type system. However, so far Statix has not yet been used to implement dependent types, an expressive class of type systems which require evaluation of terms during type checking. In this paper, we present an implementation of a simple dependently typed language in Statix, and discuss how to extend it with several common features such as inductive data types, universes, and inference of implicit arguments. While we encountered some challenges in the implementation, our conclusion is that Statix is already usable as a tool for implementing dependent types.
+Static type systems can greatly enhance the quality of programs, but implementing a type checker that is both expressive and user-friendly is challenging and error-prone. The Statix meta-language (part of the Spoofax language workbench) aims to make this task easier by automatically deriving a type checker from a declarative specification of the type system. However, so far Statix has not been used to implement dependent types, an expressive class of type systems which require evaluation of terms during type checking. In this paper, we present an implementation of a simple dependently typed language in Statix, and discuss how to extend it with several common features such as inductive data types, universes, and inference of implicit arguments. While we encountered some challenges in the implementation, our conclusion is that Statix is already usable as a tool for implementing dependent types.
 \end{abstract}
 
 \section{Introduction}
 
-Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type-systems. However, no attempts have been made to express dependently typed languages in Statix. 
+Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages \cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type systems. However, no attempts have been made to express dependently typed languages in Statix. 
 
 Dependently typed languages are different from other languages, because they allow types to be parameterized by values. This allows types to express properties of values that cannot be expressed in a simple type system, such as the length of a list or the well-formedness of a binary search tree. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires evaluation of the terms they are parameterized by. 
 
-This goal of this paper is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed languages can be encoded concisely in Statix. The goal is not to show that Statix can implement it, but to investigate whether implementing a dependent type checker is easier in Statix than in a general-purpose programming language.
+This goal of this paper is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed languages can be encoded concisely in Statix. The goal is not only to show that Statix can implement it, but to investigate whether implementing a dependent type checker is easier in Statix than in a general-purpose programming language.
 
 In section \ref{sec:coc} of this paper we show that Statix is already usable as a tool for implementing dependent types. There were some challenges in implementing the dependent type system, which this paper also discusses. Finally, in section \ref{sec:extensions} we describe how to extend the language with several common features such as inductive data types, universes, and inference of implicit arguments.
-
-The implementation of the language is available on GitHub.\\
-\url{https://github.com/JonathanBrouwer/master-thesis/}
 
 \section{Calculus of Constructions}
 \label{sec:coc}
 
-In this section, we will describe how to implement a dependently typed language in Statix. In section \ref{sec:coc-syntax} we will describe the syntax of the language, then in section \ref{sec:coc-scopes} we will describe how scope graphs are used to type check the language. Section \ref{sec:coc-dynsyms} describes the dynamic semantics of the language, and finally \ref{sec:coc-typecheck} how to type-check the language.
+In this section, we will describe how to implement a dependently typed language in Statix. In section \ref{sec:coc-syntax} we will describe the syntax of the language, then in section \ref{sec:coc-scopes} we will describe how scope graphs are used to type check the language. Section \ref{sec:coc-dynsyms} describes the dynamic semantics of the language, and finally \ref{sec:coc-typecheck} how to type check the language. The implementation of the language is available on GitHub. 
+\url{https://github.com/JonathanBrouwer/master-thesis/}
 
 \subsection{The language}
 \label{sec:coc-syntax}
 
-The base language that has been implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions, let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The abstract syntax of the language is available in figure \ref{fig:syntax}.
+The base language that has been implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The abstract syntax of the language is available in figure \ref{fig:syntax}.
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -137,7 +135,7 @@ An example program is the following, which defines a polymorphic identity functi
 let f = \T: Type. \x: T. x;
 f (_: Type -> Type) (\x: Type. x)
 \end{lstlisting}
-The AST of this program would be:
+The AST of this program in Aterm format would be:
 \begin{lstlisting}
 Let(
   "f", 
@@ -154,11 +152,11 @@ Let(
 \subsection{Scope Graphs}
 \label{sec:coc-scopes}
 
-To type-check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
+To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
 
-In Statix, all this information can be stored in a \verb|scope graph|\cite{scope_graphs}, which is a feature of Statix. We only use a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. 
+In Statix, all this information can be stored in a \emph{scope graph} \cite{scope_graphs}, which is a feature of Statix. It is a graph consisting of nodes for scopes, labeled edges for visibility relations, scoped declarations for a relation, and queries for references. We only use a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. 
 
-Next, we will introduce some Statix relations that can be used to interact with these scope graphs:
+Next, we will introduce some Statix predicates that can be used to interact with these scope graphs:
 
 \begin{lstlisting}
 sPutType  : scope * ID * Expr -> scope
@@ -167,18 +165,20 @@ sGetName  : scope * ID -> NameEntry
 sGetNames : scope * ID -> list((path * (ID * NameEntry)))
 sEmpty    : -> scope
 \end{lstlisting}
-The \verb|sPutType| and \verb|sPutSubsts| relations generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|sGetName| or \verb|sGetNames|, which will return a \verb|NameEntry| or a list of \verb|NameEntries| respectively that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubsts| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|sGetName| or \verb|sGetNames|, which will return a \verb|NameEntry| or a list of NameEntries respectively that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
+
+We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression. 
 
 \subsection{Beta Reductions}
 \label{sec:coc-dynsyms}
 
-A unique requirement for dependently typed languages is beta reduction during type-checking, since types may require evaluation to compare.
+A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare.
 
-We implemented beta reduction using a Krivine abstract machine\cite{krivine}. This turned out to be the more natural way of expressing this over substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types; more information about this will be in the full master thesis. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
+We implemented beta reduction using a Krivine abstract machine\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this over substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types; more information about this will be in the full master thesis. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
 
-Note that the evaluator uses names rather than De Bruijn indices. In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, since the aim of this paper is to use the features of Statix, and scope graphs work based on names, we chose to use names. It would also stop us from using editor services that rely on \verb|.ref| annotations, such as renaming.
+In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names rather. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations, such as renaming.
 
-We need to define multiple relations that will be used later for type-checking. First, the primary relation is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ to express \verb|betaReduceHead((s1, e1), t) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One relation that is used for this is the \verb|rebuild| relation, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
+We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ to express \verb|betaReduceHead((s1, e1), t) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
 
 Additionally, we define \verb|betaReduce| which fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
 
@@ -245,7 +245,7 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		
 		% FnConstruct rule - No args
 		\inferrule{ 
-		} { 
+		} { relation
 			\bhr
 			{\scope{s}{\co{FnConstruct}(n, a, b)}}
 			{[]}
@@ -282,15 +282,15 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 	\label{fig:beta-head-reduce-rules}
 \end{figure}
 
-\subsection{Type-checking the Calculus of Constructions}
+\subsection{Type checking the Calculus of Constructions}
 \label{sec:coc-typecheck}
 
-We will define a Statix relation \verb|typeOfExpr| that takes a scope and an expression and type-checks the scope in the expression. It returns the type of the expression.
+We will define a Statix predicate \verb|typeOfExpr| that takes a scope and an expression and type checks the scope in the expression. It returns the type of the expression.
 
 \begin{lstlisting}
 typeOfExpr : scope * Expr -> Expr
 \end{lstlisting}
-We can then start defining type-checking rules for the language. We introduce a number of judgements for typing and equality together with their counterparts in Statix.
+We can then start defining type checking rules for the language. We introduce a number of judgements for typing and equality together with their counterparts in Statix.
 \begin{enumerate}
 	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|
 	\item $\beq{\scope{s1}{e1}}{\scope{s2}{e2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
@@ -379,19 +379,19 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 		
 		
 	\end{mathpar}
-	\caption{Rules for type-checking the Calculus of Constructions}
+	\caption{Rules for type checking the Calculus of Constructions}
 	\label{fig:type-check-rules}
 \end{figure}
 
 \subsection{Avoiding variable capture}
-One problem with the current implementation is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, the correct type is not possible to express without renaming! The problem is that there are multiple names, and there is no way to distinguish between them. This can be solved by using scopes to distinguish names. A full explanation of this will be in the master thesis. 
+One problem with the implementation presented in the previous sections is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, it is not possible to express the correct type without renaming! The problem is that there are multiple names, and there is no way to distinguish between them. This can be solved by using scopes to distinguish names. A full explanation of this will be in the master thesis. 
 
 \section{Extensions}
 \label{sec:extensions}
 This section will discuss some further ideas that can be explored to build upon what has already been shown. These will be fully described in the master thesis that this paper is based on, this is just a look into what is possible.
 
 \paragraph*{Term Inference}
-In dependently typed language, we can infer the value of types. Ideally, we would like to infer the most general type possible. However, this kind of analysis is not possible in Statix because you cannot reason over whether meta-variables are instantiated or not. We implemented an approximation to inference that can infer most types.
+In dependently typed languages, the value of types can often be inferred. Ideally, we would like to infer the most general type possible. However, this kind of analysis is not possible in Statix because you cannot reason over whether meta-variables are instantiated or not. We implemented an approximation to inference that can infer most types. For example, the type of \verb|x| in the function below can be inferred, because it is applied to \verb|true|, which is a boolean.
 \begin{lstlisting}
 (\x: _. x) true
 \end{lstlisting}
@@ -405,9 +405,9 @@ data Maybe (T : Type) =
 \end{lstlisting}
 
 \paragraph*{Semantic Code Completion}
-Finally, we explored how semantic code completion presented in \cite{codecompletion} applies to dependently typed languages. It works well, only showing completions that are semantically possible.
+Finally, we explored how semantic code completion presented by Pelsmaeker et al. \cite{codecompletion} applies to dependently typed languages. It works well, only showing completions that are semantically possible.
 
-For example, in the following code it would only suggest expressions that can be booleans:
+For example, in the following code it would only suggest expressions that can be booleans (including variables that are booleans):
 \begin{lstlisting}
 let f = \b: Bool. b;
 f {{Expr}}
@@ -415,7 +415,7 @@ f {{Expr}}
 
 
 \section{Related Work}
-The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. In section 2.5 of Scopes as Types \cite{scopes_as_types}, an implementation of System F is presented; it does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can contain terms. 
+The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. Van Antwerpen et al. \cite[sect 2.5]{scopes_as_types} present an implementation of System F that does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can contain terms. 
 
 Another interesting comparison is to see how implementing a dependently typed language in Statix differs from implementing it in a general purpose language. The pi-forall language\cite{pi_forall} is a good example of a language with a similar complexity to the language presented in this paper. In principle, the implementations are very similar. For example, the inference rules presented in \cite{pi_forall} are similar to the inference rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system, whereas this paper does not.
 

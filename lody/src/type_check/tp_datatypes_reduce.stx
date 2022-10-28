@@ -78,9 +78,6 @@ rules
   brhDo2 : scope * ID * Expr * (scope * Expr) * list((scope * Expr)) * (scope * Expr) * list(DataParam) -> (scope * Expr)
   brhDo2(s, n, Var(_), f, _, _, _) = f.
   brhDo2(s, n, FnDestruct(_, _), f, _, _, _) = f.
-  
-  //TODO THIS IS WRONG
-  //READS LAST ARG, FIRST FNTYPE
   brhDo2(s, n, FnType(_, e, c), f, [va | vas], ar, ps) = brhDo2(s, n, c, res, vas, ar, ps) :-
   	res == brhDo3(s, n, isRec(e, createCoreElim(Var(n), ps, [])), va, f, ar).
   

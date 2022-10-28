@@ -443,6 +443,17 @@ data Rec = (T : Type)
 (\w: Type. true) : (elim Rec) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: Type -> p) Type (c Type (z Bool))
 ]] 0 errors
 
+test multiple args cons 1 [[
+data Test =
+	c : X : Type -> Y : Type -> Test;
+true : elim Test (\x: Test. Type) (\x: Type. \y: Type. x) (c Bool Type)
+]] 0 errors
+
+test multiple args cons 2 [[
+data Test =
+	c : X : Type -> Y : Type -> Test;
+true : elim Test (\x: Test. Type) (\x: Type. \y: Type. y) (c Type Bool)
+]] 0 errors
 
 
 

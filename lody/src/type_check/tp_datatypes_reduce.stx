@@ -38,7 +38,7 @@ rules
   	Va == brhDataCoreV_si(Va1, ps),
   	
   	rec_core == kRebuild((s, DataElim(n)), concat(PS, [P | CS])),
-  	brhDo(s, n, cs, CS, (Vn, Va), rec_core, ps) == res.
+  	brhDo(s, n, cs, CS, (Vn, Va), rec_core, ps, is) == res.
   
   // Get the `v` argument from the `v` argument applied to things
   brhDataCoreV : (scope * Expr) * list((scope * Expr)) -> (ID * list((scope * Expr)))
@@ -57,12 +57,12 @@ rules
   // - Value that is elimininated, split up in original value and constructor name
   // - List of arguments to the original function, for recursive applications
   // Returns beta reduced value
-  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * list((scope * Expr))) * (scope * Expr) * list(DataParam) -> (scope * Expr)
+  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * list((scope * Expr))) * (scope * Expr) * list(DataParam) * list(DataParam) -> (scope * Expr)
   
   // Constructor matches, use brhDo2 on the result
-  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar, ps) = brhDo2(s, n, ce, a, ve, ar, ps).
+  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar, ps, is) = brhDo2(s, n, ce, a, ve, ar, ps, is).
   // Constructor does not match, skip
-  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar, ps) = brhDo(s, n, cs, as, (c, ve), ar, ps).
+  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar, ps, is) = brhDo(s, n, cs, as, (c, ve), ar, ps, is).
   
   // APPLIES ARGUMENTS TO FUNCTION
   // Given a
@@ -75,23 +75,17 @@ rules
   // Ex 1: Bool Bool f _ 			=> f
   // Ex 2: Bool (.. -> c) f (vf va) => Bool c (f va) vf
   // Ex 3: Maybe (Maybe T) f _ 		=> f
-  brhDo2 : scope * ID * Expr * (scope * Expr) * list((scope * Expr)) * (scope * Expr) * list(DataParam) -> (scope * Expr)
-  brhDo2(s, n, Var(_), f, _, _, _) = f.
-  brhDo2(s, n, FnDestruct(_, _), f, _, _, _) = f.
-  brhDo2(s, n, FnType(_, e, c), f, [va | vas], ar, ps) = brhDo2(s, n, c, res, vas, ar, ps) :-
-  	res == brhDo3(s, n, isRec(e, createCoreElim(Var(n), ps, [])), va, f, ar).
+  brhDo2 : scope * ID * Expr * (scope * Expr) * list((scope * Expr)) * (scope * Expr) * list(DataParam) * list(DataParam) -> (scope * Expr)
+  brhDo2(s, n, Var(_), f, _, _, _, _) = f.
+  brhDo2(s, n, FnDestruct(_, _), f, _, _, _, _) = f.
+  brhDo2(s, n, FnType(_, e, c), f, [va | vas], ar, ps, is) = brhDo2(s, n, c, res, vas, ar, ps, is) :-
+  	res == brhDo3(s, n, isRec(e, createCoreElim(Var(n), ps, [])), va, f, ar, is).
   
   // is rec * v * c
-  brhDo3 : scope * ID * int * (scope * Expr) * (scope * Expr) * (scope * Expr) -> (scope * Expr)
-  brhDo3(_, _, 0, (vs, va), f, _) = kApply(f, (vs, va)).
-  brhDo3(s, n, 1, (vs, va), f, ar) = kApply(kApply(f, (vs, va)), r) :-
-  	r == kApply(ar, (vs, va)).
-  
-//  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
-//  	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
-//  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
-
-  
+  brhDo3 : scope * ID * int * (scope * Expr) * (scope * Expr) * (scope * Expr) * list(DataParam) -> (scope * Expr)
+  brhDo3(_, _, 0, (vs, va), f, _, _) = kApply(f, (vs, va)).
+  brhDo3(s, n, 1, (vs, va), f, (as, ae), is) = kApply(kApply(f, (vs, va)), r) :-
+  	r == kApply((as, createCoreElim(ae, [], is)), (vs, va)).
   
  
   //P: params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v

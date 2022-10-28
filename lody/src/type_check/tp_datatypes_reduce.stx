@@ -15,25 +15,27 @@ rules
   // CONSTRUCTORS: args+inductions -> P indices (C pars args)
 
   // -- Beta reduction rules  
-  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, i, j) :- {ps is cs V}
+  betaReduceHead((s, e@DataElim(n)), as) = betaReduceHeadChoose((s, e), as, j) :- {ps is cs V i}
   	sGetDataTypeDecl(s, n) == DataType(n, ps, is, cs),
   	bhrDataSplitArgs(as, ps, is, cs, 0) == (i, _, _, _, _, V, _),
-  	bhrCheckV(cs, V) == j.
+  	bhrCheckV(cs, V, i) == j.
   	
-  bhrCheckV : list(DataConstructor) * (scope * Expr) -> int
-  bhrCheckV([], (s, Var(n))) = 0.
-  bhrCheckV([Constructor(n, _) | _], (s, Var(n))) = 1.
-  bhrCheckV([Constructor(_, _) | cs], (s, Var(n))) = bhrCheckV(cs, (s, Var(n))).
-  bhrCheckV(cs, (s, FnDestruct(f, _))) = bhrCheckV(cs, betaReduceHead((s, f), [])).
+  bhrCheckV : list(DataConstructor) * (scope * Expr) * int -> int
+  bhrCheckV([], (s, Var(n)), 1) = 0.
+  bhrCheckV([Constructor(n, _) | _], (s, Var(n)), 1) = 1.
+  bhrCheckV([Constructor(_, _) | cs], (s, Var(n)), 1) = bhrCheckV(cs, (s, Var(n)), 1).
+  bhrCheckV(cs, (s, FnDestruct(f, _)), 1) = bhrCheckV(cs, betaReduceHead((s, f), []), 1).
+  bhrCheckV(_, _, 0) = 0.
   	
-  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int * int -> (scope * Expr)
-  betaReduceHeadChoose(e, as, _, _) = kRebuild(e, as).
-  betaReduceHeadChoose((s, DataElim(n)), as, 1, 1) = betaReduceHead(res, r) :- {ps cs is PS P CS IS V Vn R}
+  betaReduceHeadChoose : (scope * Expr) * list((scope * Expr)) * int -> (scope * Expr)
+  betaReduceHeadChoose(e, as, 0) = kRebuild(e, as).
+  betaReduceHeadChoose((s, DataElim(n)), as, 1) = betaReduceHead(res, R) :- {ps cs is PS P CS IS V Vn rec_core}
   	sGetDataTypeDecl(s, n) == DataType(n, ps, is, cs),
   	
   	bhrDataSplitArgs(as, ps, is, cs, 0) == (1, PS, P, CS, IS, V, R),
   	brhDataCoreV(V) == Vn,
-  	brhDo(s, n, cs, CS, (Vn, V), [P | CS]) == res.
+  	rec_core == betaReduceHead((s, DataElim(n)), concat(PS, [P | CS])),
+  	brhDo(s, n, cs, CS, (Vn, V), rec_core, ps) == res.
   
   // FINDS MATCHING CONSTRUCTOR
   // Given a
@@ -43,12 +45,12 @@ rules
   // - Value that is elimininated, split up in original value and constructor name
   // - List of arguments to the original function, for recursive applications
   // Returns beta reduced value
-  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * list((scope * Expr)) -> (scope * Expr)
+  brhDo : scope * ID * list(DataConstructor) * list((scope * Expr)) * (ID * (scope * Expr)) * (scope * Expr) * list(DataParam) -> (scope * Expr)
   
   // Constructor matches, use brhDo2 on the result
-  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar).
+  brhDo(s, n, [Constructor(c, ce) | cs], [a | as], (c, ve), ar, ps) = brhDo2(s, n, ce, a, betaReduceHead(ve, []), ar, ps).
   // Constructor does not match, skip
-  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar) = brhDo(s, n, cs, as, (c, ve), ar).
+  brhDo(s, n, [Constructor(_, ce) | cs], [_ | as], (c, ve), ar, ps) = brhDo(s, n, cs, as, (c, ve), ar, ps).
   
   // APPLIES ARGUMENTS TO FUNCTION
   // Given a
@@ -61,12 +63,23 @@ rules
   // Ex 1: Bool Bool f _ 			=> f
   // Ex 2: Bool (.. -> c) f (vf va) => Bool c (f va) vf
   // Ex 3: Maybe (Maybe T) f _ 		=> f
-  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
-  brhDo2(s, n, Var(_), f, _, _) = f.
-  brhDo2(s, n, FnDestruct(_, _), f, _, _) = f.
-  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
-  	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
-  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
+  brhDo2 : scope * ID * Expr * (scope * Expr) * (scope * Expr) * (scope * Expr) * list(DataParam) -> (scope * Expr)
+  brhDo2(s, n, Var(_), f, _, _, _) = f.
+  brhDo2(s, n, FnDestruct(_, _), f, _, _, _) = f.
+  brhDo2(s, n, FnType(_, e, c), f, v@(vs, FnDestruct(vf, va)), ar, ps) = brhDo2(s, n, c, res, betaReduceHead((vs, vf), []), ar, ps) :-
+  	res == brhDo3(s, n, isRec(e, createCoreElim(Var(n), ps, [])), v, f, ar).
+  
+  // is rec * v * c
+  brhDo3 : scope * ID * int * (scope * Expr) * (scope * Expr) * (scope * Expr) -> (scope * Expr)
+  brhDo3(_, _, 0, (vs, FnDestruct(vf, va)), f, _) = kApply(f, (vs, va)).
+  brhDo3(s, n, 1, (vs, FnDestruct(vf, va)), f, ar) = kApply(kApply(f, (vs, va)), r) :-
+  	r == kApply(ar, (vs, va)).
+  
+//  brhDo2(s, n, FnType(_, Var(n), c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(kApply(f, (vs, va)), r), betaReduceHead((vs, vf), []), ar) :-
+//  	r == betaReduceHead((s, DataElim(n)), append(ar, (vs, va))).
+//  brhDo2(s, n, FnType(_, _, c), f, (vs, FnDestruct(vf, va)), ar) = brhDo2(s, n, c, kApply(f, (vs, va)), betaReduceHead((vs, vf), []), ar).
+
+  
   
  
   //P: params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
@@ -88,9 +101,9 @@ rules
   brhDataCoreV((s, FnDestruct(f, a))) = brhDataCoreV(betaReduceHead((s, f), [])).
   brhDataCoreV((s, Var(n))) = n.
   
-  append : list((scope * Expr)) * (scope * Expr) -> list((scope * Expr))
-  append([], x) = [x].
-  append([e | es], x) = [e | append(es, x)].
+  concat : list((scope * Expr)) * list((scope * Expr)) -> list((scope * Expr))
+  concat([], x) = x.
+  concat([e | es], x) = [e | concat(es, x)].
   
   betaReduce_((s, e@DataElim(_))) = e.
   

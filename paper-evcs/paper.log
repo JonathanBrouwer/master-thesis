@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  28 OCT 2022 10:42
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  28 OCT 2022 13:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -859,16 +859,16 @@ Package microtype Info: Loading generic protrusion settings for font family
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[4.4] [5.5] (./paper.bbl [6.6]) [7.7] (./paper.aux)
+[4.4] [5.5] (./paper.bbl [6.6] [7.7]) [8.8] (./paper.aux)
 Package rerunfilecheck Info: File `paper.out' has not changed.
 (rerunfilecheck)             Checksum: BF6CB33D44AFC6283916032C9EE54BC3;1600.
  ) 
 Here is how much of TeX's memory you used:
- 24216 strings out of 478238
- 421517 string characters out of 5850455
- 761417 words of memory out of 5000000
- 41723 multiletter control sequences out of 15000+600000
- 606163 words of font info for 240 fonts, out of 8000000 for 9000
+ 24223 strings out of 478238
+ 421586 string characters out of 5850455
+ 761445 words of memory out of 5000000
+ 41724 multiletter control sequences out of 15000+600000
+ 606376 words of font info for 242 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  85i,15n,90p,1061b,1218s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{/usr/share/texmf-dist/fo
@@ -889,10 +889,10 @@ ype1/public/lm/lmss10.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmssbx10
 dist/fonts/type1/public/lm/lmsy7.pfb></usr/share/texmf-dist/fonts/type1/public/
 lm/lmsy9.pfb></usr/share/texmf-dist/fonts/type1/public/lm/lmtt10.pfb></usr/shar
 e/texmf-dist/fonts/type1/public/lm/lmtt9.pfb>
-Output written on paper.pdf (7 pages, 409190 bytes).
+Output written on paper.pdf (8 pages, 411017 bytes).
 PDF statistics:
- 340 PDF objects out of 1000 (max. 8388607)
- 282 compressed objects within 3 object streams
- 83 named destinations out of 1000 (max. 500000)
+ 349 PDF objects out of 1000 (max. 8388607)
+ 290 compressed objects within 3 object streams
+ 85 named destinations out of 1000 (max. 500000)
  80993 words of extra memory for PDF output out of 89155 (max. 10000000)
 

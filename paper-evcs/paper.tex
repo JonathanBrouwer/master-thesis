@@ -135,7 +135,7 @@ An example program is the following, which defines a polymorphic identity functi
 let f = \T: Type. \x: T. x;
 f (_: Type -> Type) (\x: Type. x)
 \end{lstlisting}
-The AST of this program in Aterm format would be:
+The AST of this program in Aterm format\cite{aterm} would be:
 \begin{lstlisting}
 Let(
   "f", 

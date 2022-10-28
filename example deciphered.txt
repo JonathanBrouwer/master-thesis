@@ -1,0 +1,14 @@
+type_check/beta_eq!expectBetaEq_((#s'_4766-688,Type()),
+
+(#s'_4867-703,FnDestruct(FnDestruct
+ (FnDestruct(FnDestruct(FnDestruct(DataElim(ScopedName(#s'_832-97,"Rec")),Var(ScopedName
+ (#stemp_4838-689,"temp"))),Var(ScopedName(#stemp_4845-692,"temp"))),Var(ScopedName
+ (#stemp_4852-695,"temp"))),Var(ScopedName(#stemp_4859-698,"temp"))),Var(ScopedName
+ (#stemp_4866-701,"temp")))))
+
+ (elim Rec) Bool (\_: Rec Bool. Type) Type (\v: Rec Bool. \t: Type. _: Type -> t) (c Bool (z Bool))
+ (elim Rec) Bool (/_: Rec Bool. Type) Type (/v: Rec Bool. /t: Type. _: Type -> t) (z Bool)
+
+       type_check/scopes!name : (ScopedName(#-stemp_4302-606, "temp"), NameSubst(#-s'_520-58,
+
+       FnConstruct(ScopedName(#-s'_380-45, "v"), FnDestruct(Var(ScopedName(#-s'_832-97, "Rec")), BoolType()), FnConstruct(ScopedName(#-s'_3856-539, "t"), Type(), FnType(ScopedName(#-s'_3909-545, "_"), Type(), Var(ScopedName(#-s'_3856-539, "t")))))))

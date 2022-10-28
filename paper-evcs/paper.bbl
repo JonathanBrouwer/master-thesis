@@ -36,6 +36,15 @@ Thierry Coquand and Gérard Huet.
   {https://doi.org/10.1016/0890-5401(88)90005-3}
   {\path{doi:10.1016/0890-5401(88)90005-3}}.
 
+\bibitem{aterm}
+H.~Jong, P.~Olivier, Copyright Stichting, Mathematisch Centrum, Paul Klint, and
+  Pieter Olivier.
+\newblock Efficient annotated terms.
+\newblock {\em Software: Practice and Experience}, 30, 03 2000.
+\newblock \href
+  {https://doi.org/10.1002/(SICI)1097-024X(200003)30:3<259::AID-SPE298>3.0.CO;2-Y}
+  {\path{doi:10.1002/(SICI)1097-024X(200003)30:3<259::AID-SPE298>3.0.CO;2-Y}}.
+
 \bibitem{spoofax}
 Lennart Kats and Eelco Visser.
 \newblock The spoofax language workbench.

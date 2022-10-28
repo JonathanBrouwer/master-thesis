@@ -54,7 +54,7 @@ elim Unit : P: (_ : Unit -> Type) -> _: (P MakeUnit) -> n: Unit -> P n
 test unit use elim [[
 data Unit =
 	MakeUnit : Unit;
-false : (((elim Unit) (\_: Unit. Type) Bool) MakeUnit)
+false : (elim Unit) (\_: Unit. Type) Bool MakeUnit
 ]] 0 errors
 
 test elim create bool [[
@@ -387,12 +387,19 @@ data Rec (T : Type) =
 (elim Rec) : T : Type -> P : (_: Rec T -> Type) -> _: P (z T) -> _: (v: Rec Bool -> P (c T v)) -> v: Rec T -> P v
 ]] 0 errors
 
-//test recparam 2 - apply [[
-//data Rec (T : Type) =
-//    z : Rec T,
-//	c : x: Rec Bool -> Rec T;
-//(elim Rec) : T : Type -> P : (_: Rec T -> Type) -> _: P (z T) -> _: (v: Rec Bool -> P (c T v)) -> v: Rec T -> P v
-//]] 0 errors
+test recparam 2 - apply 1 [[
+data Rec (T : Type) =
+    z : Rec T,
+	c : x: Rec Bool -> Rec T;
+Type : (elim Rec) Bool (\_: Rec Bool. Type) Type (\v: Rec Bool. Bool) (z Bool)
+]] 0 errors
+
+test recparam 2 - apply 2 [[
+data Rec (T : Type) =
+    z : Rec T,
+	c : x: Rec Bool -> Rec T;
+false : (elim Rec) Bool (\_: Rec Bool. Type) Type (\v: Rec Bool. Bool) (c Bool (z Bool))
+]] 0 errors
 
 test recindex 1 [[
 data Rec = (T : Type)
@@ -401,12 +408,19 @@ data Rec = (T : Type)
 (elim Rec) : P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec T -> _: P T v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
 ]] 0 errors
 
-//test recindex 1 - apply [[
-//data Rec = (T : Type)
-//    z : T: Type -> Rec T,
-//	c : T: Type -> x: Rec T -> Rec T;
-//(elim Rec) : P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec T -> _: P T v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
-//]] 0 errors
+test recindex 1 - apply 1 [[
+data Rec = (T : Type)
+    z : T: Type -> Rec T,
+	c : T: Type -> x: Rec T -> Rec T;
+Bool : (elim Rec) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec V. \p: Type. _: Type -> p) Type (z Type)
+]] 0 errors
+
+test recindex 1 - apply 2 [[
+data Rec = (T : Type)
+    z : T: Type -> Rec T,
+	c : T: Type -> x: Rec T -> Rec T;
+(\w: Type. Bool) : (elim Rec) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec V. \p: Type. (_: Type -> p)) Type (c Type (z Type))
+]] 0 errors
 
 test recindex 2 [[
 data Rec = (T : Type)
@@ -415,12 +429,19 @@ data Rec = (T : Type)
 (elim Rec) : P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec Bool -> _: P Bool v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
 ]] 0 errors
 
-//test recindex 2 - apply [[
-//data Rec = (T : Type)
-//    z : T: Type -> Rec T,
-//	c : T: Type -> x: Rec Bool -> Rec T;
-//(elim Rec) : P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec Bool -> _: P Bool v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
-//]] 0 errors
+test recindex 2 - apply 1 [[
+data Rec = (T : Type)
+    z : T: Type -> Rec T,
+	c : T: Type -> x: Rec Bool -> Rec T;
+true : (elim Rec) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: Type -> p) Bool (z Bool)
+]] 0 errors
+
+test recindex 2 - apply 2 [[
+data Rec = (T : Type)
+    z : T: Type -> Rec T,
+	c : T: Type -> x: Rec Bool -> Rec T;
+(\w: Type. true) : (elim Rec) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: Type -> p) Type (c Type (z Bool))
+]] 0 errors
 
 
 

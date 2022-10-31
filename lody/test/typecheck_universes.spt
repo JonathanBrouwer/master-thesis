@@ -36,4 +36,26 @@ test fn type unbalanced [[
 [[_: Bool -> Type 9]]
 ]] 0 errors run get-type on #1 to Type(10)
 
+test list of types 0 [[
+data List : -> Type 1 where
+	Nil : List,
+	Cons : t: Type -> c: List -> List;
+Nil : List
+]] 0 errors 
+
+test list of types 1 [[
+data List : -> Type 1 where
+	Nil : List,
+	Cons : t: Type -> c: List -> List;
+(Cons Bool Nil) : List
+]] 0 errors 
+
+test list of types 2 [[
+data List : -> Type 1 where
+	Nil : List,
+	Cons : t: Type -> c: List -> List;
+postulate F : Type;
+(Cons F (Cons Bool Nil)) : List
+]] 0 errors 
+
 

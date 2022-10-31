@@ -2,51 +2,51 @@ module typecheck_base
 
 test type [[
 [[Type]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test fn sig 1 [[
 [[_: Type -> Type]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test fn sig 2 [[
 [[_: Type -> __: Type -> Type]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test id fn 1 [[
 [[\x:Type. x]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test id fn 2 [[
-[[\x : (_: Type -> Type). x Type]]
-]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(), Type()), Type())
+[[\x : (_: Type 1 -> Type 1). x Type]]
+]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(1), Type(1)), Type(1))
 
 test id fn 3 [[
 [[\T : Type. \x : T. x]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("x", Var("T"), Var("T")))
+]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("x", Var("T"), Var("T")))
 
 test id fn 4b [[
-[[(\T : Type. \x : T. x) Type]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+[[(\T : Type 1. \x : T. x) Type]]
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test id fn 5c [[
-[[(\T : Type. \x : T. x) Type Type]]
-]] 0 errors run get-type on #1 to Type()
+[[(\T : Type 2. \x : T. x) (Type 1) (Type 0)]]
+]] 0 errors run get-type on #1 to Type(1)
 
 test id fn 4 [[
-[[(\T : Type. \x : T. x) (_: Type -> Type)]]
-]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(), Type()), FnType(_, Type(), Type()))
+[[(\T : Type 1. \x : T. x) (_: Type -> Type)]]
+]] 0 errors run get-type on #1 to FnType(_, FnType(_, Type(0), Type(0)), FnType(_, Type(0), Type(0)))
 
 test id fn 4a [[
-[[(\T : Type. \x : T. x)]] (_: Type -> Type)
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("x", Var("T"), Var("T")))
+[[(\T : Type 1. \x : T. x)]] (_: Type -> Type)
+]] 0 errors run get-type on #1 to FnType("T", Type(1), FnType("x", Var("T"), Var("T")))
 
 test id fn 5 [[
-[[(\T : Type. \x : T. x) (_: Type -> Type) (\t:Type. t)]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+[[(\T : Type 1. \x : T. x) (_: Type -> Type) (\t:Type. t)]]
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test id fn 6 [[
 [[(\x : (_: Type -> Type). x) (\t:Type. t)]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test shadow 2 [[
 let x = Type;
@@ -60,7 +60,7 @@ test simple let 1 [[
 let x = Type;
 x
 ]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test simple let 2 [[
 [[
@@ -68,66 +68,66 @@ let x = Type;
 let y = x;
 y
 ]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test shadow 3 [[
 [[
 let x = Type;
 \z:x. z
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test shadow 4s1 [[
 [[
 let f = \y:Type. y;
 f
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test shadow 4s1b [[
 [[
-let f = (\y:Type. y);
+let f = (\y:Type 1. y);
 f Type
 ]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test shadow 4s2 [[
 [[
-let x = (\y:Type. y) Type;
+let x = (\y:Type 1. y) Type;
 x
 ]]
-]] 0 errors run get-type on #1 to Type()
+]] 0 errors run get-type on #1 to Type(1)
 
 test shadow 4 [[
 [[
-let x = (\y:Type. y) Type;
+let x = (\y:Type 1. y) Type;
 \z:x. z
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test shadow 4a [[
-let x = (\y:Type. y) Type;
+let x = (\y:Type 1. y) Type;
 let y = _: Type -> Type;
 \z:x. z
 ]] 0 errors
 
 test tricky type 2 [[
-[[(\y : (\x : Type. x) Type. y)]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+[[(\y : (\x : Type 1. x) Type. y)]]
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test subst fn destruct [[
 [[
-let id = \T:Type. \x:T. x;
+let id = \T:Type 1. \x:T. x;
 let typ = Type;
 id typ
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test fun arg [[
 [[
 \v : Type. (\x : Type. x) v
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test wrong order substs 1 [[
 [[
@@ -135,31 +135,31 @@ let x = (let y = Type; y);
 let y = _: Type -> Type;
 \v: x. v
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test wrong order substs 2 [[
 [[
 let y = (_: Type -> Type); \x : (let y = Type; y). x
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test wrong order substs 3 [[
 [[
 \x : (let y = (_: Type -> Type); let y = Type; y). x
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test wrong order substs 4 [[
 [[
 \x : (let y = Type; y). (let y = (_: Type -> Type); x)
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test wrong order substs 5 [[
 [[
 \x : (let y = Type; y). (let y = (_: Type -> Type); x)
 ]]
-]] 0 errors run get-type on #1 to FnType(_, Type(), Type())
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
 
 test type via var [[
 let f = Bool;

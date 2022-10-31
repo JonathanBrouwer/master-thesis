@@ -2,62 +2,43 @@ module tricky_types
 
 test tricky 1 [[
 [[(\T : Type. \T : T. T)]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Var("T"), Var("T")))
+]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("T'", Var("T"), Var("T")))
 
 test tricky 1b [[
-[[(\T : Type. \T : T. T) Type]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), Type())
+[[(\T : Type 1. \T : T. T) Type]]
+]] 0 errors run get-type on #1 to FnType("T", Type(0), Type(0))
 
 test tricky 2 [[
 [[(\T: Type. \T : Type. \T: T. T)]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Type(), FnType("T''", Var("T'"), Var("T'"))))
+]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("T'", Type(0), FnType("T''", Var("T'"), Var("T'"))))
 
 test tricky 3 [[
 let f = \x: Type. \T: Type. \y: x. y;
 [[(\T : Type. f T)]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Type(), FnType("y", Var("T"), Var("T"))))
+]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("T'", Type(0), FnType("y", Var("T"), Var("T"))))
 
 test tricky 4 [[
 [[
 (\x : Type. (let y = x; (\ x : y. y)))
 ]]
-]] 0 errors run get-type on #1 to FnType("x", Type(), FnType("x'", Var("x"), Type()))
+]] 0 errors run get-type on #1 to FnType("x", Type(0), FnType("x'", Var("x"), Type(0)))
 
 test tricky 5 simple [[
 [[
 (\T : Type. \G : T. G) : (H: Type -> I: H -> H)
 ]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("G", Var("T"), Var("T")))
+]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("G", Var("T"), Var("T")))
 
 test tricky 5 complex [[
 [[
 (\T : Type. \T : T. T) : (H: Type -> I: H -> H)
 ]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("T'", Var("T"), Var("T")))
-
-test subst self [[
-[[
-let f = (\T : Type. \T : T. T);
-f (T : Type -> _: T -> T) f
-]]
-]] 0 errors run get-type on #1 to FnType("T", Type(), FnType("_", Var("T"), Var("T")))
-
-test double term [[
-let Nat = x: Type -> _: x -> _: (_: x -> x) -> x;
-let z = \x: Type. \zf: x. \sf: (_: x -> x). zf;
-let s = \n: Nat. \x: Type. \zf: x. \sf: (_: x -> x). sf (n x zf sf);
-
-let one = s z : Nat;
-let two = s (s z) : Nat;
-
-let doubled = (two Type Type (\T: Type. (X: Type -> T))) : Type;
-(\x: Type. \y: Type. Type) : doubled
-]] 0 errors
+]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("T'", Var("T"), Var("T")))
 
 test postulate 1 [[
 postulate x : (_: Type -> Bool);
 [[x]]
-]] 0 errors run get-type on #1 to FnType("_", Type(), BoolType())
+]] 0 errors run get-type on #1 to FnType("_", Type(0), BoolType())
 
 test postulate 2 [[
 postulate x : (_: Type -> Bool);

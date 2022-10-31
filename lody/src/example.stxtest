@@ -1,29 +1,29 @@
 resolve {n ps is cs s2 n' s s1 s3 s4 ps' is' cs' x y}
 
-	new s,
-	
-	n == Syn("IsTrue"), 
-	ps == [], 
-	is == [Param(Syn("b"), BoolType())], 
-	cs == [Constructor(Syn("isTrue"), FnDestruct(Var(Syn("IsTrue")), BoolTrue()))],
-	
-	scopeName(s2, n) == n',
-
-	// Declare datatype
-  	sPutType(s, n', createCoreType(Type(), ps', is')) == s1,
-  	sPutDataTypeDecl(s1, n', DataType(n', ps', is', cs')) == s2,
-  	
-  	// Typecheck params in s, add their definitions to s2
-  	dataTypeParams(s2, ps) == (s3, ps'),
-  	dataTypeParams(s3, is) == (_, is'),
-  	
-  	// Add all constructors to s2 to create s4. Type check them in the context of s3.
-  	dataTypeConstrs(n', s3, s2, cs, ps', is') == (s4, cs'),
-  	
-  	
-  	
-  	
-  	typeOfExpr(s4, DataElim(Syn("IsTrue"))) == (x, y)
+	new s
+//	
+//	n == Syn("IsTrue"), 
+//	ps == [], 
+//	is == [Param(Syn("b"), BoolType())], 
+//	cs == [Constructor(Syn("isTrue"), FnDestruct(Var(Syn("IsTrue")), BoolTrue()))],
+//	
+//	scopeName(s2, n) == n',
+//
+//	// Declare datatype
+//  	sPutType(s, n', createCoreType(Type(), ps', is')) == s1,
+//  	sPutDataTypeDecl(s1, n', DataType(n', ps', is', cs')) == s2,
+//  	
+//  	// Typecheck params in s, add their definitions to s2
+//  	dataTypeParams(s2, ps) == (s3, ps'),
+//  	dataTypeParams(s3, is) == (_, is'),
+//  	
+//  	// Add all constructors to s2 to create s4. Type check them in the context of s3.
+//  	dataTypeConstrs(n', s3, s2, cs, ps', is') == (s4, cs'),
+//  	
+//  	
+//  	
+//  	
+//  	typeOfExpr(s4, DataElim(Syn("IsTrue"))) == (x, y)
 
 
 imports

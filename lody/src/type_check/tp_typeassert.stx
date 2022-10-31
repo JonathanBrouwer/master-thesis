@@ -10,7 +10,7 @@ rules
   typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
     // t must be a type
     typeOfExpr(s, t) == (t', t_type),
-    expectBetaEq((sEmpty(), t_type), (sEmpty(), Type())),
+    expectBetaEq((sEmpty(), t_type), (sEmpty(), Type(_))),
     // and the type of e must be t
     typeOfExpr(s, e) == (e', e_type),
     expectBetaEq((sEmpty(), e_type), (s, t')).

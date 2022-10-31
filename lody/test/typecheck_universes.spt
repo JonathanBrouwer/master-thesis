@@ -1,0 +1,17 @@
+module typecheck_universes
+
+test id fn 0a [[
+[[\x: Type. x]]
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
+
+test id fn 0b [[
+[[\x: Type 0. x]]
+]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
+
+test id fn 1 [[
+[[\x: Type 1. x]]
+]] 0 errors run get-type on #1 to FnType(_, Type(1), Type(1))
+
+test id fn 17 [[
+[[\x: Type 17. x]]
+]] 0 errors run get-type on #1 to FnType(_, Type(17), Type(17))

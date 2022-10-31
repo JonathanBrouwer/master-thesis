@@ -18,7 +18,8 @@ let id = (\T : Type. \x: T. x);
 ]] 0 errors run get-type on #1 to BoolType()
 
 test infer inside if [[
-true : if true then _ else Type end
+postulate T : Type;
+true : if true then _ else T end
 ]] 0 errors
 
 test infer nothing [[

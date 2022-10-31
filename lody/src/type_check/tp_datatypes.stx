@@ -9,195 +9,195 @@ imports
   
 rules
 
-  //---- Type of DataType
-  // A datatype is a type
-  typeOfExpr_(_, e@DataType(_, _, _, _)) = (e, Type()).
-  
-  // If we find a declaration
-  typeOfExpr_(s, DataTypeDecl(n, ps, is, cs, b)) = (DataTypeDecl(n', ps', is', cs', b'), b_type) :- {s1 s2 s3a s3 s4}
-  	scopeName(s2, n) == n',
-
-	// Declare datatype
-  	sPutType(s, n', createCoreType(Type(), ps', is')) == s1,
-  	sPutDataTypeDecl(s1, n', DataType(n', ps', is', cs')) == s2,
-  	
-  	// Typecheck params in s, add their definitions to s2
-  	dataTypeParams(s2, ps) == (s3, ps'),
-  	dataTypeParams(s3, is) == (_, is'),
-  	
-  	// Add all constructors to s2 to create s4. Type check them in the context of s3.
-  	dataTypeConstrs(n', s3, s2, cs, ps', is') == (s4, cs'),
-  	
-  	// Type check body in s4
-  	typeOfExpr(s4, b) == (b', b_type).
-  	
-  // Creates the Expression `T -> e`, given params and indices
-  createCoreType : Expr * list(DataParam) * list(DataParam) -> Expr
-  createCoreType(c, [], []) = c.
-  createCoreType(c, [Param(p, e) | ps], is) = FnType(p, e, createCoreType(c, ps, is)).
-  createCoreType(c, [], [Param(p, e) | is]) = FnType(p, e, createCoreType(c, [], is)).
-  	
-  // scope to put def * params -> scope that def was put * checked params
-  dataTypeParams : scope * list(DataParam) -> (scope * list(DataParam))
-  dataTypeParams(s, []) = (s, []).
-  dataTypeParams(s, [Param(n, e) | ps]) = (s'', [Param(n', e') | ps']) :- {s'}
-  	scopeName(s, n) == n',
-  	typeOfExpr(s, e) == (e', _),
-  	sPutType(s, n', e') == s',
-  	dataTypeParams(s', ps) == (s'', ps').
-  
-  	
-  // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother)
-  dataTypeConstrs : ID * scope * scope * list(DataConstructor) * list(DataParam) * list(DataParam) -> (scope * list(DataConstructor))
-  dataTypeConstrs(_, _, s, [], _, _) = (s, []).
-  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs], ps, is) = (s'', [Constructor(n', e') | cs']) :- {s' e_type e''}
-  	scopeName(s', n) == n',
-  	
-  	typeOfExpr(sb, e) == (e', e_type),
-  	checkConstructor(e', dn, ps, is, []),
-  	expectBetaEq((sEmpty(), e_type), (sEmpty(), Type())),
-  	
-  	createCoreType(e', ps, []) == e'',
-  	sPutType(s, n', betaReduce((sb, e''))) == s',
-  	dataTypeConstrs(dn, sb, s', cs, ps, is) == (s'', cs').
-  	
-  // Creates the expression `Maybe T1 T2..`
-  createCoreElim : Expr * list(DataParam) * list(DataParam) -> Expr
-  createCoreElim(c, [], []) = c.
-  createCoreElim(c, [Param(p, _) | ps], is) = createCoreElim(FnDestruct(c, Var(p)), ps, is).
-  createCoreElim(c, [], [Param(p, _) | is]) = createCoreElim(FnDestruct(c, Var(p)), [], is).
-  
-  	
-  // Check if a specific constructor is strictly positive'
-  // c = Core elim
-  checkConstructor : Expr * ID * list(DataParam) * list(DataParam) * list(Expr)
-  // Core type checks
-  checkConstructor(Var(n), n, ps, is, as) :- checkConstructorArgs(ps, is, as).
-  checkConstructor(FnDestruct(b, a), n, ps, is, as) :- checkConstructor(b, n, ps, is, [a | as]).
-  checkConstructor(FnType(_, v, b), n, ps, is, []) :- checkConstructorPos(v, n), checkConstructor(b, n, ps, is, []).
-  
-  // Checks if argument count is correct, and if all parameters are exact
-  checkConstructorArgs : list(DataParam) * list(DataParam) * list(Expr)
-  checkConstructorArgs([Param(m, _) | ps], is, [Var(m) | as]) :- checkConstructorArgs(ps, is, as). 
-  checkConstructorArgs([], [_ | is], [_ | as]) :- checkConstructorArgs([], is, as). 
-  checkConstructorArgs([], [], []).
-  
-  // Check that an expression is strictly positive
-  checkConstructorPos : Expr * ID
-  checkConstructorPos(FnDestruct(e1, e2), n) :- checkConstructorPos(e1, n), checkConstructorPos(e2, n).
-  checkConstructorPos(FnType(_, e1, e2), n) :- checkConstructorNeg(e1, n), checkConstructorNeg(e2, n).
-  checkConstructorPos(Var(_), _).
-  checkConstructorPos(Type(), _).
-  checkConstructorPos(BoolType(), _).
-  
-  // Check that an expression does not contain ID
-  checkConstructorNeg : Expr * ID
-  checkConstructorNeg(Var(n), m) :- n != m.
-  checkConstructorNeg(FnType(_, e1, e2), n) :- checkConstructorNeg(e1, n), checkConstructorNeg(e2, n).
-  checkConstructorNeg(Type(), _).
-  checkConstructorNeg(BoolType(), _).
-   	
-  // -- Type of DataElim
-  // We need to generate the type of the eliminator
-  // It is beta reduced since it may contain variables
-  typeOfExpr_(s, DataElim(n)) = (DataElim(n'), betaReduce((s, e_final))) :- {ps is cs sp p c e_p e_ptype e_core e_constructors e_subcore}
-  	sGetDataTypeDecl(s, n) == DataType(n', ps, is, cs),
-  	
-  	// The general structure is:
-  	// params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
-  	
-  	// Create 		`N params indices` for future use
-  	c == createCoreElim(Var(n'), ps, is),
-  	
-  	// Create		P indices v
-  	e_subcore == FnDestruct(createCoreElim(Var(p), [], is), Var(Syn("v"))),
-  	
-  	// Create 		indices -> v : N params indices -> ...
-  	e_core == createCoreType(
-  		FnType(Syn("v"), c, e_subcore), 
-  		[], is),
-  		
-  	// Create		constructors -> ...
-  	e_constructors == dataTypeElimsGen(e_core, p, cs, n', ps, is),
-  	
-  	// Create 		P
-  	e_ptype == createCoreType(
-  		// N params elims -> Type
-  		FnType(Syn("_"), c, Type()), 
-  		[], is),
-  	new sp, p == ScopedName(sp, "P"),
-  	e_p == FnType(p, e_ptype, e_constructors),
-  	
-  	// Create		params -> ...
-  	e_final == createCoreType(e_p, ps, []).
-  	
-  // rest of type, name of P function, list of data constructors left -> generate the constructors
-  dataTypeElimsGen : Expr * ID * list(DataConstructor) * ID * list(DataParam) * list(DataParam) -> Expr
-  // generate rest of function
-  dataTypeElimsGen(d, p, [], _, _, _) = d.
-  // generate the next constructor, using dataTypeElimsGenSub to find the constructor
-  // C = args -> N pars indices
-  // -----------------------------------------
-  // args+inductions -> P indices (C pars args)
-  dataTypeElimsGen(d, p, [Constructor(c, e) | cs], n, ps, is) = FnType(Syn("_"), e2, dataTypeElimsGen(d, p, cs, n, ps, is)) :- {e1 e3}
-  	// C pars args
-  	e1 == dataTypeElimsGenSub2(e, dataTypeElimsGenSub1(e, c, is)),
-  	
-  	// P indices (C pars args)
-  	e3 == FnDestruct(dataTypeElimsGenSub3(e, p, is), e1),
-  	
-  	// args+inductions -> P indices (C pars args)
-  	e2 == dataTypeElimsGenSub4(e, e3, p, n, ps, is).
-  
-  // Constructor expr * C
-  // args -> N pars indices  => C pars
-  dataTypeElimsGenSub1 : Expr * ID * list(DataParam) -> Expr
-  dataTypeElimsGenSub1(Var(_), c, _) = Var(c).
-  dataTypeElimsGenSub1(FnDestruct(b, a), c, [_ | is]) = dataTypeElimsGenSub1(b, c, []). // this is an index, skip
-  dataTypeElimsGenSub1(FnDestruct(b, a), c, []) = FnDestruct(dataTypeElimsGenSub1(b, c, []), a). //this is apram, apply
-  dataTypeElimsGenSub1(FnType(m, _, b), c, is) = FnDestruct(dataTypeElimsGenSub1(b, c, is), Var(m)).
-  
-  // C pars => C pars args
-  dataTypeElimsGenSub2 : Expr * Expr -> Expr
-  dataTypeElimsGenSub2(Var(_), r) = r.
-  dataTypeElimsGenSub2(FnDestruct(_, _), r) = r.
-  dataTypeElimsGenSub2(FnType(m, a, b), r) = dataTypeElimsGenSub2(b, FnDestruct(r, Var(m))).
-  
-  // Constructor expr * Return of dataTypeElimsGenSub1 * P * Indices
-  // Create `P indices`
-  dataTypeElimsGenSub3 : Expr * ID * list(DataParam) -> Expr
-  dataTypeElimsGenSub3(Var(_), p, []) = Var(p).
-  dataTypeElimsGenSub3(FnDestruct(_, _), p, []) = Var(p).
-  dataTypeElimsGenSub3(FnDestruct(b, a), p, [i | is]) = FnDestruct(dataTypeElimsGenSub3(b, p, is), a).
-  dataTypeElimsGenSub3(FnType(m, a, b), p, is) = dataTypeElimsGenSub3(b, p, is).
-  
-  // Constructor expr * Return of dataTypeElimsGenSub1 * P * N
-  // Wrap with `A -> ...`
-  dataTypeElimsGenSub4 : Expr * Expr * ID * ID * list(DataParam) * list(DataParam) -> Expr
-  dataTypeElimsGenSub4(Var(_), r, p, _, _, _) = r.
-  dataTypeElimsGenSub4(FnDestruct(_, _), r, p, _, _, _) = r.
-  dataTypeElimsGenSub4(FnType(m, a, b), r, p, n, ps, is) = dataTypeElimsGenSub4a(p, m, a, isRec(a, createCoreElim(Var(n), ps, [])), base, ps, is) :-
-  	base == dataTypeElimsGenSub4(b, r, p, n, ps, is).
-  // Check if we need an inductive argument or not
-  dataTypeElimsGenSub4a : ID * ID * Expr * int * Expr * list(DataParam) * list(DataParam) -> Expr
-  dataTypeElimsGenSub4a(p, m, a, 0, b, _, _) = FnType(m, a, b).
-  dataTypeElimsGenSub4a(p, m, a, 1, b, ps, is) = FnType(m, a, FnType(Syn("_"), FnDestruct(pe, Var(m)), b)) :-
-  	dataTypeElimsGenSub4b(foldApps(a, []), ps, is, p) == pe.
-  // Generates P subindices 
-  dataTypeElimsGenSub4b : list(Expr) * list(DataParam) * list(DataParam) * ID -> Expr
-  dataTypeElimsGenSub4b([], [], [], p) = Var(p).
-  dataTypeElimsGenSub4b([Var(m)|as], [Param(m, _)|ps], is, p) = dataTypeElimsGenSub4b(as, ps, is, p).
-  dataTypeElimsGenSub4b([a|as], [], [i|is], p) = FnDestruct(dataTypeElimsGenSub4b(as, [], is, p), a).
-  
-  foldApps : Expr * list(Expr) -> list(Expr)
-  foldApps(Var(_), l) = l.
-  foldApps(FnDestruct(b, a), l) = foldApps(b, [a | l]).
-  
-  isRec : Expr * Expr -> int
-  isRec(FnDestruct(c1, c2), FnDestruct(c1, c2)) = 1.
-  isRec(c, c) = 1.
-  isRec(FnDestruct(b, _), n) = isRec(b, n).
-  isRec(_, _) = 0.
+//  //---- Type of DataType
+//  // A datatype is a type
+//  typeOfExpr_(_, e@DataType(_, _, _, _)) = (e, Type()).
+//  
+//  // If we find a declaration
+//  typeOfExpr_(s, DataTypeDecl(n, ps, is, cs, b)) = (DataTypeDecl(n', ps', is', cs', b'), b_type) :- {s1 s2 s3a s3 s4}
+//  	scopeName(s2, n) == n',
+//
+//	// Declare datatype
+//  	sPutType(s, n', createCoreType(Type(), ps', is')) == s1,
+//  	sPutDataTypeDecl(s1, n', DataType(n', ps', is', cs')) == s2,
+//  	
+//  	// Typecheck params in s, add their definitions to s2
+//  	dataTypeParams(s2, ps) == (s3, ps'),
+//  	dataTypeParams(s3, is) == (_, is'),
+//  	
+//  	// Add all constructors to s2 to create s4. Type check them in the context of s3.
+//  	dataTypeConstrs(n', s3, s2, cs, ps', is') == (s4, cs'),
+//  	
+//  	// Type check body in s4
+//  	typeOfExpr(s4, b) == (b', b_type).
+//  	
+//  // Creates the Expression `T -> e`, given params and indices
+//  createCoreType : Expr * list(DataParam) * list(DataParam) -> Expr
+//  createCoreType(c, [], []) = c.
+//  createCoreType(c, [Param(p, e) | ps], is) = FnType(p, e, createCoreType(c, ps, is)).
+//  createCoreType(c, [], [Param(p, e) | is]) = FnType(p, e, createCoreType(c, [], is)).
+//  	
+//  // scope to put def * params -> scope that def was put * checked params
+//  dataTypeParams : scope * list(DataParam) -> (scope * list(DataParam))
+//  dataTypeParams(s, []) = (s, []).
+//  dataTypeParams(s, [Param(n, e) | ps]) = (s'', [Param(n', e') | ps']) :- {s'}
+//  	scopeName(s, n) == n',
+//  	typeOfExpr(s, e) == (e', _),
+//  	sPutType(s, n', e') == s',
+//  	dataTypeParams(s', ps) == (s'', ps').
+//  
+//  	
+//  // We want to put all the constructors in the second scope, the first scope is the context to check the constructors in (constructors cannot see eachother)
+//  dataTypeConstrs : ID * scope * scope * list(DataConstructor) * list(DataParam) * list(DataParam) -> (scope * list(DataConstructor))
+//  dataTypeConstrs(_, _, s, [], _, _) = (s, []).
+//  dataTypeConstrs(dn, sb, s, [Constructor(n, e) | cs], ps, is) = (s'', [Constructor(n', e') | cs']) :- {s' e_type e''}
+//  	scopeName(s', n) == n',
+//  	
+//  	typeOfExpr(sb, e) == (e', e_type),
+//  	checkConstructor(e', dn, ps, is, []),
+//  	expectBetaEq((sEmpty(), e_type), (sEmpty(), Type())),
+//  	
+//  	createCoreType(e', ps, []) == e'',
+//  	sPutType(s, n', betaReduce((sb, e''))) == s',
+//  	dataTypeConstrs(dn, sb, s', cs, ps, is) == (s'', cs').
+//  	
+//  // Creates the expression `Maybe T1 T2..`
+//  createCoreElim : Expr * list(DataParam) * list(DataParam) -> Expr
+//  createCoreElim(c, [], []) = c.
+//  createCoreElim(c, [Param(p, _) | ps], is) = createCoreElim(FnDestruct(c, Var(p)), ps, is).
+//  createCoreElim(c, [], [Param(p, _) | is]) = createCoreElim(FnDestruct(c, Var(p)), [], is).
+//  
+//  	
+//  // Check if a specific constructor is strictly positive'
+//  // c = Core elim
+//  checkConstructor : Expr * ID * list(DataParam) * list(DataParam) * list(Expr)
+//  // Core type checks
+//  checkConstructor(Var(n), n, ps, is, as) :- checkConstructorArgs(ps, is, as).
+//  checkConstructor(FnDestruct(b, a), n, ps, is, as) :- checkConstructor(b, n, ps, is, [a | as]).
+//  checkConstructor(FnType(_, v, b), n, ps, is, []) :- checkConstructorPos(v, n), checkConstructor(b, n, ps, is, []).
+//  
+//  // Checks if argument count is correct, and if all parameters are exact
+//  checkConstructorArgs : list(DataParam) * list(DataParam) * list(Expr)
+//  checkConstructorArgs([Param(m, _) | ps], is, [Var(m) | as]) :- checkConstructorArgs(ps, is, as). 
+//  checkConstructorArgs([], [_ | is], [_ | as]) :- checkConstructorArgs([], is, as). 
+//  checkConstructorArgs([], [], []).
+//  
+//  // Check that an expression is strictly positive
+//  checkConstructorPos : Expr * ID
+//  checkConstructorPos(FnDestruct(e1, e2), n) :- checkConstructorPos(e1, n), checkConstructorPos(e2, n).
+//  checkConstructorPos(FnType(_, e1, e2), n) :- checkConstructorNeg(e1, n), checkConstructorNeg(e2, n).
+//  checkConstructorPos(Var(_), _).
+//  checkConstructorPos(Type(), _).
+//  checkConstructorPos(BoolType(), _).
+//  
+//  // Check that an expression does not contain ID
+//  checkConstructorNeg : Expr * ID
+//  checkConstructorNeg(Var(n), m) :- n != m.
+//  checkConstructorNeg(FnType(_, e1, e2), n) :- checkConstructorNeg(e1, n), checkConstructorNeg(e2, n).
+//  checkConstructorNeg(Type(), _).
+//  checkConstructorNeg(BoolType(), _).
+//   	
+//  // -- Type of DataElim
+//  // We need to generate the type of the eliminator
+//  // It is beta reduced since it may contain variables
+//  typeOfExpr_(s, DataElim(n)) = (DataElim(n'), betaReduce((s, e_final))) :- {ps is cs sp p c e_p e_ptype e_core e_constructors e_subcore}
+//  	sGetDataTypeDecl(s, n) == DataType(n', ps, is, cs),
+//  	
+//  	// The general structure is:
+//  	// params -> P: (indices -> v: N params indices -> Type) -> constructors -> indices -> v: N params indices -> P indices v
+//  	
+//  	// Create 		`N params indices` for future use
+//  	c == createCoreElim(Var(n'), ps, is),
+//  	
+//  	// Create		P indices v
+//  	e_subcore == FnDestruct(createCoreElim(Var(p), [], is), Var(Syn("v"))),
+//  	
+//  	// Create 		indices -> v : N params indices -> ...
+//  	e_core == createCoreType(
+//  		FnType(Syn("v"), c, e_subcore), 
+//  		[], is),
+//  		
+//  	// Create		constructors -> ...
+//  	e_constructors == dataTypeElimsGen(e_core, p, cs, n', ps, is),
+//  	
+//  	// Create 		P
+//  	e_ptype == createCoreType(
+//  		// N params elims -> Type
+//  		FnType(Syn("_"), c, Type()), 
+//  		[], is),
+//  	new sp, p == ScopedName(sp, "P"),
+//  	e_p == FnType(p, e_ptype, e_constructors),
+//  	
+//  	// Create		params -> ...
+//  	e_final == createCoreType(e_p, ps, []).
+//  	
+//  // rest of type, name of P function, list of data constructors left -> generate the constructors
+//  dataTypeElimsGen : Expr * ID * list(DataConstructor) * ID * list(DataParam) * list(DataParam) -> Expr
+//  // generate rest of function
+//  dataTypeElimsGen(d, p, [], _, _, _) = d.
+//  // generate the next constructor, using dataTypeElimsGenSub to find the constructor
+//  // C = args -> N pars indices
+//  // -----------------------------------------
+//  // args+inductions -> P indices (C pars args)
+//  dataTypeElimsGen(d, p, [Constructor(c, e) | cs], n, ps, is) = FnType(Syn("_"), e2, dataTypeElimsGen(d, p, cs, n, ps, is)) :- {e1 e3}
+//  	// C pars args
+//  	e1 == dataTypeElimsGenSub2(e, dataTypeElimsGenSub1(e, c, is)),
+//  	
+//  	// P indices (C pars args)
+//  	e3 == FnDestruct(dataTypeElimsGenSub3(e, p, is), e1),
+//  	
+//  	// args+inductions -> P indices (C pars args)
+//  	e2 == dataTypeElimsGenSub4(e, e3, p, n, ps, is).
+//  
+//  // Constructor expr * C
+//  // args -> N pars indices  => C pars
+//  dataTypeElimsGenSub1 : Expr * ID * list(DataParam) -> Expr
+//  dataTypeElimsGenSub1(Var(_), c, _) = Var(c).
+//  dataTypeElimsGenSub1(FnDestruct(b, a), c, [_ | is]) = dataTypeElimsGenSub1(b, c, []). // this is an index, skip
+//  dataTypeElimsGenSub1(FnDestruct(b, a), c, []) = FnDestruct(dataTypeElimsGenSub1(b, c, []), a). //this is apram, apply
+//  dataTypeElimsGenSub1(FnType(m, _, b), c, is) = FnDestruct(dataTypeElimsGenSub1(b, c, is), Var(m)).
+//  
+//  // C pars => C pars args
+//  dataTypeElimsGenSub2 : Expr * Expr -> Expr
+//  dataTypeElimsGenSub2(Var(_), r) = r.
+//  dataTypeElimsGenSub2(FnDestruct(_, _), r) = r.
+//  dataTypeElimsGenSub2(FnType(m, a, b), r) = dataTypeElimsGenSub2(b, FnDestruct(r, Var(m))).
+//  
+//  // Constructor expr * Return of dataTypeElimsGenSub1 * P * Indices
+//  // Create `P indices`
+//  dataTypeElimsGenSub3 : Expr * ID * list(DataParam) -> Expr
+//  dataTypeElimsGenSub3(Var(_), p, []) = Var(p).
+//  dataTypeElimsGenSub3(FnDestruct(_, _), p, []) = Var(p).
+//  dataTypeElimsGenSub3(FnDestruct(b, a), p, [i | is]) = FnDestruct(dataTypeElimsGenSub3(b, p, is), a).
+//  dataTypeElimsGenSub3(FnType(m, a, b), p, is) = dataTypeElimsGenSub3(b, p, is).
+//  
+//  // Constructor expr * Return of dataTypeElimsGenSub1 * P * N
+//  // Wrap with `A -> ...`
+//  dataTypeElimsGenSub4 : Expr * Expr * ID * ID * list(DataParam) * list(DataParam) -> Expr
+//  dataTypeElimsGenSub4(Var(_), r, p, _, _, _) = r.
+//  dataTypeElimsGenSub4(FnDestruct(_, _), r, p, _, _, _) = r.
+//  dataTypeElimsGenSub4(FnType(m, a, b), r, p, n, ps, is) = dataTypeElimsGenSub4a(p, m, a, isRec(a, createCoreElim(Var(n), ps, [])), base, ps, is) :-
+//  	base == dataTypeElimsGenSub4(b, r, p, n, ps, is).
+//  // Check if we need an inductive argument or not
+//  dataTypeElimsGenSub4a : ID * ID * Expr * int * Expr * list(DataParam) * list(DataParam) -> Expr
+//  dataTypeElimsGenSub4a(p, m, a, 0, b, _, _) = FnType(m, a, b).
+//  dataTypeElimsGenSub4a(p, m, a, 1, b, ps, is) = FnType(m, a, FnType(Syn("_"), FnDestruct(pe, Var(m)), b)) :-
+//  	dataTypeElimsGenSub4b(foldApps(a, []), ps, is, p) == pe.
+//  // Generates P subindices 
+//  dataTypeElimsGenSub4b : list(Expr) * list(DataParam) * list(DataParam) * ID -> Expr
+//  dataTypeElimsGenSub4b([], [], [], p) = Var(p).
+//  dataTypeElimsGenSub4b([Var(m)|as], [Param(m, _)|ps], is, p) = dataTypeElimsGenSub4b(as, ps, is, p).
+//  dataTypeElimsGenSub4b([a|as], [], [i|is], p) = FnDestruct(dataTypeElimsGenSub4b(as, [], is, p), a).
+//  
+//  foldApps : Expr * list(Expr) -> list(Expr)
+//  foldApps(Var(_), l) = l.
+//  foldApps(FnDestruct(b, a), l) = foldApps(b, [a | l]).
+//  
+//  isRec : Expr * Expr -> int
+//  isRec(FnDestruct(c1, c2), FnDestruct(c1, c2)) = 1.
+//  isRec(c, c) = 1.
+//  isRec(FnDestruct(b, _), n) = isRec(b, n).
+//  isRec(_, _) = 0.
   
   
   

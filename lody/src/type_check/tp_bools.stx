@@ -9,7 +9,7 @@ imports
 rules
   typeOfExpr_(s, q@BoolTrue()) = (q, BoolType()).
   typeOfExpr_(s, q@BoolFalse()) = (q, BoolType()).
-  typeOfExpr_(s, q@BoolType()) = (q, Type()).
+  typeOfExpr_(s, q@BoolType()) = (q, Type(0)).
   typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
   	typeOfExpr(s, cond) == (cond', cond_type),
   	expectBetaEq((s, cond_type), (sEmpty(), BoolType())),

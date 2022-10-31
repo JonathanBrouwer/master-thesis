@@ -6,13 +6,16 @@ imports
   type_check/scopes
   type_check/type_check
 
+signature constructors
+  Type : int -> Expr
 
 rules
-  typeOfExpr_(_, q@Type()) = (q, Type()).
+  typeOfExpr_(_, q@Type(u)) = (q, Type( #(u+1) )).
   
-  betaReduceHead((s, e@Type()), []) = (s, e).
+  betaReduceHead((s, e@Type(_)), []) = (s, e).
   
-  betaReduce_((_, Type())) = Type().
+  betaReduce_((_, e@Type(_))) = e.
   
-  expectBetaEq_((_, Type()), (_, Type())).
+  expectBetaEq_((_, Type(u)), (_, Type(u))).
+  
   

@@ -13,7 +13,8 @@ context-free syntax
   Start.Program = Expr
   
   Expr.Let = [let [ID] = [Expr]; [Expr]]
-  Expr.Type = "Type"
+  Expr.TypeLit = "Type"
+  Expr.TypeLitInt = "Type" INT
   Expr.Var = ID
   Expr.FnType = ID ":" Expr "->" Expr {right}
   Expr.FnConstruct = "\\" ID ":" Expr "." Expr
@@ -38,14 +39,14 @@ context-free syntax
   ID.Syn = RID
   
 context-free priorities
-  {Expr.Type Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.FnDestruct > Expr.TypeAssert > Expr.FnType > Expr.FnConstruct > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
+  {Expr.TypeLit Expr.TypeLitInt Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.FnDestruct > Expr.TypeAssert > Expr.FnType > Expr.FnConstruct > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
   
 context-free restrictions
 
   LAYOUT? -/- [\ \n\t\v\f\r]
   
 lexical sorts
-  RID
+  RID INT
 
 lexical syntax
 
@@ -64,8 +65,11 @@ lexical syntax
   RID = "postulate" {reject}
   RID = "elim" {reject}
   
+  INT = [0-9]+
+  
 lexical restrictions
 
   RID -/- [a-zA-Z0-9\_]
+  INT -/- [0-9]
 
 

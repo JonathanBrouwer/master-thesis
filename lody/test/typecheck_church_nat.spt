@@ -1,23 +1,23 @@
 module church_nat
 
-test nat [[
-[[
-let Nat = x: Type -> _: x -> _: (_: x -> x) -> x;
-let z = \x: Type. \zf: x. \sf: (_: x -> x). zf;
-let s = \n: Nat. \x: Type. \zf: x. \sf: (_: x -> x). sf (n x zf sf);
-
-let one = s z;
-let two = s (s z);
-
-let plus = \x: Nat. \y: Nat. x Nat y s;
-
-plus one two
-]]
-]] 0 errors run get-type on #1 to FnType("x", Type(), 
-									FnType(_, Var("x"), 
-									  FnType(_, FnType(_, Var("x"), Var("x")), Var("x"))
-									)
-								  )
+//test nat [[
+//[[
+//let Nat = x: Type -> _: x -> _: (_: x -> x) -> x;
+//let z = \x: Type. \zf: x. \sf: (_: x -> x). zf;
+//let s = \n: Nat. \x: Type. \zf: x. \sf: (_: x -> x). sf (n x zf sf);
+//
+//let one = s z;
+//let two = s (s z);
+//
+//let plus = \x: Nat. \y: Nat. x Nat y s;
+//
+//plus one two
+//]]
+//]] 0 errors run get-type on #1 to FnType("x", Type(), 
+//									FnType(_, Var("x"), 
+//									  FnType(_, FnType(_, Var("x"), Var("x")), Var("x"))
+//									)
+//								  )
 
 
 

@@ -11,7 +11,7 @@ rules
   	scopeName(s', n) == n',
     // t must be a type
     typeOfExpr(s, t) == (t', t_type),
-    expectBetaEq((sEmpty(), t_type), (sEmpty(), Type())),
+    expectBetaEq((sEmpty(), t_type), (sEmpty(), Type(_))),
     betaReduce((s, t')) == t'',
   	sPutType(s, n', t'') == s',
   	typeOfExpr(s', b) == (b', b_type).

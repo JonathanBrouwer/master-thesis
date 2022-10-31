@@ -15,14 +15,12 @@ imports
 signature constructors
   Infer : Expr -> Expr
   ScopedName : ? * RID -> ID
+  Type : int -> Expr
 
 rules // Analysis
-
-  pre-analyze  = id
-  post-analyze = id
   
-  pre-analyze  = explicate-injections-lody
-  post-analyze = implicate-injections-lody
+  pre-analyze  = type-converter
+  post-analyze = id
 
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
   editor-resolve = stx-editor-resolve
@@ -49,9 +47,13 @@ rules // Analysis
   is-inj                 = is-lody-inj-cons
   pp-partial             = pp-partial-lody-string  
 
-//  remove-syns-sub : Syn(n) -> n
-//  remove-syns-sub : x -> x
-//  remove-syns = bottomup(try(remove-syns-sub))
+
+  type-converter :: ? -> ?
+  type-converter = topdown(preserve-annos(try(type-converter-sub)))
+  
+  type-converter-sub :: ? -> ?
+  type-converter-sub : TypeLit() -> Type(0)
+  type-converter-sub : TypeLitInt(u) -> Type(<string-to-int> u)
   
   
   uniquify-sub :: ? -> ?
@@ -85,43 +87,6 @@ rules // Analysis
   with <conc-strings> (s, "'") => s'
   
   
-  
-
-//  uniquify :: ? * List(ID) -> ?
-//  uniquify : (Type(), _) -> Type()
-//  uniquify : (FnDestruct(e1, e2), names) -> FnDestruct(<uniquify> (e1, names), <uniquify> (e2, names))
-//  
-//  uniquify : (BoolType(), names) -> BoolType()
-//  uniquify : (BoolTrue(), names) -> BoolTrue()
-//  uniquify : (BoolFalse(), names) -> BoolFalse()
-//  uniquify : (BoolIf(c, e1, e2), names) -> BoolIf(<uniquify> (c, names), <uniquify> (e1, names), <uniquify> (e2, names))
-//  
-//  
-//  uniquify : (Let(n1, a, b), names) -> Let(n2, <uniquify> (a, names), <uniquify> (b, [<strip-annos> n2 | names]))
-//  with <find-new-name> (n1, names) => n2
-//  with rules( Rename : n1 -> n2 )
-//  
-//  uniquify : (Var(n1), _) -> Var(n2)
-//  where <resolve-ref> n1 => d
-//  where <Rename> d => n2
-  
-//  
-//  uniquify : (FnConstruct(n1, et, eb), names) -> FnConstruct(n2, <uniquify> (et, names), <uniquify> (eb, [<strip-annos> n2 | names]))
-//  with <find-new-name> (n1, names) => n2
-//  with rules( Rename : n1 -> n2 )
-//  
-//  uniquify : (FnType(n1, et, eb), names) -> FnType(n2, <uniquify> (et, names), <uniquify> (eb, [<strip-annos> n2 | names]))
-//  with <find-new-name> (n1, names) => n2
-//  with <debug(!"RENAMED: ")> (<strip-annos> n1, <strip-annos> n2, <strip-annos> names)
-//  with rules( Rename : n1 -> n2 )
-//  
-//  find-new-name :: string * List(string) -> string
-//  find-new-name : ("_", _) -> "_"
-//  find-new-name : (n1, names) -> n1
-//  where not(<elem> (<strip-annos> n1, names))
-//  find-new-name : (n1, names) -> <find-new-name> (n2, names)
-//  where <elem> (<strip-annos> Syn(n1), names)
-//  with n2 := <conc-strings> (n1, "'")
 
 
 

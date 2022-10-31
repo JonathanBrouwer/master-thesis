@@ -7,25 +7,25 @@ imports
   type_check/type_check
   
 rules
-  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = (FnType(arg_name', arg_type', rtrn'), Type()) :- {arg_type_reduced arg_type_type rtrn_type s'}
+  typeOfExpr_(s, FnType(arg_name, arg_type, rtrn)) = (FnType(arg_name', arg_type', rtrn'), Type( #(max(ua, ur)) )) :- {arg_type_reduced arg_type_type rtrn_type s'}
   	scopeName(s', arg_name) == arg_name',
   	
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type())),
+  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type(ua))),
   	// Reduce arg_type
   	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
   	sPutType(s, arg_name', arg_type_reduced) == s',
   	typeOfExpr(s', rtrn) == (rtrn', rtrn_type),
-  	expectBetaEq((sEmpty(), rtrn_type), (sEmpty(), Type())).
+  	expectBetaEq((sEmpty(), rtrn_type), (sEmpty(), Type(ur))).
   
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name', arg_type', body'), FnType(arg_name', arg_type_reduced, body_type)) :- {arg_type_type ns s'}
 	scopeName(s', arg_name) == arg_name',
 	
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type())),
+  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type(_))),
   	// Reduce arg_type
   	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the body with the arg in scope

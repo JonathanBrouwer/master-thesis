@@ -28,11 +28,13 @@ context-free syntax
   Expr.BoolType = "Bool"
   Expr.BoolIf = "if" Expr "then" Expr "else" Expr "end"
   
-  Expr.DataTypeDecl = "data" ID DataParam* "=" DataParam* {DataConstructor ","}* ";" Expr
+  Expr.DataTypeDecl = "data" ID DataParam* "=" DataParam* "->" Expr "where" {DataConstructor ","}* ";" Expr
+ 
   DataConstructor.Constructor = ID ":" Expr
   DataParam.Param = "(" ID ":" Expr ")"
 
-  Expr.DataElim = "elim" ID
+  Expr.DataElimLit = "elim" ID
+  Expr.DataElimLitInt = "elim" ID INT
   
   Expr = "(" Expr ")" {bracket}
   

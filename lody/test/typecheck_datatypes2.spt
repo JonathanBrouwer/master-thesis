@@ -1,264 +1,31 @@
-module typecheck_datatypes
-
-test type of nat [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-[[Nat]]
-]] 0 errors run get-type on #1 to Type()
-
-test nats [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-[[S (S Z)]]
-]] 0 errors run get-type on #1 to Var("Nat")
-
-test nats check [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-Z : Nat
-]] 0 errors
-
-test with postulate [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-postulate x : Nat;
-[[x]]
-]] 0 errors run get-type on #1 to Var("Nat")
-
-test with postulate [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-postulate x : Nat;
-x
-]] 0 errors
-
-
-test empty create elim [[
-data Empty = ;
-elim Empty : P: (_ : Empty -> Type) -> v: Empty -> P v
-]] 0 errors
-
-
-
-test unit create elim [[
-data Unit =
-	MakeUnit : Unit;
-elim Unit : P: (_ : Unit -> Type) -> _: (P MakeUnit) -> n: Unit -> P n
-]] 0 errors
-
-test unit use elim [[
-data Unit =
-	MakeUnit : Unit;
-false : (elim Unit) (\_: Unit. Type) Bool MakeUnit
-]] 0 errors
-
-test elim create bool [[
-data MyBool =
-	MyFalse : MyBool,
-	MyTrue : MyBool;
-elim MyBool : P: (_ : MyBool -> Type) -> _: (P MyFalse) -> _: (P MyTrue) -> n: MyBool -> P n
-]] 0 errors
-
-test elim use bool 1 [[
-data MyBool =
-	MyFalse : MyBool,
-	MyTrue : MyBool;
-(((elim MyBool) (\_: MyBool. Type) Bool Type) MyFalse) : Type
-]] 0 errors
-
-test elim use bool 2 [[
-data MyBool =
-	MyFalse : MyBool,
-	MyTrue : MyBool;
-false : (((elim MyBool) (\_: MyBool. Type) Bool Type) MyFalse)
-]] 0 errors
-
-test elim use bool 3 [[
-data MyBool =
-	MyFalse : MyBool,
-	MyTrue : MyBool;
-((elim MyBool) (\_: MyBool. Bool) false true) : (_: MyBool -> Bool)
-]] 0 errors
-
-test elim use more options [[
-data MyBool =
-	My1 : MyBool,
-	My2 : MyBool,
-	My3 : MyBool,
-	My4 : MyBool,
-	My5 : MyBool;
-false : (((elim MyBool) (\_: MyBool. Type) Type Bool Type Type Type) My2)
-]] 0 errors
-
-test elim create MaybeBool [[
-data MaybeBool =
-	None : MaybeBool,
-	Some : x: Bool -> MaybeBool;
-elim MaybeBool : P: (_: MaybeBool -> Type) -> _: (P None) -> _: (x: Bool -> P (Some x)) -> n: MaybeBool -> P n
-]] 0 errors 
-
-test elim use MaybeBool [[
-data MaybeBool =
-	None : MaybeBool,
-	Some : x: Bool -> MaybeBool;
-true : ((elim MaybeBool) (\_: MaybeBool. Type) Type (\b: Bool. Bool) (Some true))
-]] 0 errors 
-
-test elim create nat [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-elim Nat : P: (_: Nat -> Type) -> _: (P Z) -> _: (x: Nat -> _: P x -> P (S x)) -> n: Nat -> P n
-]] 0 errors 
-
-test elim use nat 0 [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-Type : ((elim Nat) (\_: Nat. Type) Type (\n: Nat. \b: Type. Bool) Z)
-]] 0 errors 
-
-test elim use nat 1 [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-false : ((elim Nat) (\_: Nat. Type) Type (\n: Nat. \b: Type. Bool) (S Z))
-]] 0 errors 
-
-test elim use nat 2 [[
-data Nat =
-	Z : Nat,
-	S : x: Nat -> Nat;
-let x = ((elim Nat) (\_: Nat. Nat) Z (\n: Nat. \b: Nat. (S b)) (S Z));
-x
-]] 0 errors 
-
-test positivity check 1 [[
-data Nat =
-	Z : Nat,
-	S : x: (_: Nat -> Type) -> Nat;
-Type
-]] >= 1 errors 
-
-test positivity check 2 [[
-data Nat =
-	Z : Nat,
-	S : x: (_: Type -> Type) -> Nat;
-Type
-]] 0 errors 
-
-test positivity check 3 [[
-data Nat =
-	Z : Nat,
-	S : x: (_: Type -> Nat) -> Nat;
-Type
-]] >= 1 errors 
-
-test positivity check 4 [[
-data Nat =
-	Z : Nat,
-	S : x: Type -> y: (_: Type -> Nat) -> Nat;
-Type
-]] >= 1 errors 
-
-test elim use bool can reduce 1 [[
-data MyBool =
-	MyFalse : MyBool,
-	MyTrue : MyBool;
-postulate f : (_: Type -> Type);
-postulate x : f ((elim MyBool) (\_: MyBool. Type) Type Bool MyFalse);
-x
-]] 0 errors
-
-test elim use bool can reduce 1 [[
-data MyBool =
-	MyFalse : MyBool,
-	MyTrue : MyBool;
-\x: Type. (elim MyBool) (\_: MyBool. Type) Type
-]] 0 errors
-
-test param data type 0 type [[
-data Maybe (T : Type) = ;
-Maybe : (T : Type -> Type)
-]] 0 errors 
-
-test param data type 0 type [[
-data Maybe (T : Type) = ;
-Maybe Bool : Type
-]] 0 errors 
-
-test param data type 1 type [[
-data Maybe (T : Type) = 
-	None : Maybe T;
-Maybe : (T : Type -> Type)
-]] 0 errors 
-
-test param data type 2 type [[
-data Maybe (T : Type) = 
-	None : Maybe T,
-	Some : _: T -> Maybe T;
-Maybe : (T : Type -> Type)
-]] 0 errors 
-
-test param data type 2 type applied [[
-data Maybe (T : Type) = 
-	None : Maybe T,
-	Some : _: T -> Maybe T;
-Maybe Bool : Type
-]] 0 errors 
-
-test param data type 2 none [[
-data Maybe (T : Type) = 
-	None : Maybe T,
-	Some : _: T -> Maybe T;
-None : (T : Type -> Maybe T)
-]] 0 errors 
-
-test param data type 2 some [[
-data Maybe (T : Type) = 
-	None : Maybe T,
-	Some : _: T -> Maybe T;
-Some : (T : Type -> v : T -> Maybe T)
-]] 0 errors 
-
-test param data T does not leak [[
-data Maybe (T : Type) = 
-	None : Maybe T,
-	Some : _: T -> Maybe T;
-T
-]] >= 1 errors 
+module typecheck_datatypes2
 
 test param data type 0 elim [[
-data Maybe (T : Type) = ;
+data Maybe (T : Type) = : Type 0;
 (elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 1 elim [[
-data Maybe (T : Type) = 
+data Maybe (T : Type) =: Type 0
 	None : Maybe T;
 (elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 2 elim [[
-data Maybe (T : Type) = 
+data Maybe (T : Type) = : Type 0
 	None : Maybe T,
 	Some : _: T -> Maybe T;
 (elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> _: (x: T -> P (Some T x)) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 2 elim 2 simple [[
-data Maybe (T : Type) = 
+data Maybe (T : Type) = : Type 0
 	None : Maybe T;
 true : (elim Maybe) Type (\_: Maybe Type. Type) Bool (None Type)
 ]] 0 errors
 
 test param data type 2 elim 2 [[
-data Maybe (T : Type) = 
+data Maybe (T : Type) = : Type 0
 	None : Maybe T,
 	Some : _: T -> Maybe T;
 true : (elim Maybe) Type (\_: Maybe Type. Type) Type (\T: Type. T) (Some Type Bool)
@@ -266,79 +33,79 @@ true : (elim Maybe) Type (\_: Maybe Type. Type) Type (\T: Type. T) (Some Type Bo
 
 
 test param data type 2 elim 2 [[
-data MaybeRec (T : Type) = 
+data MaybeRec (T : Type) = : Type 0
 	None : MaybeRec T,
 	Some : _: MaybeRec T -> MaybeRec T;
 (elim MaybeRec) : (T : Type -> P : (_: MaybeRec T -> Type) -> _: P (None T) -> _: (x: MaybeRec T -> y : P x -> P (Some T x)) -> v: MaybeRec T -> P v)
 ]] 0 errors
 
 test index data type 1 [[
-data IsTrue = (b : Bool) (c : Bool);
+data IsTrue = (b : Bool) (c : Bool) : Type 0;
 IsTrue : (_: Bool -> _: Bool -> Type)
 ]] 0 errors
 
 test index data type 2 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : IsTrue true;
 IsTrue : (_: Bool -> Type)
 ]] 0 errors
 
 test index data type 3 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : IsTrue true;
 isTrue : IsTrue true
 ]] 0 errors
 
 test index data type 4 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : b : Bool -> IsTrue b;
 isTrue : (b: Bool -> IsTrue b)
 ]] 0 errors
 
 test index data type elim 1 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : IsTrue true;
 (elim IsTrue) : (P : (b: Bool -> _: IsTrue b -> Type) -> _: P true isTrue -> b : Bool -> v: IsTrue b -> P b v)
 ]] 0 errors
 
 test index data type use elim 1 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : IsTrue true;
 (elim IsTrue) (\b: Bool. \it: IsTrue b. Type) : (_: Type -> b: Bool -> v: IsTrue b -> Type)
 ]] 0 errors
 
 test index data type use elim 2 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : IsTrue true;
 (elim IsTrue) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
 ]] 0 errors
 
 test eq 1 [[
-data Eq = (e1: Bool) (e2 : Bool)
+data Eq = (e1: Bool) (e2 : Bool) : Type 0
 	refl : e : Bool -> Eq e e;
 Type
 ]] 0 errors
 
 test eq 2 [[
-data Eq (T : Type) = (e1: T) (e2 : T)
+data Eq (T : Type) = (e1: T) (e2 : T) : Type 0
 	refl : e : T -> Eq T e e;
 (elim Eq) : T: Type -> P: (e1: T -> e2: T -> _: Eq T e1 e2 -> Type) -> _: (e: T -> P e e (refl T e)) -> e1 : T -> e2 : T -> v: Eq T e1 e2 -> P e1 e2 v
 ]] 0 errors
 
 test tuple [[
-data Tuple (T1 : Type) (T2 : Type) =
+data Tuple (T1 : Type) (T2 : Type) = : Type 0
     mktp : e1 : T2 -> e2 : T2 -> Tuple T1 T2;
 Type
 ]] 0 errors
 
 test index data type use elim 2 [[
-data IsTrue = (b : Bool)
+data IsTrue = (b : Bool) : Type 0
 	isTrue : IsTrue true;
 true : (elim IsTrue) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
 ]] 0 errors
 
 test term [[
-data Nat =
+data Nat = : Type 0
 	z : Nat,
 	s : n : Nat -> Nat;
 data Fin = (i : Nat)

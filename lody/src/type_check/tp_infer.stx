@@ -6,6 +6,9 @@ imports
   type_check/scopes
   type_check/type_check
   
+signature constructors
+  Infer : Expr -> Expr
+  
 rules
   	
   // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)

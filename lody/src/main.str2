@@ -16,6 +16,7 @@ signature constructors
   Infer : Expr -> Expr
   ScopedName : ? * RID -> ID
   Type : int -> Expr
+  DataElim : ID * int -> Expr
 
 rules // Analysis
   
@@ -54,6 +55,8 @@ rules // Analysis
   type-converter-sub :: ? -> ?
   type-converter-sub : TypeLit() -> Type(0)
   type-converter-sub : TypeLitInt(u) -> Type(<string-to-int> u)
+  type-converter-sub : DataElimLit(n) -> DataElim(n, 0)
+  type-converter-sub : DataElimLitInt(n, u) -> DataElim(n, <string-to-int> u)
   
   
   uniquify-sub :: ? -> ?

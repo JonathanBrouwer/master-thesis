@@ -1,5 +1,17 @@
 module typecheck_universes
 
+test type bool [[
+[[Bool]]
+]] 0 errors run get-type on #1 to Type(0)
+
+test type 0 [[
+[[Type 0]]
+]] 0 errors run get-type on #1 to Type(1)
+
+test type 18 [[
+[[Type 18]]
+]] 0 errors run get-type on #1 to Type(19)
+
 test id fn 0a [[
 [[\x: Type. x]]
 ]] 0 errors run get-type on #1 to FnType(_, Type(0), Type(0))
@@ -15,3 +27,13 @@ test id fn 1 [[
 test id fn 17 [[
 [[\x: Type 17. x]]
 ]] 0 errors run get-type on #1 to FnType(_, Type(17), Type(17))
+
+test fn type unbalanced [[
+[[_: Type 9 -> Bool]]
+]] 0 errors run get-type on #1 to Type(10)
+
+test fn type unbalanced [[
+[[_: Bool -> Type 9]]
+]] 0 errors run get-type on #1 to Type(10)
+
+

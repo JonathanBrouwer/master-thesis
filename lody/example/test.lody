@@ -1,4 +1,2 @@
-data Rec (T : Type) =
-    z : Rec T,
-	c : x: Rec T -> Rec T;
-(\x: Type. Type) : (elim Rec) Bool (\_: Rec Bool. Type) Type (\v: Rec Bool. \t: Type. _: Type -> t) (c Bool (z Bool))
+data Empty = -> Type 0 where
+E

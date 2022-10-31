@@ -16,10 +16,9 @@ imports
   type_check/tp_var
   
 signature constructors
-  Infer : Expr -> Expr
   ScopedName : scope * RID -> ID
   
-  DataType : ID * list(DataParam) * list(DataParam) * list(DataConstructor) -> Expr
+
 
 rules
 

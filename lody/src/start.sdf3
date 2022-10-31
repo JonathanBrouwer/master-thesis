@@ -28,7 +28,7 @@ context-free syntax
   Expr.BoolType = "Bool"
   Expr.BoolIf = "if" Expr "then" Expr "else" Expr "end"
   
-  Expr.DataTypeDecl = "data" ID DataParam* "=" DataParam* "->" Expr "where" {DataConstructor ","}* ";" Expr
+  Expr.DataTypeDecl = "data" ID DataParam* ":" DataParam* "->" Expr "where" {DataConstructor ","}* ";" Expr
  
   DataConstructor.Constructor = ID ":" Expr
   DataParam.Param = "(" ID ":" Expr ")"

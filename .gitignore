@@ -5,3 +5,6 @@ paper-evcs/oasics-v2021-sample-article.synctex.gz
 *.log
 *.out
 *.gz
+*.toc
+*.blg
+*.bbl

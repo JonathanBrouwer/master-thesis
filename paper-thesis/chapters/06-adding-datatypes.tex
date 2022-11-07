@@ -1,2 +1,40 @@
-\chapter{Data Types}
+\chapter{Inductive Data Types}
 
+Another useful feature is support for inductive data types. An example of a simple inductive datatype is the \verb|Nat| type:
+\begin{lstlisting}
+data Nat : -> Type where
+    zero : Nat,
+    suc : Nat -> Nat;
+\end{lstlisting}
+We will design data types to have the same features as in Agda:
+\begin{enumerate}
+\item Parameters, which are datatypes that are polymorphic, and are required to be the same for all constructors, such as
+\begin{lstlisting}
+data Maybe (T : Type) : -> Type where
+    None : Maybe T,
+    Some : T -> Maybe T;
+\end{lstlisting}
+\item Indices, which are datatypes that are polymorphic, that may vary from constructor to constructor
+\begin{lstlisting}
+data Eq : (e1: Bool) (e2 : Bool) -> Type where
+    refl : e : Bool -> Eq e e;
+\end{lstlisting}
+\item We can also combine parameters and indices, for example to create the generic \verb|Eq| type. Note that parameters and indices may also depend on earlier parameters and indices.
+\begin{lstlisting}
+data Eq (T : Type) : (e1 : T) (e2 : T) -> Type where
+    refl : e : T -> Eq e e;
+\end{lstlisting}
+\item Data types must be strictly positive. This ensures that we cannot make non-terminating programs\footnote{After we add support for universes in chapter \ref{ch:universes}}. For example, the following data type is forbidden, because it refers to itself in a negative position. We will explain exactly how this check works in section \ref{ch:datatypes:positivity}.
+\begin{lstlisting}
+data Bad : -> Type where
+	bad : (Bad -> Bool) -> Bad;
+\end{lstlisting}
+
+\section{In statix}
+
+
+
+\section{Positivity Checking}
+\label{ch:datatypes:positivity}
+	
+\end{enumerate}

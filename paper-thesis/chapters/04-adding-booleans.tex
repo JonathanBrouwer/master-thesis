@@ -1,0 +1,14 @@
+\chapter{\label{chap:bools}Booleans and other "simple" constructs that really need a better title}
+
+In this chapter, we will add booleans, postulates and type asserts to the language. The goal of this is to show that this language is easy to extend, and to add some features that make testing the language easier.
+
+\section{Booleans}
+
+This section describes how to add Booleans to the language. We will add the type of booleans `Bool`, `true`, `false` and `if`, allowing for programs such as the following: 
+
+\begin{lstlisting}
+let and = \x: Bool. \y: Bool. if x then y else false end
+\end{lstlisting}
+
+\section{Postulate and Type Assert}
+

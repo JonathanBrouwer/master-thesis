@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  7 NOV 2022 12:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Arch Linux) (preloaded format=pdflatex 2022.10.22)  7 NOV 2022 15:50
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -602,7 +602,9 @@ File: l3backend-pdftex.def 2022-04-14 L3 backend support: PDF output (pdfTeX)
 )
 (./document.aux (./chapters/defs.aux) (./chapters/00-abstract.aux)
 (./chapters/01-introduction.aux) (./chapters/02-coc.aux)
-(./chapters/03-variable-capture.aux) (./chapters/98-relatedwork.aux)
+(./chapters/03-variable-capture.aux) (./chapters/04-adding-booleans.aux)
+(./chapters/05-adding-inference.aux) (./chapters/06-adding-datatypes.aux)
+(./chapters/07-adding-universes.aux) (./chapters/98-relatedwork.aux)
 (./chapters/99-conclusion.aux))
 \openout1 = `document.aux'.
 
@@ -727,10 +729,38 @@ Overfull \hbox (92.599pt too wide) in paragraph at lines 108--109
 [][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][][] 
  []
 
-) [10]
+[10]) [11]
+\openout2 = `chapters/04-adding-booleans.aux'.
+
+ (./chapters/04-adding-booleans.tex) [12
+
+
+
+
+]
+\openout2 = `chapters/05-adding-inference.aux'.
+
+
+(./chapters/05-adding-inference.tex)
+\openout2 = `chapters/06-adding-datatypes.aux'.
+
+ (./chapters/06-adding-datatypes.tex)
+\openout2 = `chapters/07-adding-universes.aux'.
+
+
+(./chapters/07-adding-universes.tex)
 \openout2 = `chapters/98-relatedwork.aux'.
 
- (./chapters/98-relatedwork.tex) [11
+ (./chapters/98-relatedwork.tex) [13
+
+
+
+
+
+
+
+
+
 
 
 
@@ -738,59 +768,51 @@ Overfull \hbox (92.599pt too wide) in paragraph at lines 108--109
 ]
 \openout2 = `chapters/99-conclusion.aux'.
 
- (./chapters/99-conclusion.tex)
-[12
+
+(./chapters/99-conclusion.tex) [14
 
 
 
 
 ] (./document.bbl
 bibitemlist
-[13
+[15
 
 
 
-]) [14] (./document.aux (./chapters/defs.aux) (./chapters/00-abstract.aux)
+]) [16] (./document.aux (./chapters/defs.aux) (./chapters/00-abstract.aux)
 (./chapters/01-introduction.aux) (./chapters/02-coc.aux)
-(./chapters/03-variable-capture.aux) (./chapters/98-relatedwork.aux)
+(./chapters/03-variable-capture.aux) (./chapters/04-adding-booleans.aux)
+(./chapters/05-adding-inference.aux) (./chapters/06-adding-datatypes.aux)
+(./chapters/07-adding-universes.aux) (./chapters/98-relatedwork.aux)
 (./chapters/99-conclusion.aux))
-
-Package rerunfilecheck Warning: File `document.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `document.out':
-(rerunfilecheck)             Before: E52178CA4F6A315C33D1D7C4A1874BC8;2283
-(rerunfilecheck)             After:  62AB893F8BA82C607AEC11AA56C6863E;2272.
+Package rerunfilecheck Info: File `document.out' has not changed.
+(rerunfilecheck)             Checksum: 051EACD3E652E7E181280C97301D5C98;2980.
  ) 
 Here is how much of TeX's memory you used:
- 14824 strings out of 478238
- 223174 string characters out of 5850455
- 585231 words of memory out of 5000000
- 32763 multiletter control sequences out of 15000+600000
+ 14951 strings out of 478238
+ 228443 string characters out of 5850455
+ 590444 words of memory out of 5000000
+ 32851 multiletter control sequences out of 15000+600000
  478706 words of font info for 61 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  60i,15n,63p,1093b,1836s stack positions out of 5000i,500n,10000p,200000b,80000s
-
-pdfTeX warning (dest): name{section.4.1} has been referenced but does not exist
-, replaced by a fixed one
-
-</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/te
-xmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
-10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/sha
-re/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fo
-nts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texmf-dist/fonts/type1/public
-/amsfonts/cm/cmsl10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mss10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></us
-r/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-d
-ist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/type
-1/public/amsfonts/cm/cmtt10.pfb>
-Output written on document.pdf (14 pages, 219174 bytes).
+</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-dist/fonts/type1/publi
+c/amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mr10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/s
+hare/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/
+fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmsl10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmss10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></
+usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf
+-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmtt10.pfb>
+Output written on document.pdf (16 pages, 222648 bytes).
 PDF statistics:
- 346 PDF objects out of 1000 (max. 8388607)
- 299 compressed objects within 3 object streams
- 124 named destinations out of 1000 (max. 500000)
- 113 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 375 PDF objects out of 1000 (max. 8388607)
+ 325 compressed objects within 4 object streams
+ 135 named destinations out of 1000 (max. 500000)
+ 137 words of extra memory for PDF output out of 10000 (max. 10000000)
 

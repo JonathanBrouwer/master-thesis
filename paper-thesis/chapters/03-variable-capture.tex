@@ -4,7 +4,7 @@
 
 TODO Add reference to types and programming languages
 
-The implementation of the base language shown in section \ref{chap:baselang} has one big problem, that is name collisions. This section will explore several ways of solving these collisions. An example of such a collision is the following: What is the type of this expression (a polymorphic identity function)?
+The implementation of the base language shown in chapter \ref{chap:baselang} has one big problem, that is name collisions. This section will explore several ways of solving these collisions. An example of such a collision is the following: What is the type of this expression (a polymorphic identity function)?
 \begin{lstlisting}
 \T : Type. \T : T. T
 \end{lstlisting}
@@ -110,5 +110,16 @@ FnType(ScopedName(s1, T), Type(),
 
 \section{Improving the readability of types}
 
+Because the expression above, with \verb|ScopedName|s, is not particularly readable, we add a new post-analysis Stratego pass that converts the \verb|ScopedName|s to ticked named. For example, the above would be transformed to:
 
+\begin{lstlisting}
+FnType(T, Type(), FnType(T', Var(T)), Var(T)))
+\end{lstlisting}
+Ticks are added to names where necessary. We do this by following these rules:
+
+\begin{enumerate}
+	\item When we encounter a \verb|ScopedName| for the first time, we keep adding ticks to the name until we find a name that has not been used before. 
+	\item We define a dynamic rule \verb|Rename :: string -> string| and we store the new name we generated using this rule.
+	\item When we encounter a \verb|ScopedName|, use the \verb|Rename| rule to find what the name was transformed to.
+\end{enumerate}
 

@@ -1,0 +1,54 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/Arch Linux)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: document.aux
+A level-1 auxiliary file: chapters/defs.aux
+A level-1 auxiliary file: chapters/00-abstract.aux
+A level-1 auxiliary file: chapters/01-introduction.aux
+A level-1 auxiliary file: chapters/02-coc.aux
+A level-1 auxiliary file: chapters/03-variable-capture.aux
+A level-1 auxiliary file: chapters/98-relatedwork.aux
+The style file: unsrt.bst
+Database file #1: bibliography.bib
+Warning--can't use both author and editor fields in pfenning_1991
+You've used 14 entries,
+            1791 wiz_defined-function locations,
+            567 strings with 6705 characters,
+and the built_in function-call counts, 4383 in all, are:
+= -- 395
+> -- 167
+< -- 13
++ -- 59
+- -- 45
+* -- 309
+:= -- 630
+add.period$ -- 47
+call.type$ -- 14
+change.case$ -- 13
+chr.to.int$ -- 0
+cite$ -- 15
+duplicate$ -- 218
+empty$ -- 425
+format.name$ -- 45
+if$ -- 1041
+int.to.chr$ -- 0
+int.to.str$ -- 14
+missing$ -- 14
+newline$ -- 72
+num.names$ -- 26
+pop$ -- 44
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 144
+stack$ -- 0
+substring$ -- 295
+swap$ -- 104
+text.length$ -- 13
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 1
+while$ -- 38
+width$ -- 16
+write$ -- 165
+(There was 1 warning)

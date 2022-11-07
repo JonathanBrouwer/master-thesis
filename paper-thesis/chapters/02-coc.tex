@@ -1,0 +1,280 @@
+\chapter{Calculus of Constructions}
+\label{chap:baselang}
+
+In this section, we will describe how to implement a dependently typed language in Statix. In section \ref{sec:coc-syntax} we will describe the syntax of the language, then in section \ref{sec:coc-scopes} we will describe how scope graphs are used to type check the language. Section \ref{sec:coc-dynsyms} describes the dynamic semantics of the language, and finally \ref{sec:coc-typecheck} how to type check the language. The implementation of the language is available on GitHub.
+\url{https://github.com/JonathanBrouwer/master-thesis/}
+
+\section{The language}
+\label{sec:coc-syntax}
+
+The base language that has been implemented is the Calculus of Constructions \cite{Coquand_Huet_1988}, the language at the top of the lambda cube \cite{lambda_cube}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The abstract syntax of the language is available in figure \ref{fig:syntax}.
+
+\begin{figure}[h]
+\begin{lstlisting}
+Type        : Expr
+Let         : ID * Expr * Expr -> Expr
+Var         : ID -> Expr
+FnType      : ID * Expr * Expr -> Expr
+FnConstruct : ID * Expr * Expr -> Expr
+FnDestruct  : Expr * Expr -> Expr
+\end{lstlisting}
+\caption{The syntax for the base language. FnConstruct is a lambda function, FnDestruct is application of a lambda function.}
+\label{fig:syntax}
+\end{figure}
+
+An example program is the following, which defines a polymorphic identity function and applies it to a function:
+
+\begin{lstlisting}
+let f = \T: Type. \x: T. x;
+f (_: Type -> Type) (\x: Type. x)
+\end{lstlisting}
+The AST of this program in Aterm format\cite{aterm} would be:
+\begin{lstlisting}
+Let(
+  "f",
+  FnConstruct("T", Type(), FnConstruct("x", Var("T"), Var("x"))),
+  FnDestruct(
+	FnDestruct(Var("f"), FnConstruct("_", Type(), Type())),
+	FnConstruct("x", Type(), Var("x"))
+  )
+)
+\end{lstlisting}
+
+
+
+\section{Scope Graphs}
+\label{sec:coc-scopes}
+
+To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
+
+In Statix, all this information can be stored in a \emph{scope graph} \cite{scope_graphs}, which is a feature of Statix. It is a graph consisting of nodes for scopes, labeled edges for visibility relations, scoped declarations for a relation, and queries for references. We only use a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value.
+
+Next, we will introduce some Statix predicates that can be used to interact with these scope graphs:
+
+\begin{lstlisting}
+sPutType  : scope * ID * Expr -> scope
+sPutSubst : scope * ID * (scope * Expr) -> scope
+sGetName  : scope * ID -> NameEntry
+sGetNames : scope * ID -> list((path * (ID * NameEntry)))
+sEmpty    : -> scope
+\end{lstlisting}
+The \verb|sPutType| and \verb|sPutSubsts| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|sGetName| or \verb|sGetNames|, which will return a \verb|NameEntry| or a list of NameEntries respectively that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
+
+We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression.
+
+
+\section{Beta Reductions}
+\label{sec:coc-dynsyms}
+
+A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare.
+
+We implemented beta reduction using a Krivine abstract machine\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this over substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types; more information about this will be in the full master thesis. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
+
+In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names rather. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations, such as renaming.
+
+We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ to express \verb|betaReduceHead((s1, e1), t) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
+
+
+Additionally, we define \verb|betaReduce| which fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
+
+Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with placeholders.
+
+
+
+\begin{figure}[ht]
+	\begin{mathpar}
+		% Type rule
+		\inferrule{
+		} {
+			\bhr
+			{ \scope{s}{\co{Type}()} }
+			{ [] }
+			{ \scope{s}{\co{Type}()}}
+		}
+
+		% Let rule
+		\inferrule{
+			\bhr
+			{ \scope{ \co{sPutSubst}(s, n, (s, v))}{b} }
+			{ t }
+			{ \scope{ s' } { e' } }
+		}{
+			\bhr
+			{ \scope{ s }{ \co{Let}(n, v, b) } }
+			{ t }
+			{ \scope { s' } { e' } }
+		}
+
+		% Var rule - NSubst
+		\inferrule{
+			\co{sGetName}(s, n) = \co{NSubst}(se, e)
+			\\ \bhr
+			{\scope{se}{e}}
+			{t}
+			{\scope{se'}{e'}}
+		}{
+			\bhr
+			{\scope{s}{\co{Var}(n)}}
+			{t}
+			{\scope{se'}{e'}}
+		}
+
+		% Var rule - NType
+		\inferrule{
+			\co{sGetName}(s, n) = \co{NType}(t)
+		}{
+			\bhr
+			{\scope{s}{\co{Var}(n)}}
+			{t}
+			{\co{rebuild}(s, \co{Var}(n), t)}
+		}
+
+		% FnType rule
+		\inferrule{
+		} {
+			\bhr
+			{\scope{s}{\co{FnType}(n, a, b)}}
+			{[]}
+			{\scope{s}{\co{FnType}(n, a, b)}}
+		}
+
+		% FnConstruct rule - No args
+		\inferrule{
+		} { relation
+			\bhr
+			{\scope{s}{\co{FnConstruct}(n, a, b)}}
+			{[]}
+			{\scope{s}{\co{FnConstruct}(n, a, b)}}
+		}
+
+		% FnConstruct rule - Args
+		\inferrule{
+			\bhr
+			{\scope{\co{sPutSubst}(s, n, a)}{b}}
+			{ts}
+			{\scope{s'}{e'}}
+		} {
+			\bhr
+			{\scope{s}{\co{FnConstruct}(n, a, b)}}
+			{(t::ts)}
+			{\scope{s'}{e'}}
+		}
+
+		% FnDestruct rule
+		\inferrule{
+			\bhr
+			{\scope{s}{f}}
+			{(a::ts)}
+			{\scope{s'}{e'}}
+		} {
+			\bhr
+			{\scope{s}{\co{FnDestruct}(f, a)}}
+			{ts}
+			{\scope{s'}{e'}}
+		}
+	\end{mathpar}
+	\caption{Rules for beta head reducing the Calculus of Constructions}
+	\label{fig:beta-head-reduce-rules}
+\end{figure}
+
+\section{Type checking the Calculus of Constructions}
+\label{sec:coc-typecheck}
+
+We will define a Statix predicate \verb|typeOfExpr| that takes a scope and an expression and type checks the scope in the expression. It returns the type of the expression.
+
+\begin{lstlisting}
+typeOfExpr : scope * Expr -> Expr
+\end{lstlisting}
+We can then start defining type checking rules for the language. We introduce a number of judgements for typing and equality together with their counterparts in Statix.
+\begin{enumerate}
+	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|
+	\item $\beq{\scope{s1}{e1}}{\scope{s2}{e2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
+	\item $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ is the same as \verb|betaReduceHead((s1, e1)) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
+	\item $\bred{s1}{e1}{e2}$ is the same as \verb|betaReduce((s1, e1)) == e2|
+	\item $\scope{sEmpty}{e}$ is the same as $e$ (empty scopes can be left out)
+\end{enumerate}
+
+The inference rules above can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
+\begin{lstlisting}
+typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
+    typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
+\end{lstlisting}
+
+
+\begin{figure}[ht]
+	\begin{mathpar}
+		% Type rule
+		\inferrule{
+		} {
+			\toe{s}{\co{Type}()}{\co{Type}()}
+		}
+
+		% Let rule
+		\inferrule{
+			\toe{s}{v}{vt}
+			\\ \toe{\co{sPutSubst}(s, n, (s, v))}{b}{t}
+		}{
+			\toe{s}{\co{Let}(n, v, b)}{t}
+		}
+
+		\\
+
+		% Var rule - NType
+		\inferrule{
+			\co{sGetName}(s, n) = \co{NType}(t)
+		}{
+			\toe{s}{\co{Var}(n)}{t}
+		}
+
+		% Var rule - NSubst
+		\inferrule{
+			\co{sGetName}(s, n) = \co{NSubst}(se, e)
+			\\ \toe{se}{e}{t}
+		}{
+		 	\toe{s}{\co{Var}(n)}{t}
+		}
+
+		% FnType rule
+		\inferrule{
+			\toe{s}{a}{at}
+			\\ \beq{at}{\co{Type}()}
+			\\ \bred{s}{a}{a'}
+			\\\\  \toe{\co{sPutType}(s, n, a')}{b}{bt}
+			\\ \beq{bt}{\co{Type}()}
+		} {
+			\toe{s}{\co{FnType}(n, a, b)}{\co{Type}()}
+		}
+
+		% Force these to be on the same line, using negative spaces
+		\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
+
+
+		% FnConstruct rule
+		\inferrule{
+			\toe{s}{a}{at}
+			\\ \beq{at}{\co{Type}()}
+			\\ \bred{s}{a}{a'}
+			\\\\ \toe{\co{sPutType}(s, n, a')}{b}{bt}
+		} {
+			\toe{s}{\co{FnConstruct}(n, a, b)}{\co{FnType}(n, a', bt)}
+		}
+
+		% FnDestruct rule
+		\inferrule{
+			\toe{s}{f}{ft}
+			\\ \bhr
+				{\scope{s}{ft}}
+				{[]}
+				{\scope{s'}{\co{FnType}(da, dt, db)}}
+			\\\\ \toe{s}{a}{at}
+			\\ \beq{at}{\scope{sf}{dt}}
+			\\ \bred{s'}{db}{db'}
+		} {
+			\toe{s}{\co{FnDestruct}(f, a)}{db'}
+	 	}
+
+
+	\end{mathpar}
+	\caption{Rules for type checking the Calculus of Constructions}
+	\label{fig:type-check-rules}
+\end{figure}

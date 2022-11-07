@@ -1,0 +1,36 @@
+\documentclass[oneside,a4paper,11pt]{memoir}
+\usepackage[utf8]{inputenc}
+\usepackage[hidelinks]{hyperref}
+\usepackage{mathpartir}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{xcolor}
+
+\setlength{\oddsidemargin}{11pt}
+\setlength{\textwidth}{430pt}
+
+\definecolor[named]{oasicsGray}{rgb}{0.31,0.31,0.33}
+\definecolor[named]{oasicsBulletGray}{rgb}{0.60,0.60,0.61}
+\definecolor[named]{oasicsLineGray}{rgb}{0.51,0.50,0.52}
+\definecolor[named]{oasicsLightGray}{rgb}{0.85,0.85,0.86}
+\definecolor[named]{oasicsYellow}{rgb}{0.99,0.78,0.07}
+
+\lstset{basicstyle=\small\ttfamily,%
+	backgroundcolor=\color{oasicsLightGray},%
+	frame=single,framerule=0pt,xleftmargin=\fboxsep,xrightmargin=\fboxsep}
+
+\begin{document}
+	
+	
+\include{chapters/defs}
+\include{chapters/00-abstract}
+\include{chapters/01-introduction}
+\include{chapters/02-coc}
+\include{chapters/03-variable-capture}
+\include{chapters/98-relatedwork}
+\include{chapters/99-conclusion}
+
+\bibliographystyle{unsrt}
+\bibliography{bibliography}
+	
+\end{document}

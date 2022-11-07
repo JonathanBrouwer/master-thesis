@@ -13,9 +13,8 @@ rules
   	
   // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
   // They should just be flattened
-  typeOfExpr_(s, Infer(q)) = (Infer(e), Infer(t)) :-
-  	q == e,
-    typeOfExpr_(s, q) == (e, t).
+  typeOfExpr_(s, Infer(q)) = (Infer(q), t) :-
+    typeOfExpr_(s, q) == (_, t).
     
   betaReduceHead((s, e@Infer(_)), args) = kRebuild((s, e), args).
   
@@ -37,3 +36,6 @@ rules
   expectBetaEq_((s1, e1@BoolIf(c1, t1, b1)), (_, Infer(e2))) :- {c2 t2 b2}
   	e2 == BoolIf(Infer(c2), Infer(t2), Infer(b2)),
   	expectBetaEq_((s1, e1), (sEmpty(), e2)).
+  	
+  	
+  	

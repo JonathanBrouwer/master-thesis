@@ -4,11 +4,99 @@ In this chapter, we will add booleans, postulates and type asserts to the langua
 
 \section{Booleans}
 
-This section describes how to add Booleans to the language. We will add the type of booleans `Bool`, `true`, `false` and `if`, allowing for programs such as the following: 
+This section describes how to add Booleans to the language. We will add the type of booleans \verb|Bool|, \verb|true|, \verb|false| and \verb|if|. The \verb|if| expression is not dependent, it expects both branches to have the same type. An example of a program with booleans: 
 
 \begin{lstlisting}
 let and = \x: Bool. \y: Bool. if x then y else false end
 \end{lstlisting}
+The constructors for the language are:
 
-\section{Postulate and Type Assert}
+\begin{lstlisting}
+BoolType : Expr
+BoolFalse : Expr
+BoolTrue : Expr
+BoolIf : Expr * Expr * Expr -> Expr
+\end{lstlisting}
+Then, the rules for beta reducing the language are in figure \ref{fig:bool-rules-beta}. There is one particularly interesting case, that is how to beta-reduce if statements. Converting this rule to Statix is not entirely trivial, since you need to choose which rule to apply based on what \verb|c| evaluates to. A new rule is needed, which has 3 cases. One for if \verb|c| evaluates to true, one for if \verb|c| evaluates to false, and finally a third case for other cases (such as when \verb|c| is a variable that does not have a substitution). Remember that \verb|rebuild| is the rule introduced in chapter \ref{chap:baselang}, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s. These rules are stated below:
 
+\begin{lstlisting}
+betaReduceHead((s, BoolIf(c, b1, b2)), t) = 
+  betaReduceHeadIf(s, betaReduceHead((s, c), []), c, b1, b2, t).
+betaReduceHeadIf(s, (_, BoolTrue()), _, b1, _, t) = 
+  betaReduceHead((s, b1), t).
+betaReduceHeadIf(s, (_, BoolFalse()), _, _, b2, t) = 
+  betaReduceHead((s, b2), t).
+betaReduceHeadIf(s, _, c, b1, b2, t) = 
+  rebuild((s, BoolIf(c, b1, b2)), t).
+\end{lstlisting}
+
+\begin{figure}[ht]
+	\begin{mathpar}
+		\inferrule{
+		} {
+			\bhr
+			{ \scope{s}{\co{BoolTrue}()} }
+			{ [] }
+			{ \scope{s}{\co{BoolTrue}()}}
+		}
+	
+		\inferrule{
+		} {
+			\bhr
+			{ \scope{s}{\co{BoolFalse}()} }
+			{ [] }
+			{ \scope{s}{\co{BoolFalse}()}}
+		}
+	
+		\inferrule{
+		} {
+			\bhr
+			{ \scope{s}{\co{BoolType}()} }
+			{ [] }
+			{ \scope{s}{\co{BoolType}()}}
+		}
+	
+		\inferrule{
+			\bhr
+			{ \scope{s}{c} }
+			{ [] }
+			{ \scope{s'}{BoolTrue()} }
+			\\\bhr
+			{ \scope{s}{b1} }
+			{ t }
+			{ \scope{s''}{b1'} }
+		} {
+			\bhr
+			{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
+			{ t }
+			{ \scope{s}{b1'}}
+		}
+	
+		\inferrule{
+			\bhr
+			{ \scope{s}{c} }
+			{ [] }
+			{ \scope{s'}{BoolFalse()} }
+			\\\bhr
+			{ \scope{s}{b2} }
+			{ t }
+			{ \scope{s''}{b2'} }
+		} {
+			\bhr
+			{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
+			{ t }
+			{ \scope{s}{b2'}}
+		}
+	\end{mathpar}
+	\caption{Rules for beta head reducing booleans}
+	\label{fig:bool-rules-beta}
+\end{figure}
+
+
+\section{Postulate}
+
+Next we will add \verb|Postulate| to the language.
+
+\section{Type Assert}
+
+Finally, we will add \verb|TypeAssert| to the language.

@@ -11,7 +11,7 @@ Inference
 
 Instead, we implement a strategy that I would like to call greedy inference (TODO: does this have a name?). 
 
-\section{In statix}
+\section{Using Statix's first-order unification for inference}
 
 First, we introduce a new constructor, \verb|Infer : Expr -> Expr|. This will be used to store metavariables which we want to infer. This is a hack we use, ideally we would like to query statix to see if a metavariable is initialized, but as discussed in section \ref{general-inference} this is not possible. 
 

@@ -245,7 +245,7 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		
 		% FnConstruct rule - No args
 		\inferrule{ 
-		} { relation
+		} { 
 			\bhr
 			{\scope{s}{\co{FnConstruct}(n, a, b)}}
 			{[]}
@@ -255,7 +255,7 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		% FnConstruct rule - Args
 		\inferrule{ 
 			\bhr
-			{\scope{\co{sPutSubst}(s, n, a)}{b}}
+			{\scope{\co{sPutSubst}(s, n, t)}{b}}
 			{ts}
 			{\scope{s'}{e'}} 
 		} { 

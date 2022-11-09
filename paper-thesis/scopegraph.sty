@@ -1,0 +1,249 @@
+%% Package imports
+\usepackage{suffix}
+\usepackage{relsize}
+\usepackage{dsfont}
+
+\usepackage{tikz}
+\usetikzlibrary{bending,arrows,arrows.meta,shapes,positioning,fit}%
+
+%%%%%%%%%%%%%
+%% Calulus %%
+%%%%%%%%%%%%%
+
+\newcommand{\SG}{\mathcal{G}}
+\newcommand{\SGS}{\mathit{Graphs}}
+\newcommand{\LABEL}{\mathcal{L}}
+\newcommand{\EXLABEL}{\hat{\LABEL}}
+\newcommand{\CSYMBOL}{\mathcal{C}}
+\newcommand{\RSYMBOL}{\mathcal{R}}
+\newcommand{\TSYMBOL}{\mathcal{F}}
+\newcommand{\SCOPES}{\mathcal{S}}
+\newcommand{\DATATERMS}{\mathcal{D}}
+\newcommand{\EDGES}{\mathit{Edges}}
+\newcommand{\DATUMS}{\mathit{Data}}
+\newcommand{\PATHS}{\mathcal{P}}
+
+\newcommand{\PATHOK}{\; \textsc{ok}}
+\newcommand{\WFL}{\mathit{WFL}}
+\newcommand{\WFD}{\mathit{WFD}}
+\newcommand{\WFDTOP}{\WFD_{\top}}
+\newcommand{\WFDECL}{\mathit{DECL}}
+
+\newcommand{\ns}{\mathit{ns}}
+\newcommand{\st}{\mathit{st}}
+\newcommand{\exl}{\hat{l}}
+
+\newcommand{\RE}{\mathcal{E}}
+\newcommand{\ORD}{\mathcal{O}}
+\newcommand{\WF}{\text{WF}} % well-formedness predicate ( = RE + match)
+\newcommand{\wf}{\textit{wf}}
+\newcommand{\pathMatch}{\mathfun{match}_p}
+\newcommand{\datumMatch}{\mathfun{match}_d}
+
+\newcommand{\accepting}{\mathfun{accepting}}
+\newcommand{\final}{\mathfun{final}}
+
+\newcommand{\reaches}[1][]{\xreaches{#1}}
+\newcommand{\stepsto}{\rightarrow}
+\WithSuffix\newcommand\stepsto*{\twoheadrightarrow}
+\newcommand{\resolvesto}[1][]{\xresolvesto{#1}}
+\let\sees\resolvesto
+
+\makeatletter
+%% arrows inspired by https://tex.stackexchange.com/a/9926
+
+\newbox\xreaches@label
+\newcommand{\xreaches}[1]{%
+  \setbox\xreaches@label=\hbox{\ensuremath{\scriptscriptstyle #1}}%
+  \pgfmathsetlengthmacro{\xreaches@len}{\wd\xreaches@label+0.75em}%
+  \mathrel{\tikz [baseline=-.55ex]
+                 \draw[{>[scale=.7]}-{Straight Barb[scale=.7]}] (0,0) -- node[above=-2pt] {\box\xreaches@label}
+                       (\xreaches@len,0);}}
+
+\newbox\xresolvesto@label
+\newcommand{\xresolvesto}[1]{%
+  \setbox\xresolvesto@label=\hbox{\ensuremath{\scriptscriptstyle #1}}%
+  \pgfmathsetlengthmacro{\xresolvesto@len}{\wd\xresolvesto@label+0.75em}%
+  \mathrel{\tikz [baseline=-.55ex]
+                 \draw[{|[scale=.7]}-{Straight Barb[scale=.7]}] (0,0) -- node[above=-2pt] {\box\xresolvesto@label}
+                       (\xresolvesto@len,0);}}
+
+\makeatother
+
+%% Calculus
+
+\newcommand{\pathend}[1]{#1}
+\newcommand{\snoc}[1]{{\cdot} #1 {\cdot}}
+\newcommand{\extends}{\sqsupseteq}
+\newcommand{\extendedby}{\sqsubseteq}
+\newcommand{\complete}[2]{\downarrow^{#1}_{#2}}
+\newcommand{\incomplete}[2]{{#1} \uparrow {#2}}
+
+%% Algorithm
+
+\newcommand{\Res}{\textsc{Res}}
+\newcommand{\ES}{\textsc{ES}}
+\newcommand{\NS}{\textsc{NS}}
+
+\newcommand{\shadows}{\vartriangleleft}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Graphical Representation %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\makeatletter
+
+\newcommand{\fontsizeg}{}
+
+%% Shapes
+
+\newcommand{\sg@occnodeshape}{draw,shape=rectangle}
+\newcommand{\sg@scopenodeshape}{draw,shape=circle}
+\newcommand{\sg@varscopenodeshape}{draw,dashed,shape=circle}
+\newcommand{\sg@termnodeshape}{draw,shape=rectangle}
+\newcommand{\sg@typenodeshape}{draw,shape=rectangle}
+\newcommand{\sg@directedgeshape}{-{Triangle[length=.5em,angle'=45]}}
+\newcommand{\sg@namededgeshape}{-{Triangle[length=.5em,angle'=45,open]}}
+\newcommand{\sg@typeedgeshape}{-{Square[length=.35em]}}
+\newcommand{\sg@termedgeshape}{-{To[length=.35em,angle'=45,flex']}}
+\newcommand{\sg@resstepshape}{dashed,-{To[length=.5em,angle'=45]}}
+
+%% Inline math commands
+
+\newcommand{\sg@tarrow@impl}[2]{%
+  \mathrel{\tikz[baseline=-0.55ex,%
+                 thelabel/.style={inner sep=0,pos=.35,text depth=.7em},
+                 ]{%
+    \draw[line width=.7pt,#1] (0,0) to node[thelabel] {\scalebox{0.6}{$#2$}} (1.5em,0);
+  }}%
+}
+\newcommand{\sg@tarrow}[2]{\begingroup\edef\sg@temp{\endgroup\noexpand\sg@tarrow@impl{#1}{\noexpand#2}}\sg@temp}
+
+\newcommand{\sg@tshortarrow@impl}[2]{%
+  \mathrel{\tikz[baseline=-0.55ex,%
+                 thelabel/.style={inner sep=0,pos=.35,text depth=.7em},
+                 ]{%
+    \draw[line width=.7pt,#1] (0,0) to node[thelabel] {\scalebox{0.6}{$#2$}} (1em,0);
+  }}%
+}
+\newcommand{\sg@tshortarrow}[2]{\begingroup\edef\sg@temp{\endgroup\noexpand\sg@tshortarrow@impl{#1}{\noexpand#2}}\sg@temp}
+
+\newcommand{\lblt}[1]{\textsf{#1}}
+\newcommand{\reflblt}{\lblt{R}}
+\newcommand{\decllblt}{\lblt{D}}
+\newcommand{\scopelblt}{\lblt{S}}
+\newcommand{\eoplblt}{\lblt{\$}}
+
+\newcommand{\refedget}{\sg@tshortarrow{\sg@directedgeshape}{}}
+\newcommand{\decledget}{\sg@tshortarrow{\sg@directedgeshape}{}}
+\newcommand{\scopeedget}[1][]{\sg@tarrow{\sg@directedgeshape}{#1}}
+\newcommand{\importedget}[1][]{\sg@tarrow{\sg@namededgeshape}{#1}}
+\newcommand{\assocedget}[1][]{\sg@tarrow{\sg@namededgeshape}{#1}}
+\newcommand{\exportedget}[1][]{\sg@tarrow{\sg@namededgeshape}{#1}}
+\newcommand{\reledget}[1][]{\sg@tarrow{\sg@typeedgeshape}{#1}}
+\let\typeedget\reledget
+\newcommand{\termedget}[1][]{\sg@tarrow{\sg@termedgeshape}{#1}}
+
+\newcommand{\occt}[2]{{#1}\pos{#2}}
+\newcommand{\xocct}[2]{\id{#1}\pos{#2}}
+\newcommand{\scopet}[1]{\##1}
+
+%% Inline graphical commands
+
+\newcommand{\sg@garrow@impl}[3][1.5em]{%
+  \tikz[baseline=-0.55ex,
+        font={\fontsizeg\sffamily},
+        thelabel/.style={inner sep=0,pos=.35,text depth=.7em},
+       ]{
+    \draw[line width=.7pt,#2] (0,0) to node[thelabel] {\scalebox{0.6}{#3}} (#1,0);
+  }%
+}
+\newcommand{\sg@garrow}[2]{\begingroup\edef\sg@temp{\endgroup\noexpand\sg@garrow@impl{#1}{\noexpand#2}}\sg@temp}
+
+\newcommand{\refedgeg}{\sg@garrow{\sg@directedgeshape}{}}
+\newcommand{\decledgeg}{\sg@garrow{\sg@directedgeshape}{}}
+\newcommand{\scopeedgeg}[1][]{\sg@garrow{\sg@directedgeshape}{#1}}
+\newcommand{\importedgeg}[1][]{\sg@garrow{\sg@namededgeshape}{#1}}
+\newcommand{\assocedgeg}[1][]{\sg@garrow{\sg@namededgeshape}{#1}}
+\newcommand{\resedgeg}[1][]{\sg@garrow{\sg@resstepshape}{#1}}
+\newcommand{\typeedgeg}[1][]{\sg@garrow{\sg@typeedgeshape}{#1}}
+\newcommand{\termedgeg}[1][]{\sg@garrow{\sg@termedgeshape}{#1}}
+
+\newcommand{\sg@node@impl}[2]{%
+  \tikz[baseline=-0.55ex,
+        font=\fontsizeg,
+        thenode/.style = {minimum width=1.3em, minimum height=1.3em,
+                          inner xsep=.1em, inner ysep=0, outer sep=0,
+                          text depth=0, text height=.5em},
+       ]{
+    \node[thenode,#1] (enclosing) {\smash{$#2$}};
+  }%
+}
+\newcommand{\sg@node}[2]{\begingroup\edef\sg@temp{\endgroup\noexpand\sg@node@impl{#1}{\noexpand#2}}\sg@temp}
+
+%% duplicated because expansion messed up of \occg{\id{x}}{i} with regular \sg@node@impl
+\newcommand{\sg@occnode@impl}[4]{%
+  \tikz[baseline=-0.55ex,
+        font=\fontsizeg,
+        thenode/.style = {minimum width=1.3em, minimum height=1.3em,
+                          inner xsep=.1em, inner ysep=0, outer sep=0,
+                          text depth=0, text height=.5em},
+       ]{
+    \node[thenode,#1] (enclosing) {\smash{$\occt[#2]{#3}{#4}$}};
+  }%
+}
+\newcommand{\sg@occnode}[4]{\begingroup\edef\sg@temp{\endgroup\noexpand\sg@occnode@impl{#1}{\noexpand#2}{\noexpand#3}{\noexpand#4}}\sg@temp}
+
+
+\newcommand{\occg}[3][]{\sg@occnode{\sg@occnodeshape}{#1}{#2}{#3}}
+\newcommand{\xoccg}[3][]{\occg[#1]{\id{#2}}{\pos{#3}}}
+\let\refg\occg
+\let\declg\occg
+\newcommand{\scopeg}[1]{\sg@node{\sg@scopenodeshape}{#1}}
+\newcommand{\varscopeg}[1]{\sg@node{\sg@varscopenodeshape}{#1}}
+\newcommand{\typeg}[1]{\sg@node{\sg@typenodeshape}{{\noexpand#1}}}
+\newcommand{\termg}[1]{\sg@node{\sg@termnodeshape}{{#1}}}
+
+\newcommand*\circled[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=2pt] (char) {#1};}}
+
+\makeatother
+
+
+%% Tikz styles
+
+\tikzset{%
+  scopegraph/.style = {%
+    node distance = 3em and 3em,
+    %% node styles
+    every node/.style = {draw, minimum size=1.5em},
+    scope/.style = {shape=circle},
+    var/.style = {dashed},
+    varscope/.style = {scope, dashed},
+    occurrence/.style = {shape=rectangle},
+    decl/.style = {occurrence},
+    ref/.style = {occurrence, dashed},
+    type/.style = {shape=rectangle},
+    stype/.style = {shape=rectangle, rounded corners},
+    superscript label/.style = {},%
+    superscript/.style={label={[superscript label,minimum size=0,inner sep=.2ex]45:{\smaller[2]\textit{##1}}}},%
+    %% arrow styles
+    direct arrow/.style = {-{Triangle[length=.5em,angle'=60,flex']}},
+    decl arrow/.style = {-{Triangle[length=.5em,angle'=60,flex']}},
+    ref arrow/.style = {-{Triangle[length=.5em,angle'=60,flex']}},
+    named arrow/.style = {-{Triangle[length=.5em,angle'=60,open,flex']}},
+    importref arrow/.style = {{Triangle[length=.5em,angle'=60,flex']}-{Triangle[length=.5em,angle'=60,open,flex']}},
+    resolve arrow/.style = {-{To[length=.5em,angle'=60,flex']}},
+    type arrow/.style = {-{Square[length=.35em,flex']}},
+    term arrow/.style = {-{To[length=.35em,angle'=45,flex']}},
+    %% edge styles
+    every edge/.style = {draw, direct arrow},
+    import/.style = {named arrow},
+    export/.style = {named arrow},
+    type/.style = {type arrow},
+    term/.style = {term arrow},
+    importref/.style = {importref arrow},%
+    resolve/.style = {dashed, resolve arrow, shorten <= .2em, shorten >= .2em},%
+    lbl/.style = {edge node = {node[draw=none,fill=white,minimum size=0,inner sep=.2ex, pos=.45] {\smaller[2]\textsf{##1}}}},%
+  },%
+}

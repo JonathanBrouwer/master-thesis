@@ -2,7 +2,7 @@
 \label{chap:baselang}
 
 In this section, we will describe how to implement a dependently typed language in Statix. In section \ref{sec:coc-syntax} we will describe the syntax of the language, then in section \ref{sec:coc-scopes} we will describe how scope graphs are used to type check the language. Section \ref{sec:coc-dynsyms} describes the dynamic semantics of the language, and finally \ref{sec:coc-typecheck} how to type check the language. The implementation of the language is available on GitHub.
-\url{https://github.com/JonathanBrouwer/master-thesis/}
+\url{https://github.com/JonathanBrouwer/master-thesis/} in the "lody" folder.
 
 \section{The language}
 \label{sec:coc-syntax}
@@ -268,7 +268,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 				{\scope{s'}{\co{FnType}(da, dt, db)}}
 			\\\\ \toe{s}{a}{at}
 			\\ \beq{at}{\scope{sf}{dt}}
-			\\ \bred{s'}{db}{db'}
+			\\ \bred{\co{sPutSubst}(s', n, (s, arg))}{db}{db'}
 		} {
 			\toe{s}{\co{FnDestruct}(f, a)}{db'}
 	 	}

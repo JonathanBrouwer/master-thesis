@@ -24,6 +24,8 @@ source-repository head
   location: https://github.com/githubuser/haskell-coc
 
 library
+  exposed-modules:
+      Lib
   other-modules:
       Paths_haskell_coc
   hs-source-dirs:
@@ -56,4 +58,5 @@ test-suite haskell-coc-test
   build-depends:
       base >=4.7 && <5
     , haskell-coc
+    , hspec
   default-language: Haskell2010

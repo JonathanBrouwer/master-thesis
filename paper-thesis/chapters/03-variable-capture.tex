@@ -4,7 +4,7 @@
 
 TODO Add reference to types and programming languages
 
-The implementation of the base language shown in chapter \ref{chap:baselang} has one big problem, that is name collisions. This section will explore several ways of solving these collisions. An example of such a collision is the following: What is the type of this expression (a polymorphic identity function)?
+The implementation of the base language shown in chapter \ref{chap:baselang} has one big problem, that is variable capture. This section will explore several ways of solving this. An example is the following: What is the type of this expression (a polymorphic identity function)?
 \begin{lstlisting}
 \T : Type. \T : T. T
 \end{lstlisting}
@@ -16,31 +16,42 @@ The algorithm so far would tell you it is \verb|T : Type -> T : T -> T|. Given t
 In this section, we will step through the steps that happen during the type checking of the term above, to explain why the incorrect type signature is returned. To find the type, the following is evaluated:
 
 \begin{lstlisting}
-typeOfExpr(_, FnConstruct("T", Type(), FnConstruct("T", Var("T"), Var("T"))))
+typeOfExpr(_, FnConstruct("T", Type(), 
+    FnConstruct("T", Var("T"), Var("T")))
+)
 \end{lstlisting}
 
 \noindent
-This creates a new node in the scope graph, and then type checks the body with this scope.
+This first handles the outer \verb|FnConstruct|, it creates a new node in the scope graph, and then type checks the body with this scope.
 
 \begin{lstlisting}
 typeOfExpr(s1, FnConstruct("T", Var("T"), Var("T")))
-
-(T : Type)
-   [s1]
 \end{lstlisting}
-TODO Latex library for scope graphs
+\begin{tikzpicture}[scopegraph, node distance = 2.5em and 3.0em]
+\node[scope] (s1) {$s1$};
+\node[type, above of = s1] (s1l) {$\texttt{T : Type()}$};
+\draw (s1) edge[type] (s1l);
+\end{tikzpicture}
 
 \noindent
-The same thing happens, the body of the \verb|FnConstruct| is typechecked with a new scope. Note that the T in the type of the second T is ambiguous.
+The same thing happens, the body of the \verb|FnConstruct| is typechecked with a new scope. Note that \verb|Var("T")| in the type of the second \verb|T| is ambiguous, does it refer to the first or second node?
 
 \begin{lstlisting}
 typeOfExpr(s2, Var("T"))
-
-(T : Type)      (T : Var("T"))
-	[s1]<-----------[s2]
 \end{lstlisting}
+\begin{tikzpicture}[scopegraph, node distance = 2.5em and 2.5em]
+	\node[scope] (s1) {$s1$};
+	\node[type, above of = s1] (s1l) {$\texttt{T : Type()}$};
+	\draw (s1) edge[type] (s1l);
+	
+	\node[scope, right of = s1, xshift=5em] (s2) {$s2$};
+	\node[type, above of = s2] (s2l) {$\texttt{T : Var("T")}$};
+	\draw (s2) edge[type] (s2l);
+	
+	\draw (s2) edge[] (s1);
+\end{tikzpicture}
 
-Finally, we need to find the type of \verb|T|. This finds the lexically closest definition of \verb|T| (the one in s2), which is correct. But the type of \verb|T| is \verb|T|, which does NOT refer to the lexically closest \verb|T|, but instead to the \verb|T| in s1. This situation, in which a type can contain a reference to a variable that is shadowed, is the problem. We need to find a way to make sure that shadowing like this can never happen.
+Finally, we need to find the type of \verb|Var("T")|. This finds the lexically closest definition of \verb|T| (the one in s2), which is correct. But the type of \verb|T| is \verb|T|, which does NOT refer to the lexically closest \verb|T|, but instead to the \verb|T| in s1. This situation, in which a type can contain a reference to a variable that is shadowed, is the problem. We need to find a way to make sure that shadowing like this can never happen.
 
 \section{Alternative Solutions}
 

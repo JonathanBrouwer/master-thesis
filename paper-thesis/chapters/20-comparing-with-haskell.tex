@@ -1,1 +1,45 @@
-\chapter{A comparison with Haskell}
+\chapter{A comparison with conventional implementations}
+\label{ch:comp-haskell}
+
+In this chapter, we implement the language defined in chapter \ref{chap:baselang} in Haskell, and then compare the implementation with the implementation in Statix. We want the design of the implementation in Haskell to be similar to conventional implementations of dependently typed languages, so we can compare the Statix implementation with them.
+
+\section{Defining the AST}
+To implement the calculus of constructions in Haskell, we first define the \verb|Expr| datatype. We chose to define the language using De Bruijn indices, since this is the convention when implementing dependently typed languages, and the goal of this implementation in Haskell is to compare the Statix implementation with conventional ones. 
+\begin{lstlisting}
+data Expr =
+	Type
+	| Let Expr Expr
+	| Var Int
+	| FnType Expr Expr
+	| FnConstruct Expr Expr
+	| FnDestruct Expr Expr
+\end{lstlisting}
+
+\section{Defining environments}
+
+Next, we need to decide how we want to store the environment. We still need to store both function arguments and substitutions, which we called \verb|NType| and \verb|NSubst| in chapter \ref{chap:baselang}. We will use the same names, and store the environment as a list, with the head of the list representing De Bruijn index 0. Finally, we define the type of a scoped expression \verb|SExpr|, as a tuple of an environment and an expression.
+\begin{lstlisting}
+data EnvEntry = NType Expr | NSubst SExpr
+type Env = [EnvEntry]
+type SExpr = (Env, Expr)
+\end{lstlisting}
+
+The way these environments are defined is isomorphic to the way we defined the way we use scope graphs in section \ref{sec:coc-scopes}. Nodes in the scope graph have at most one parent, and each node stores one entry, which is exactly the structure of a list. For example, the following scope graph and list have the same meaning:
+
+\begin{lstlisting}
+[NType(Var(0)), NType(Type())]
+\end{lstlisting}
+\begin{tikzpicture}[scopegraph, node distance = 2.5em and 2.5em]
+	\node[scope] (s1) {$s1$};
+	\node[type, above of = s1] (s1l) {$\texttt{T : Type()}$};
+	\draw (s1) edge[type] (s1l);
+	
+	\node[scope, right of = s1, xshift=5em] (s2) {$s2$};
+	\node[type, above of = s2] (s2l) {$\texttt{x : Var("T")}$};
+	\draw (s2) edge[type] (s2l);
+	
+	\draw (s2) edge[] (s1);
+\end{tikzpicture}
+
+\section{Defining beta reduction}
+

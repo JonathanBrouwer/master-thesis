@@ -17,7 +17,7 @@ BoolFalse : Expr
 BoolTrue : Expr
 BoolIf : Expr * Expr * Expr -> Expr
 \end{lstlisting}
-Then, the rules for beta reducing the language are in figure \ref{fig:bool-rules-beta}. There is one particularly interesting case, that is how to beta-reduce if statements. Converting this rule to Statix is not entirely trivial, since you need to choose which rule to apply based on what \verb|c| evaluates to. A new rule is needed, which has 3 cases. One for if \verb|c| evaluates to true, one for if \verb|c| evaluates to false, and finally a third case for other cases (such as when \verb|c| is a variable that does not have a substitution). Remember that \verb|rebuild| is the rule introduced in chapter \ref{chap:baselang}, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s. These rules are stated below:
+Then, the rules for beta reducing the language are in figure \ref{fig:bool-rules-beta}. There is one particularly interesting case, that is how to beta-reduce if statements. Converting this rule to Statix is not entirely trivial, since you need to choose which rule to apply based on what \verb|c| evaluates to. A new rule is needed, which has 3 cases. One for if \verb|c| evaluates to true, one for if \verb|c| evaluates to false, and finally a third case for other cases (such as when \verb|c| is a variable that does not have a substitution). These rules are stated below: (Remember that \verb|rebuild| is the rule introduced in chapter \ref{chap:baselang}, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s)
 
 \begin{lstlisting}
 betaReduceHead((s, BoolIf(c, b1, b2)), t) = 
@@ -31,71 +31,104 @@ betaReduceHeadIf(s, _, c, b1, b2, t) =
 \end{lstlisting}
 
 \begin{figure}[ht]
-	\begin{mathpar}
-		\inferrule{
-		} {
-			\bhr
-			{ \scope{s}{\co{BoolTrue}()} }
-			{ [] }
-			{ \scope{s}{\co{BoolTrue}()}}
-		}
-	
-		\inferrule{
-		} {
-			\bhr
-			{ \scope{s}{\co{BoolFalse}()} }
-			{ [] }
-			{ \scope{s}{\co{BoolFalse}()}}
-		}
-	
-		\inferrule{
-		} {
-			\bhr
-			{ \scope{s}{\co{BoolType}()} }
-			{ [] }
-			{ \scope{s}{\co{BoolType}()}}
-		}
-	
-		\inferrule{
-			\bhr
-			{ \scope{s}{c} }
-			{ [] }
-			{ \scope{s'}{BoolTrue()} }
-			\\\bhr
-			{ \scope{s}{b1} }
-			{ t }
-			{ \scope{s''}{b1'} }
-		} {
-			\bhr
-			{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
-			{ t }
-			{ \scope{s}{b1'}}
-		}
-	
-		\inferrule{
-			\bhr
-			{ \scope{s}{c} }
-			{ [] }
-			{ \scope{s'}{BoolFalse()} }
-			\\\bhr
-			{ \scope{s}{b2} }
-			{ t }
-			{ \scope{s''}{b2'} }
-		} {
-			\bhr
-			{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
-			{ t }
-			{ \scope{s}{b2'}}
-		}
-	\end{mathpar}
-	\caption{Rules for beta head reducing booleans}
-	\label{fig:bool-rules-beta}
+\begin{mathpar}
+	\inferrule{
+	} {
+		\bhr
+		{ \scope{s}{\co{BoolTrue}()} }
+		{ [] }
+		{ \scope{s}{\co{BoolTrue}()}}
+	}
+
+	\inferrule{
+	} {
+		\bhr
+		{ \scope{s}{\co{BoolFalse}()} }
+		{ [] }
+		{ \scope{s}{\co{BoolFalse}()}}
+	}
+
+	\inferrule{
+	} {
+		\bhr
+		{ \scope{s}{\co{BoolType}()} }
+		{ [] }
+		{ \scope{s}{\co{BoolType}()}}
+	}
+
+	\inferrule{
+		\bhr
+		{ \scope{s}{c} }
+		{ [] }
+		{ \scope{s'}{BoolTrue()} }
+		\\\bhr
+		{ \scope{s}{b1} }
+		{ t }
+		{ \scope{s''}{b1'} }
+	} {
+		\bhr
+		{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
+		{ t }
+		{ \scope{s}{b1'}}
+	}
+
+	\inferrule{
+		\bhr
+		{ \scope{s}{c} }
+		{ [] }
+		{ \scope{s'}{BoolFalse()} }
+		\\\bhr
+		{ \scope{s}{b2} }
+		{ t }
+		{ \scope{s''}{b2'} }
+	} {
+		\bhr
+		{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
+		{ t }
+		{ \scope{s}{b2'}}
+	}
+\end{mathpar}
+\caption{Rules for beta head reducing booleans}
+\label{fig:bool-rules-beta}
 \end{figure}
 
+Next, the rules for type-checking booleans are in figure \ref{fig:bool-rules-typecheck}, which are relatively simple. The if expression checks that both branches have the same type, as it is a non-dependent if statement.
+
+\begin{figure}[ht]
+\begin{mathpar}
+	\inferrule{
+	} {
+		\toe{s}{BoolType()}{Type()}
+	}
+
+	\inferrule{
+	} {
+		\toe{s}{BoolTrue()}{BoolType()}
+	}
+
+	\inferrule{
+	} {
+		\toe{s}{BoolFalse()}{BoolType()}
+	}
+
+	\inferrule{
+		\toe{s}{c}{ct}
+		\\\beq{ct}{BoolType()}
+		\\\\
+		\\\toe{s}{b1}{tb1}
+		\\\toe{s}{b2}{tb2}
+		\\\beq{tb1}{tb2}
+	} {
+		\toe{s}{BoolIf(c, b1, b2)}{tb1}
+	}
+\end{mathpar}
+\caption{Rules for type checking booleans}
+\label{fig:bool-rules-typecheck}
+\end{figure}
 
 \section{Postulate}
 
-Next we will add \verb|Postulate| to the language.
+Next we will add \verb|Postulate| to the language. 
 
 \section{Type Assert}
 

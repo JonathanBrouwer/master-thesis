@@ -102,3 +102,10 @@ let f = _ : (_: Type -> Type);
 \g: (_: (f x) -> Bool).
 g true
 ]] >=1 errors
+
+
+test infer true [[
+postulate f: _: Bool -> Type;
+postulate g: _: f true -> Type;
+\x: f _. g x
+]] 0 errors

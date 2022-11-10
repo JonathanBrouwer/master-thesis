@@ -1,19 +1,26 @@
-\chapter{Inference}
+\chapter{Term Inference}
 
-\section{Background: What is inference?}
+Inference is an important feature of dependent programming languages, that allows redundant parts of programs to be left out. For example, it allows you to infer the arguments of a function, if they can be inferred by the arguments that follow, like here where the type of the argument can be inferred, since we pass it \verb|true| which is a boolean:
+\begin{lstlisting}
+let id = (\T : Type. \x: T. x);
+id _ true
+\end{lstlisting}
 
-Inference 
+We call it \emph{term inference} rather than \emph{type inference}, because we can infer values other than types. For example, it can infer that the \verb|_| in this example must be \verb|true|:
+\begin{lstlisting}
+postulate f: Bool -> Type;
+postulate g: f true -> Type;
+\x: f _. g x
+\end{lstlisting}
 
-\section{General inference in Statix}
-\label{general-inference}
+\section{Different sorts of inference}
+\label{strength-inference}
 
-\section{Greedy inference}
-
-Instead, we implement a strategy that I would like to call greedy inference (TODO: does this have a name?). 
+The strength of an inference algorithm is how good it is at inferring. Some algorithms are better than others. \cite{typeinference}
 
 \section{Using Statix's first-order unification for inference}
 
-First, we introduce a new constructor, \verb|Infer : Expr -> Expr|. This will be used to store metavariables which we want to infer. This is a hack we use, ideally we would like to query statix to see if a metavariable is initialized, but as discussed in section \ref{general-inference} this is not possible. 
+First, we introduce a new constructor, \verb|Infer : Expr -> Expr|. This will be used to store metavariables which we want to infer. This is a hack we use, ideally we would like to query statix to see if a metavariable is initialized, but as discussed in section \ref{strength-inference} this is not possible. 
 
 The constructor is introduced when we encounter a \verb|_| variable, a sign that something needs to be inferred. When type-checking this, we create an infer constructor. The constraint at the bottom cannot be solved immediately, since the \verb|q| variable is unbound, but if \verb|q| is bound later the constraint will be evaluated.
 
@@ -47,5 +54,3 @@ Finally, there is a case for if we encounter two \verb|Infer|s. Ideally, we woul
 expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
     e1 == e2.
 \end{lstlisting}
-
-\section{Analysis: How well does it work?}

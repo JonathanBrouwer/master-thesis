@@ -27,7 +27,7 @@ type SExpr = (Env, Expr)
 The way these environments are defined is isomorphic to the way we defined the way we use scope graphs in section \ref{sec:coc-scopes}. Nodes in the scope graph have at most one parent, and each node stores one entry, which is exactly the structure of a list. For example, the following scope graph and list have the same meaning:
 
 \begin{lstlisting}
-[NType(Var(0)), NType(Type())]
+NType(Var(0)) :: NType(Type()) :: Nil
 \end{lstlisting}
 \begin{tikzpicture}[scopegraph, node distance = 2.5em and 2.5em]
 	\node[scope] (s1) {$s1$};
@@ -41,5 +41,14 @@ The way these environments are defined is isomorphic to the way we defined the w
 	\draw (s2) edge[] (s1);
 \end{tikzpicture}
 
+The nodes in scope graphs may have multiple children, but we never query the children of a node. We only follow the edges, we don't go in the opposite direction. Similarly, part of a list may be shared, but this is fine in Haskell, since values are immutable. 
+
 \section{Defining beta reduction}
+
+Now we want to define beta head reduction. Remember that in Statix, beta head reduction is a relation with the signature
+\begin{lstlisting}
+betaReduceHead : 
+	(scope * Expr) * list((scope * Expr)) -> (scope * Expr)
+\end{lstlisting}
+
 

@@ -1,4 +1,4 @@
-module Lib (Expr (..), Env, SExpr, tc) where
+module Lib (Expr (..), Env, EnvEntry (..), SExpr, tc, brh) where
 
 import Data.Maybe (fromMaybe)
 
@@ -17,7 +17,7 @@ type SExpr = (Env, Expr)
 type Env = [EnvEntry]
 
 data EnvEntry = NType Expr | NSubst SExpr
-  deriving Show
+  deriving (Show, Eq)
 
 sPutSubst :: Env -> SExpr -> Env
 sPutSubst env v = NSubst v : env

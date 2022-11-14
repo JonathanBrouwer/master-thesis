@@ -1,0 +1,15 @@
+\addvspace {10pt}
+\addvspace {10pt}
+\contentsline {figure}{\numberline {2.1}{\ignorespaces The syntax for the base language. FnConstruct is a lambda function, FnDestruct is application of a lambda function.}}{4}{figure.2.1}%
+\contentsline {figure}{\numberline {2.2}{\ignorespaces Rules for beta head reducing the Calculus of Constructions}}{7}{figure.2.2}%
+\contentsline {figure}{\numberline {2.3}{\ignorespaces Rules for type checking the Calculus of Constructions}}{8}{figure.2.3}%
+\addvspace {10pt}
+\addvspace {10pt}
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Rules for beta head reducing booleans}}{14}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Rules for type checking booleans}}{14}{figure.4.2}%
+\addvspace {10pt}
+\addvspace {10pt}
+\addvspace {10pt}
+\addvspace {10pt}
+\addvspace {10pt}
+\addvspace {10pt}

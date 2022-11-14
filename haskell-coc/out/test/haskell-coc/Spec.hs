@@ -17,6 +17,7 @@ main = hspec $ do
     it "10" $ FnConstruct Type (FnDestruct (FnConstruct Type (Var 1)) (Var 0)) `hasType` FnType Type Type
     it "11" $ FnConstruct Type (FnConstruct (Var 0) (Var 0)) `hasType` FnType Type (FnType (Var 0) (Var 1))
     it "12" $ FnDestruct (FnConstruct Type (FnConstruct (Var 0) (Var 0))) Type `hasType` FnType Type Type
+    it "13" $ brh ([NType Type], Let (Var 0) (Var 0)) `shouldBe` ([NType Type], Var 0)
 
 hasType :: Expr -> Expr -> Expectation
 hasType e t = tc ([], e) `shouldBe` Right t

@@ -17,7 +17,7 @@ Projects:
     - Using uniquify stages, at the end was implemented but too late. At the start breaks spoofax
 
 Most interesting:
-[ ] Language-parametric services exploration (few weeks?)
+[x] Language-parametric services exploration (few weeks?)
     - Code completion + Renaming
     - renaming not in spoofax 3?
     - code completion -> contact daniel pelsmaeker
@@ -30,7 +30,7 @@ Most interesting:
     - unif sigma paper http://www.cse.chalmers.se/~abela/unif-sigma-long.pdf
     - https://kilthub.cmu.edu/articles/journal_contribution/Optimizing_Higher-Order_Pattern_Unification/6608198/1
 
-[ ] Inductive data types with positivity + coverage checking
+[x] Inductive data types with positivity + coverage checking
     - Start with bools+nats, vecs?
     -  natural number eliminator
     
@@ -43,9 +43,9 @@ Most interesting:
     
 [ ] Adding synctactic sugar
 [ ] Fixpoints and termination checking
-[ ] Universe support
+[x] Universe support
 
 
-- Make sure application only evaluates once by eagerly evaluating
-
+Work on comparison?
+Deducti
 

@@ -43,6 +43,14 @@ NType(Var(0)) :: NType(Type()) :: Nil
 
 The nodes in scope graphs may have multiple children, but we never query the children of a node. We only follow the edges, we don't go in the opposite direction. Similarly, part of a list may be shared, but this is fine in Haskell, since values are immutable. 
 
+Finally, we define the two functions \verb|sPutSubst| and \verb|sPutType| to mimic the Statix relations with the same name.
+\begin{lstlisting}
+sPutSubst :: Env -> SExpr -> Env
+sPutSubst env v = NSubst v : env
+sPutType :: Env -> Expr -> Env
+sPutType env v = NType v : env
+\end{lstlisting}
+
 \section{Defining beta reduction}
 
 Now we want to define beta head reduction. Remember that in Statix, beta head reduction is a relation with the signature
@@ -51,4 +59,10 @@ betaReduceHead :
 	(scope * Expr) * list((scope * Expr)) -> (scope * Expr)
 \end{lstlisting}
 
+In Haskell, a slightly different structure was used. We defined two functions, one returning a \verb|Maybe SExpr| and the other checking if the result \verb|Nothing|, in which case it returns the original expression (unreduced). This structure could also be implemented in Statix, but Haskell makes it a bit easier for us by providing the \verb|Maybe| type and functions on it.
+\begin{lstlisting}
+brh :: SExpr -> SExpr
+brh e = fromMaybe e (brh_ e [])
+brh_ :: SExpr -> [SExpr] -> Maybe SExpr
+\end{lstlisting}
 

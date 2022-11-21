@@ -68,11 +68,11 @@ tc (s, Var i) = do
   vt <- case s !! i of
     NType t -> pure t
     NSubst es -> tc es
-  pure (shift (i + 1) vt)
+  pure (shift (i + 1) 0 vt)
 tc (s, Let v b) = do
   _ <- tc (s, v)
   bt <- tc (sPutSubst s (s, v), b)
-  pure (shift (-1) bt)
+  pure (shift (-1) 0 bt)
 tc (s, FnType a b) = do
   at <- tc (s, a)
   beq ([], at) ([], Type)
@@ -95,10 +95,12 @@ tc (s, FnDestruct f a) = do
   beq ([], at) (sf, dt)
   pure $ br (sPutSubst sf (s, a), db)
 
-shift :: Int -> Expr -> Expr
-shift _ Type = Type
-shift k (Var i) = Var (i + k)
-shift k (Let v b) = Let (shift k v) (shift k b)
-shift k (FnType a b) = FnType (shift k a) (shift k b)
-shift k (FnConstruct a b) = FnConstruct (shift k a) (shift k b)
-shift k (FnDestruct a b) = FnDestruct (shift k a) (shift k b)
+-- shift indices with `m` if >= than cutoff `c` in the term
+shift :: Int -> Int -> Expr -> Expr
+shift _ _ Type = Type
+shift k c (Var i) | i >= c = Var (i + k)
+shift _ _ (Var i) = Var i
+shift k c (Let v b) = Let (shift k c v) (shift k (c + 1) b)
+shift k c (FnType a b) = FnType (shift k c a) (shift k (c + 1) b)
+shift k c (FnConstruct a b) = FnConstruct (shift k c a) (shift k (c + 1) b)
+shift k c (FnDestruct a b) = FnDestruct (shift k c a) (shift k c b)

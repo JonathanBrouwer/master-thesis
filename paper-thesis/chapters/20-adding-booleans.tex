@@ -60,7 +60,7 @@ betaReduceHeadIf(s, _, c, b1, b2, t) =
 		\bhr
 		{ \scope{s}{c} }
 		{ [] }
-		{ \scope{s'}{BoolTrue()} }
+		{ \scope{s'}{\co{BoolTrue}()} }
 		\\\bhr
 		{ \scope{s}{b1} }
 		{ t }
@@ -76,7 +76,7 @@ betaReduceHeadIf(s, _, c, b1, b2, t) =
 		\bhr
 		{ \scope{s}{c} }
 		{ [] }
-		{ \scope{s'}{BoolFalse()} }
+		{ \scope{s'}{\co{BoolFalse}()} }
 		\\\bhr
 		{ \scope{s}{b2} }
 		{ t }
@@ -98,28 +98,28 @@ Next, the rules for type-checking booleans are in figure \ref{fig:bool-rules-typ
 \begin{mathpar}
 	\inferrule{
 	} {
-		\toe{s}{BoolType()}{Type()}
+		\toe{s}{\co{BoolType}()}{\co{Type}()}
 	}
 
 	\inferrule{
 	} {
-		\toe{s}{BoolTrue()}{BoolType()}
+		\toe{s}{\co{BoolTrue}()}{\co{BoolType}()}
 	}
 
 	\inferrule{
 	} {
-		\toe{s}{BoolFalse()}{BoolType()}
+		\toe{s}{\co{BoolFalse}()}{\co{BoolType}()}
 	}
 
 	\inferrule{
 		\toe{s}{c}{ct}
-		\\\beq{ct}{BoolType()}
+		\\\beq{ct}{\co{BoolType}()}
 		\\\\
 		\\\toe{s}{b1}{tb1}
 		\\\toe{s}{b2}{tb2}
 		\\\beq{tb1}{tb2}
 	} {
-		\toe{s}{BoolIf(c, b1, b2)}{tb1}
+		\toe{s}{\co{BoolIf}(c, b1, b2)}{tb1}
 	}
 \end{mathpar}
 \caption{Rules for type checking booleans}
@@ -128,8 +128,44 @@ Next, the rules for type-checking booleans are in figure \ref{fig:bool-rules-typ
 
 \section{Postulate}
 
-Next we will add \verb|Postulate| to the language. 
+Next we will add \verb|Postulate| to the language. A postulate declares that there is a variable with a certain type, without specifying a value. Through the view of the Curry-Howard correspondence, this is equivalent to an axiom. At the current stage, this is useful for testing the language. For example, this is a test with a postulate:
+
+\begin{lstlisting}
+postulate T : Type;
+if true then Bool else T end
+\end{lstlisting}
+The following rules are used to implement the feature, which translate cleanly to Statix:
+
+\begin{figure}[ht]
+	\begin{mathpar}
+		\inferrule{
+			\bhr
+			{\scope{s}{b}}
+			{a}
+			{\scope{s'}{b'}}
+		}{
+			\bhr
+			{\scope{s}{\co{Postulate}(n, t, b)}}
+			{a}
+			{\scope{s'}{b'}}
+		}
+	
+		\inferrule{
+			\toe{s}{t}{tt}
+			\\\beq{tt}{\co{Type}()}
+			\\\\\bred{s}{t}{t'}
+			\\\toe{\co{sPutType}(s, n, t')}{b}{bt}
+		} {
+			\toe{s}{\co{Postulate}(n, t, b)}{bt}
+		}
+	\end{mathpar}
+	\caption{Rules for postulates}
+	\label{fig:postulate-rules}
+\end{figure}
 
 \section{Type Assert}
 
 Finally, we will add \verb|TypeAssert| to the language.
+
+\section{Extensibility of the approach}
+

@@ -129,7 +129,6 @@ Next, the rules for type-checking booleans are in figure \ref{fig:bool-rules-typ
 \section{Postulate}
 
 Next we will add \verb|Postulate| to the language. A postulate declares that there is a variable with a certain type, without specifying a value. Through the view of the Curry-Howard correspondence, this is equivalent to an axiom. At the current stage, this is useful for testing the language. For example, this is a test with a postulate:
-
 \begin{lstlisting}
 postulate T : Type;
 if true then Bool else T end
@@ -165,7 +164,63 @@ The following rules are used to implement the feature, which translate cleanly t
 
 \section{Type Assert}
 
-Finally, we will add \verb|TypeAssert| to the language.
+Finally, we will add \verb|TypeAssert| to the language. This is another feature that is useful for testing. It takes an expression, and it asserts that the expression has a certain type. For example, we can do the following:
+\begin{lstlisting}
+postulate T : Type;
+true : if true then Bool else T end
+\end{lstlisting}
+
+Implementing this feature is also straight-forward, we add the following two rules, which translate cleanly to Statix:
+
+\begin{figure}[ht]
+	\begin{mathpar}
+		\inferrule{
+			\bhr
+			{\scope{s}{b}}
+			{a}
+			{\scope{s'}{b'}}
+		}{
+			\bhr
+			{\scope{s}{\co{TypeAssert}(b, t)}}
+			{a}
+			{\scope{s'}{b'}}
+		}
+		
+		\inferrule{
+			\toe{s}{t}{tt}
+			\\\beq{tt}{\co{Type}()}
+			\\\\\toe{s}{b}{bt}
+			\\\beq
+			{bt}
+			{\scope{s}{t}}
+		} {
+			\toe{s}{\co{TypeAssert}(b, t)}{bt}
+		}
+	\end{mathpar}
+	\caption{Rules for type assertions}
+	\label{fig:typeassert-rules}
+\end{figure}
+
 
 \section{Extensibility of the approach}
+
+Now that a few features have been implemented, we can discuss how easy the language is to extend. The conclusion so far is that it is doable in a clean way. Specifically, the approach for each of the features above was:
+
+\begin{enumerate}
+	\item Define the parsing rules for the new feature
+	\item Create a new file, \verb|tp_bools.stx| and import this file in the main \verb|type_check.stx| file.
+	\item In this file, define a case for the \verb|betaReduceHead| rule for the constructors that were added. Also define cases for \verb|expectBetaEq| and \verb|betaReduce| if necessary.
+	\item In this file, define a case for the \verb|typeOfExpr| rule for the constructors that were added.
+\end{enumerate}
+
+This allows each feature to be isolated to its own file. If we decide that we don't like a feature after all, we can remove it simply by unimporting the file. This problem is similar to the expression problem\cite{expression_problem}, which Statix solves very well.
+
+In the following chapters, we're going to be extending the language further with these more interesting features using this approach:
+\begin{itemize}
+	\item Inference (chapter \ref{ch:inference})
+	\item Inductive Datatypes (chapter \ref{ch:datatypes})
+	\item Universes (chapter \ref{ch:universes})
+\end{itemize}
+
+
 

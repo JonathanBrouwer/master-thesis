@@ -1,0 +1,53 @@
+Lvl  : Type.
+
+O : Lvl.
+
+S  : Lvl -> Lvl.
+
+def max  : Lvl -> Lvl -> Lvl.
+
+[n]   max O n --> n.
+
+[m]   max m O --> m.
+
+[m,n] max (S m) (S n) --> S (max m n).
+
+Sort      : Type.
+
+def axiom : Sort -> Sort.
+
+def rule  : Sort -> Sort -> Sort.
+
+U : (s : Sort) -> Type.
+
+def El : (s : Sort) -> (a : U s) -> Type.
+
+set : Lvl -> Sort.
+
+[i]    axiom (set i) --> set (S i).
+
+[i, j] rule (set i) (set j) --> set (max i j).
+
+u : (s : Sort) -> U (axiom s).
+
+[s] El _ (u s) --> U s.
+
+prod : (s1 : Sort) -> (s2 : Sort) ->
+
+       (A : U s1) -> (B : (El s1 A -> U s2)) ->
+
+       U (rule s1 s2).
+
+[s1, s2, A, B] El _ (prod s1 s2 A B) --> (x : El s1 A) -> El s2 (B x).
+
+Nat  : U (set O).
+
+zero : El (set O) Nat.
+
+suc  : El (set O) (prod (set O) (set O) Nat (_ => Nat)).
+
+def pred : El (set O) (prod (set O) (set O) Nat (_ => Nat)).
+
+[]  pred zero --> zero.
+
+[m] pred (suc m) --> m.

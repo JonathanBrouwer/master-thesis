@@ -32,6 +32,8 @@ constant symbol FnType :
   TmSort (sort_cmb s1 s2);
 rule TmType _ (FnType $s1 $s2 $A $B) ↪ Π (x : TmType $s1 $A), TmType $s2 ($B x);
 
+//TODO FnConstruct FnDestruct Let
+
 // Example usage
 constant symbol Nat : TmSort Type;
 constant symbol zero : TmType (Type) Nat;

@@ -73,6 +73,12 @@ assert ⊢ FnConstruct Type (λ T, FnType T (λ _, Type)) (λ T, FnConstruct T (
   : TmType (FnType Type (λ T, FnType T (λ _, Type)));
 
 
-
-
-// // assert ⊢
+// Test 8
+assert ⊢ FnConstruct Type (λ T, FnType T (λ _, T)) (λ T, FnConstruct T (λ _, T) (λ x, x))
+  : TmType (FnType Type (λ T, FnType T (λ _, T)));
+// Test 9
+assert ⊢ FnConstruct Type (λ T, Type) (λ T, FnDestruct Type (λ _, Type) (FnConstruct Type (λ _, Type) (λ x, x)) T)
+  : TmType (FnType Type (λ _, Type));
+// Test 10
+assert ⊢ FnConstruct Type (λ T, Type) (λ T, FnDestruct Type (λ _, Type) (FnConstruct Type (λ _, Type) (λ x, T)) T)
+  : TmType (FnType Type (λ _, Type));

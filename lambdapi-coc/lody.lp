@@ -16,7 +16,9 @@ constant symbol TmSort : Π (s : Sort), TYPE;
 symbol TmType : Π (s : Sort), Π (a : TmSort s), TYPE;
 
 // This is `Type` in the embedded language
-constant symbol Type : Sort;
+symbol Type : Sort;
+type TmSort Type;
+
 // Combining `Type` with `Type` results in `Type`
 rule sort_cmb Type Type ↪ Type;
 
@@ -32,12 +34,54 @@ constant symbol FnType :
   TmSort (sort_cmb s1 s2);
 rule TmType _ (FnType $s1 $s2 $A $B) ↪ Π (x : TmType $s1 $A), TmType $s2 ($B x);
 
-//TODO FnConstruct FnDestruct Let
+// This is `FnConstruct` in the embedded language
+symbol FnConstruct :
+  // Given two sorts
+  Π (s1 : Sort), Π (s2 : Sort),
+  // And an argument type of sort s1
+  Π (A : TmSort s1), 
+  // And an body type of sort s2
+  Π (B : TmType s1 A → TmSort s2), 
+  // What is the function itself?
+  Π (f : Π (x : TmType s1 A), TmType s2 (B x)), 
+  // Function type
+  TmType _ (FnType s1 s2 A B);
+rule FnConstruct _ _ _ _ $f ↪ $f;
 
-// Example usage
+// This is `FnDestruct` in the embedded language
+symbol FnDestruct :
+  // Given two sorts
+  Π (s1 : Sort), Π (s2 : Sort),
+  // And an argument type of sort s1
+  Π (A : TmSort s1), 
+  // And an body type of sort s2
+  Π (B : TmType s1 A → TmSort s2), 
+  // Function value
+  Π (f : TmType _ (FnType _ _ A B)),
+  // Argument value
+  Π (a : TmType _ A),
+  // Expression has type B
+  TmType _ (B a);
+rule FnDestruct _ _ _ _ $f $a ↪ $f $a;
+
+// This is `Let` in the embedded language
+// The semantics of let are different than in the other implementations, discussed in report
+
+
+
+// Example extra declarations
 constant symbol Nat : TmSort Type;
-constant symbol zero : TmType (Type) Nat;
-constant symbol suc : TmType Type (FnType Type Type Nat (λ _, Nat));
-symbol pred : TmType Type (FnType Type Type Nat (λ _, Nat));
-rule pred zero ↪ zero;
-rule pred (suc $m) ↪ $m;
+
+
+
+
+// Tests
+assert ⊢ Type : Sort;
+
+type TmSort Type;
+
+
+// type FnConstruct Type Type Type;
+
+
+// assert ⊢

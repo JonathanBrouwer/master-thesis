@@ -45,9 +45,13 @@ symbol FnDestruct :
 rule FnDestruct _ _ $f $a ↪ $f $a;
 
 // // This is `Let` in the embedded language
-// // The semantics of let are different than in the other implementations, discussed in report
-// symbol Let :
-  
+// // The semantics of let are different than in the other implementations, discussed in thesis
+symbol Let : 
+  Π (A : TmSort), 
+  Π (B : TmType A → TmSort), 
+  Π (v : TmType A),
+  Π (b : TmType A → TmType (B v)),
+  TmType (B v);
 
 
 // // Example extra declarations from Agda
@@ -72,6 +76,9 @@ assert ⊢ FnType Type (λ _, Type)
 assert ⊢ FnConstruct Type (λ T, FnType T (λ _, Type)) (λ T, FnConstruct T (λ _, Type) (λ x, T))
   : TmType (FnType Type (λ T, FnType T (λ _, Type)));
 
+// Test 5
+assert ⊢ Let (FnType Type (λ _, Type)) (λ _, (FnType Type (λ _, Type))) (FnConstruct Type (λ _, Type) (λ _, Type)) (λ v, v)
+  : TmType (FnType Type (λ _, Type));
 
 // Test 8
 assert ⊢ FnConstruct Type (λ T, FnType T (λ _, T)) (λ T, FnConstruct T (λ _, T) (λ x, x))
@@ -82,3 +89,10 @@ assert ⊢ FnConstruct Type (λ T, Type) (λ T, FnDestruct Type (λ _, Type) (Fn
 // Test 10
 assert ⊢ FnConstruct Type (λ T, Type) (λ T, FnDestruct Type (λ _, Type) (FnConstruct Type (λ _, Type) (λ x, T)) T)
   : TmType (FnType Type (λ _, Type));
+// Test 11
+assert ⊢ FnConstruct Type (λ T, FnType T (λ _, T)) (λ T, FnConstruct T (λ _, T) (λ x, x))
+  : TmType (FnType Type (λ T, FnType T (λ _, T)));
+// Test 12
+assert ⊢ FnDestruct Type (λ T, FnType Type (λ _, Type)) (FnConstruct Type (λ T, FnType Type (λ _, Type)) (λ T, FnConstruct Type (λ _, Type) (λ _, T))) Type
+  : TmType (FnType Type (λ _, Type));
+

@@ -1,3 +1,71 @@
 % !TEX root = document.tex
 \chapter{\label{chap:bg-spoofax}Background: Spoofax}
 
+The Spoofax Language Workbench \cite{spoofax} is a platform to develop domain-specific and
+general-purpose programming languages. Each aspect of the language is defined in one of three metalanguages, each with their own purpose. From these languages Spoofax generates a parser, type checker and other useful tools. 
+
+The metalanguage SDF3 is used to define the syntax of the language \cite{sdf3}, which is then parsed using Spoofax's SGLR parser \cite{sdf3_parser}. The parser produces a abstract syntax tree in the ATerm format \cite{aterm}. A pretty printer is also generated based on this syntax definition. 
+
+Next, the metalanguage Statix \cite{scopes_as_types} is used to define the static semantics of the language. It uses scope graphs to represent binding and typing information of the language. How this works is discussed in section \ref{sec:statix}.
+
+Finally, Stratego \cite{stratego} is used to define program transformations, using rewrite rules. This can be used for modifications to the AST, but also to build transformations to a different language (such as compiling to assembly). 
+
+\section{\label{sec:statix} Statix and Scope graphs}
+
+In Statix, scope graphs are used to represent a programs name and type information \cite{scopes_as_types}. A scope graph is a graph that consists of the following components:
+
+\begin{itemize}
+	\item \textit{Scopes} represent "a region in a program that behaves uniformly with respect to name resolution". These scopes are modeled as nodes in the graph. Its graph representation is shown in \autoref{fig:graph-notation-scope}.
+	\item \textit{Labeled, directed edges} model visibility relations between scopes. For example, $\scopet{1} \scopeedget[\lblt{P}] \scopet{2}$ indicates that the graph contains an edge from \scopet{1} to \scopet{2} with label \lblt{P}. Its graph representation can be seen in \autoref{fig:graph-notation-edge}.
+	\item \textit{Declarations} model a datum (a piece of information, like the type of a variable) under a relation symbol in a scope. Its textual notation is $\scopet{1} \typeedget[rel] d$, meaning datum $d$ is declared in scope $\scopet{1}$ under relation \textit{rel}. Its pictorial equivalent is shown in \autoref{fig:graph-notation-data}.
+\end{itemize}
+
+\begin{figure}[!h]
+	\begin{framed}
+		\begin{subfigure}{0.2\linewidth}
+			\centering
+			\begin{tikzpicture}[scopegraph, node distance = 5em and 3.0em]
+				\node[scope] (s1) {$1$};
+			\end{tikzpicture}
+			\caption{Scope}
+			\label{fig:graph-notation-scope}
+		\end{subfigure}
+		\begin{subfigure}{0.4\linewidth}
+			\centering
+			\begin{tikzpicture}[scopegraph, node distance = 5em and 3.0em]
+				\node[scope] (s1) {$1$};
+				\node[scope, right of = s1] (s2) {$2$};
+				\draw (s1) edge[lbl={P}] (s2);
+			\end{tikzpicture}
+			\caption{Edge}
+			\label{fig:graph-notation-edge}
+		\end{subfigure}
+		\begin{subfigure}{0.4\linewidth}
+			\centering
+			\begin{tikzpicture}[scopegraph, node distance = 5em and 3.0em]
+				\node[scope] (s1) {$1$};
+				\node[type, right of = s1] (s2) {$\texttt{x : INT()}$};
+				\draw (s1) edge[type, lbl={rel}] (s2);
+			\end{tikzpicture}
+			\caption{Data}
+			\label{fig:graph-notation-data}
+		\end{subfigure}
+	\end{framed}
+	\caption{Scope Graph notation}
+\end{figure}
+
+Information can be retrieved from scope graphs using \textit{queries}. A query from a scope traverses the scope graph to find datums that match certain conditions. The result of a query is a list of (path, datum) tuples. A query has several parameters:
+\begin{itemize}
+	\item The relation to query. Only datums declared under this relation will be returned by the query.
+	\item Path well-formedness condition: a regular expression of labels that specifies which paths are well-formed. Only datums that are reached through a path whose edge labels are in the language described by the regular expression are included in the query result.
+	\item A match predicate, taking a single datum as input. Only datums that satisfy this predicate will be included in the query result. Its default value is \verb|true|, meaning that all datums under the specified relation that satisfy the path well-formedness condition are returned.
+	\item Result comparison parameters:
+	\begin{itemize}
+		\item A strict partial order on paths, described by less-than relations on labels. This relation defines a prefix-order on paths.
+		\item A `shadow' predicate, which takes two datums as input. Its default value is \verb|false|, meaning that no shadowing is performed.
+	\end{itemize}
+	When the result set contains multiple datums, and it holds for a datum $d$ that there exists another datum $d'$ which path is strictly smaller that $d$, and the shadow predicate holds, then $d$ is removed from the result set.
+\end{itemize}
+
+% CREDIT FOR THIS EXPLANATION TO ARON ZWAAN
+% HOW TO CREDIT?

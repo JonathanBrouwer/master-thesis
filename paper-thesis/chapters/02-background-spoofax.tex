@@ -1,6 +1,10 @@
 % !TEX root = document.tex
 \chapter{\label{chap:bg-spoofax}Background: Spoofax}
 
+This chapter will explain the concepts behind the Spoofax Language Workbench. If you are already familiar with Spoofax, you can skip this chapter. 
+
+\section{Spoofax}
+
 The Spoofax Language Workbench \cite{spoofax} is a platform to develop domain-specific and
 general-purpose programming languages. Each aspect of the language is defined in one of three metalanguages, each with their own purpose. From these languages Spoofax generates a parser, type checker and other useful tools. 
 
@@ -11,6 +15,9 @@ Next, the metalanguage Statix \cite{scopes_as_types} is used to define the stati
 Finally, Stratego \cite{stratego} is used to define program transformations, using rewrite rules. This can be used for modifications to the AST, but also to build transformations to a different language (such as compiling to assembly). 
 
 \section{\label{sec:statix} Statix and Scope graphs}
+
+\textit{Note: This section is adapted from the Explanation in "Composable Type System Specification
+	using Heterogeneous Scope Graphs". \cite[sect. 4.1.2]{Zwaan21}}
 
 In Statix, scope graphs are used to represent a programs name and type information \cite{scopes_as_types}. A scope graph is a graph that consists of the following components:
 
@@ -66,6 +73,3 @@ Information can be retrieved from scope graphs using \textit{queries}. A query f
 	\end{itemize}
 	When the result set contains multiple datums, and it holds for a datum $d$ that there exists another datum $d'$ which path is strictly smaller that $d$, and the shadow predicate holds, then $d$ is removed from the result set.
 \end{itemize}
-
-% CREDIT FOR THIS EXPLANATION TO ARON ZWAAN
-% HOW TO CREDIT?

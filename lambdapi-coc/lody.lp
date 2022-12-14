@@ -1,15 +1,15 @@
 // Represents a term of sort `s`, so this term is a type in the embedded language.
-symbol TmSort : TYPE;
+constant symbol TmSort : TYPE;
 
 // Rerpesents a term of type `a`, which has sort `s`. 
 symbol TmType : Π (a : TmSort), TYPE;
 
 // This is `Type` in the embedded language
-symbol Type : TmSort;
+constant symbol Type : TmSort;
 rule TmType Type ↪ TmSort;
 
 // This is `FnType` in the embedded language
-symbol FnType :
+constant symbol FnType :
   // And an argument type of sort s1
   Π (A : TmSort), 
   // And a body type of sort s2 (that may depend on the argument value)
@@ -52,10 +52,11 @@ symbol Let :
   Π (v : TmType A),
   Π (b : TmType A → TmType (B v)),
   TmType (B v);
+//TODO rewrite rule
 
 
 // // Example extra declarations from Agda
-symbol Nat : TmSort;
+constant symbol Nat : TmSort;
 symbol zero : TmType Nat;
 symbol suc : TmType (FnType Nat (λ _, Nat));
 symbol pred : TmType (FnType Nat (λ _, Nat));
@@ -96,3 +97,5 @@ assert ⊢ FnConstruct Type (λ T, FnType T (λ _, T)) (λ T, FnConstruct T (λ 
 assert ⊢ FnDestruct Type (λ T, FnType Type (λ _, Type)) (FnConstruct Type (λ T, FnType Type (λ _, Type)) (λ T, FnConstruct Type (λ _, Type) (λ _, T))) Type
   : TmType (FnType Type (λ _, Type));
 
+//TODO test beta equality (include Let)
+//TODO test failing let that should work

@@ -152,7 +152,7 @@ Let(
 \subsection{Scope Graphs}
 \label{sec:coc-scopes}
 
-To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}
+To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need the value of a binding to compare types, this is needed in dependently typed languages.}
 
 In Statix, all this information can be stored in a \emph{scope graph} \cite{scope_graphs}, which is a feature of Statix. It is a graph consisting of nodes for scopes, labeled edges for visibility relations, scoped declarations for a relation, and queries for references. We only use a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. 
 
@@ -162,21 +162,20 @@ Next, we will introduce some Statix predicates that can be used to interact with
 sPutType  : scope * ID * Expr -> scope
 sPutSubst : scope * ID * (scope * Expr) -> scope
 sGetName  : scope * ID -> NameEntry
-sGetNames : scope * ID -> list((path * (ID * NameEntry)))
 sEmpty    : -> scope
 \end{lstlisting}
-The \verb|sPutType| and \verb|sPutSubsts| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph, use \verb|sGetName| or \verb|sGetNames|, which will return a \verb|NameEntry| or a list of NameEntries respectively that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph use \verb|sGetName|, which will return a \verb|NameEntry| that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
 
 We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression. 
 
 \subsection{Beta Reductions}
 \label{sec:coc-dynsyms}
 
-A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare.
+A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare. Beta reduction is the process of reduction a term to beta normal form, which is the state where no further beta reductions are possible \cite{tapl}. It works by matching a term of the form \verb|(\x. b) e|. and substituting \verb|x| in \verb|b| with \verb|e|. Beta reduction applies this rule anywhere in the term, whereas beta head-reduction only applies this rule at the head (outermost expression) of the term, and produces a term in beta-head normal form. 
 
-We implemented beta reduction using a Krivine abstract machine\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this over substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types; more information about this will be in the full master thesis. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
+We implemented beta reduction using a Krivine abstract machine\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types; more information about this will be in the full master's thesis\cite{thesis}. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
 
-In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names rather. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations, such as renaming.
+In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition), such as renaming.
 
 We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from \cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ to express \verb|betaReduceHead((s1, e1), t) == (s2, e2)|. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s.
 
@@ -285,7 +284,7 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 \subsection{Type checking the Calculus of Constructions}
 \label{sec:coc-typecheck}
 
-We will define a Statix predicate \verb|typeOfExpr| that takes a scope and an expression and type checks the scope in the expression. It returns the type of the expression.
+We will define a Statix predicate \verb|typeOfExpr| that takes a scope and an expression and type checks the expression in the scope. It returns the type of the expression.
 
 \begin{lstlisting}
 typeOfExpr : scope * Expr -> Expr
@@ -299,7 +298,7 @@ We can then start defining type checking rules for the language. We introduce a 
 	\item $\scope{sEmpty}{e}$ is the same as $e$ (empty scopes can be left out)
 \end{enumerate}
 
-The inference rules above can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
+The inference rules in figure \ref{fig:type-check-rules} can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
 \begin{lstlisting}
 typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
     typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
@@ -384,11 +383,11 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 \end{figure}
 
 \subsection{Avoiding variable capture}
-One problem with the implementation presented in the previous sections is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, it is not possible to express the correct type without renaming! The problem is that there are multiple names, and there is no way to distinguish between them. This can be solved by using scopes to distinguish names. A full explanation of this will be in the master thesis. 
+One problem with the implementation presented in the previous sections is that it does not avoid variable capture. Variable capture happens when a term becomes bound because of a wrong substitution. For example, according to the inference rules in figure \ref{fig:type-check-rules} the type of \verb|\T : Type. \T : T. T| is \verb|T : Type -> T : T -> T|. This is not the correct type, and even worse, it is not possible to express the correct type without renaming! The problem is that there are multiple names, and there is no way to distinguish between them. This problem needs to be addressed in any name-based approach. It can be solved by using scopes to distinguish names. A full explanation of this will be in the master's thesis\cite{thesis}. 
 
 \section{Extensions}
 \label{sec:extensions}
-This section will discuss some further ideas that can be explored to build upon what has already been shown. These will be fully described in the master thesis that this paper is based on, this is just a look into what is possible.
+This section will discuss some further ideas that can be explored to build upon what has already been shown. These will be fully described in the master's thesis\cite{thesis} that this paper is based on, this is just a look into what is possible.
 
 \paragraph*{Term Inference}
 In dependently typed languages, the value of types can often be inferred. Ideally, we would like to infer the most general type possible. However, this kind of analysis is not possible in Statix because you cannot reason over whether meta-variables are instantiated or not. We implemented an approximation to inference that can infer most types. For example, the type of \verb|x| in the function below can be inferred, because it is applied to \verb|true|, which is a boolean.

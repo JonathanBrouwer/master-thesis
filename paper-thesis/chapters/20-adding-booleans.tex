@@ -209,8 +209,8 @@ Now that a few features have been implemented, we can discuss how easy the langu
 \begin{enumerate}
 	\item Define the parsing rules for the new feature
 	\item Create a new file, \verb|tp_bools.stx| and import this file in the main \verb|type_check.stx| file.
-	\item In this file, define a case for the \verb|betaReduceHead| rule for the constructors that were added. Also define cases for \verb|expectBetaEq| and \verb|betaReduce| if necessary.
-	\item In this file, define a case for the \verb|typeOfExpr| rule for the constructors that were added.
+	\item In the new file, define a case for the \verb|betaReduceHead| rule for the constructors that were added. Also define cases for \verb|expectBetaEq| and \verb|betaReduce| if necessary. It is necessary iff the new constructors are not always eliminated by \verb|betaReduceHead|.
+	\item In the new file, define a case for the \verb|typeOfExpr| rule for the constructors that were added.
 \end{enumerate}
 
 This allows each feature to be isolated to its own file. If we decide that we don't like a feature after all, we can remove it simply by unimporting the file. This problem is similar to the expression problem\cite{expression_problem}, which Statix solves very well.

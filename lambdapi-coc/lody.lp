@@ -52,8 +52,7 @@ symbol Let :
   Π (v : TmType A),
   Π (b : TmType A → TmType (B v)),
   TmType (B v);
-//TODO rewrite rule
-
+rule Let _ _ $v $b ↪ $b $v;
 
 // // Example extra declarations from Agda
 constant symbol Nat : TmSort;
@@ -81,6 +80,10 @@ assert ⊢ FnConstruct Type (λ T, FnType T (λ _, Type)) (λ T, FnConstruct T (
 assert ⊢ Let (FnType Type (λ _, Type)) (λ _, (FnType Type (λ _, Type))) (FnConstruct Type (λ _, Type) (λ _, Type)) (λ v, v)
   : TmType (FnType Type (λ _, Type));
 
+// Test 6
+assert ⊢ Let Type (λ _, FnType Type (λ _, Type)) Type (λ s, FnConstruct Type (λ _, Type) (λ _, s)) 
+  : TmType (FnType Type (λ _, Type));
+
 // Test 8
 assert ⊢ FnConstruct Type (λ T, FnType T (λ _, T)) (λ T, FnConstruct T (λ _, T) (λ x, x))
   : TmType (FnType Type (λ T, FnType T (λ _, T)));
@@ -97,5 +100,3 @@ assert ⊢ FnConstruct Type (λ T, FnType T (λ _, T)) (λ T, FnConstruct T (λ 
 assert ⊢ FnDestruct Type (λ T, FnType Type (λ _, Type)) (FnConstruct Type (λ T, FnType Type (λ _, Type)) (λ T, FnConstruct Type (λ _, Type) (λ _, T))) Type
   : TmType (FnType Type (λ _, Type));
 
-//TODO test beta equality (include Let)
-//TODO test failing let that should work

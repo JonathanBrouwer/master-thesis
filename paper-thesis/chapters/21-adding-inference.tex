@@ -41,17 +41,17 @@ Instead, we will be implementing a novel, less powerful form of first-order unif
 \label{implementing-inference}
 
 First, we introduce a new constructor \verb|Infer : Expr -> Expr|, which denotes the variables which could be free. The constructor is introduced when we encounter a \verb|_| variable, a marker that something needs to be inferred.
-
 \begin{lstlisting}
 typeOfExpr(s, Var(Syn("_"))) = (Infer(q), qt) :-
 	(_, qt) == typeOfExpr(sEmpty(), q).
 \end{lstlisting}
 
-Note that the type of \verb|typeOfExpr| has changed, it is now 
-
+Note that the type of \verb|typeOfExpr| has changed, it now returns two expressions, the first being the same expression that was passed in except with \verb|_| variables replaced with \verb|Infer| constructors, and the second being the type.
 \begin{lstlisting}
 typeOfExpr : scope * Expr -> Expr * Expr
 \end{lstlisting}
+
+
 
 \section{Analysis of the power of AFOU}
 \label{analysing-inference}

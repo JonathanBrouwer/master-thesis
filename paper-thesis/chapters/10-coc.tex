@@ -42,7 +42,7 @@ Let(
 
 
 
-\section{Scope Graphs}
+\section{Using Scope Graphs}
 \label{sec:coc-scopes}
 
 To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), such as function arguments, and names that do have a known value, such as let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need to value of a binding to compare types, this is needed in dependently typed languages.}

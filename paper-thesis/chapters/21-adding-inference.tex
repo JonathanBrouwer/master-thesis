@@ -17,11 +17,7 @@ postulate g: f true -> Type;
 \section{Different algorithms for inference}
 \label{strength-inference}
 
-There are a lot of different algorithms for inference\cite{typeinference}, some algorithms can solve more inferences than others. However, we would like to avoid implementing an algorithm at all, instead using Statix' built-in first-order unification to do the type inference for us. Implementing an inference algorithm in Statix is theoretically possible but this would be a lot of ugly code (since Statix is not a general-purpose programming language), and the goal is to use Statix in a way that is clean and declarative, not to do optimal inference.
-
-The inference that we will build is a very simple unification system, where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free variable, we set the free variable to be equal to the other variable. This process is called \emph{first-order unification}.
-
-There are some situations in which this approach fails, but in most real-world scenarios it works perfectly. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
+There are a lot of different algorithms for inference\cite{typeinference}, some algorithms can solve more inferences than others. One algorithm for unification is \emph{first-order unification}, where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free variable, we set the the value free variable to be equal to the value of the non-free variable. There are some situations in which this approach fails, but in most real-world scenarios it works perfectly. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
 
 \begin{lstlisting}
 let f = _;
@@ -29,19 +25,45 @@ let f = _;
 \g: (_: (f x) -> Bool).
 g true
 \end{lstlisting}
-We know that \verb|f| is a function from \verb|Type -> Type|, but it fails to infer the value of \verb|f|. Because of the way that \verb|g| is used, the type checker asserts that $\beq{f x}{Bool}$. Since x is declared as a function argument and it is completely free, this means that for any \verb|x|, \verb|f x = Bool|. But the rule above is not powerful enough to derive all of this, so it fails.
 
-\section{Using Statix' first-order unification for inference}
+We know that \verb|f| is a function from \verb|Type -> Type|, but it fails to infer the value of \verb|f|. Because of the way that \verb|g| is used, the type checker asserts that $\beq{f x}{Bool}$. Since x is declared as a function argument and it is completely free, this means that for any \verb|x|, \verb|f x = Bool|. But the rule above is not powerful enough to derive this, so it fails.
+
+\section{Inference in Statix}
 \label{statix-inference}
 
-First, we introduce a new constructor, \verb|Infer : Expr -> Expr|. This will be used to store metavariables which we want to infer. This is a hack we use, ideally we would like to query Statix to see if a metavariable is initialized, but as discussed in section \ref{strength-inference} this is not possible. 
+We would like to avoid implementing an algorithm at all, instead using Statix' built-in first-order unification to do the type inference for us. Implementing an inference algorithm in Statix is theoretically possible but this would be a lot of ugly code (since Statix is not a general-purpose programming language), and the goal is to use Statix in a way that is clean and declarative, not to do optimal inference.
 
-The constructor is introduced when we encounter a \verb|_| variable, a sign that something needs to be inferred. When type-checking this, we create an infer constructor. The constraint at the bottom cannot be solved immediately, since the \verb|q| variable is unbound, but if \verb|q| is bound later the constraint will be evaluated.
+However, we cannot immediately use Statix' built-in first-order unification (which acts in the meta language, Statix) to implement first-order unification in the object language. Ideally when implementing beta equality we would match on $\beq{e_1}{e_2}$ where $e_1$ is a free variable, but Statix does not allow for querying whether variables are free. 
 
+Instead, we will be implementing a novel, less powerful form of first-order unification. This will work by explicitly denoting which variables \emph{could be} free, and explicitly handling these cases in a way that approximates first-order unification. We will denote this algorithm as \emph{approximated first-order unification (AFOU)}.
+
+\section{Implementing AFOU}
+\label{implementing-inference}
+
+First, we introduce a new constructor \verb|Infer : Expr -> Expr|, which denotes the variables which could be free. The constructor is introduced when we encounter a \verb|_| variable, a marker that something needs to be inferred.
 \begin{lstlisting}
-typeOfExpr_(s, Var(Syn("_"))) = (Infer(q), qt) :-
+typeOfExpr(s, Var(Syn("_"))) = (Infer(q), qt) :-
 	(_, qt) == typeOfExpr(sEmpty(), q).
 \end{lstlisting}
+
+Note that the type of \verb|typeOfExpr| has changed, it now returns two expressions, the first being the same expression that was passed in except with \verb|_| variables replaced with \verb|Infer| constructors, and the second being the type.
+\begin{lstlisting}
+typeOfExpr : scope * Expr -> Expr * Expr
+\end{lstlisting}
+
+
+
+\section{Analysis of the power of AFOU}
+\label{analysing-inference}
+
+
+\begin{comment}
+	
+
+\section{Using Statix' first-order unification for inference}
+
+
+
 When an \verb|Infer| needs to be type-checked, the logic is very similar, except that we don't need to generate a new metavariable:
 
 \begin{lstlisting}
@@ -68,3 +90,4 @@ Finally, there is a case for if we encounter two \verb|Infer|s. Ideally, we woul
 expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
     e1 == e2.
 \end{lstlisting}
+\end{comment}

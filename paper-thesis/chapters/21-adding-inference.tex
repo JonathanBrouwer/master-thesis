@@ -73,8 +73,12 @@ expectBetaEq((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.
 expectBetaEq((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
 	\end{lstlisting}
 	\item A complex expression \verb|e1| on the left, an infer expression on the right. 
-	\item An infer expression on the left, any expression on the right.
-	\item An infer expression on the left and on the right.
+	\item An infer expression on the left, any expression on the right. We should not duplicate the previous two rules, instead, we can just swap the two expressions and re-use the rules above.
+\begin{lstlisting}
+expectBetaEq_((_, Infer(e1)), (s2, e2)) :-
+	expectBetaEq_((s2, e2), (_, Infer(e1))).
+\end{lstlisting}
+	\item An infer expression on both sides.
 \end{enumerate}
 
 

@@ -51,6 +51,31 @@ Note that the type of \verb|typeOfExpr| has changed, it now returns two expressi
 typeOfExpr : scope * Expr -> Expr * Expr
 \end{lstlisting}
 
+Next when we type-check an \verb|Infer| expression we just type-check the meta-variable inside. This will wait until the value of the meta-variable is known before type-checking, which is the behavior we want.
+\begin{lstlisting}
+typeOfExpr_(s, Infer(q)) = (Infer(q), t) :-
+	typeOfExpr_(s, q) == (_, t).
+\end{lstlisting}
+
+When beta reducing we deliberately keep the \verb|Infer| expression intact, since we want to keep the information that it is an expression that might have to be inferred during beta equality checks.
+\begin{lstlisting}
+betaReduce_((_, Infer(e))) = Infer(e).
+\end{lstlisting}
+
+Finally, the difficult part of handling inference in beta equality. There are four different cases that involve \verb|Infer| expressions in beta equality, these are:
+
+\begin{enumerate}
+	\item A value \verb|e1| on the left, an infer expression on the right. In this case we simply want to set the metavariable equal to \verb|e1|. For example:
+	\begin{lstlisting}
+expectBetaEq((s1, e1@Type(_)), (_, Infer(e2))) :- e1 == e2.
+expectBetaEq((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
+expectBetaEq((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.
+expectBetaEq((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
+	\end{lstlisting}
+	\item A complex expression \verb|e1| on the left, an infer expression on the right. 
+	\item An infer expression on the left, any expression on the right.
+	\item An infer expression on the left and on the right.
+\end{enumerate}
 
 
 \section{Analysis of the power of AFOU}

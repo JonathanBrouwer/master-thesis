@@ -9,6 +9,7 @@ data Nat : -> Type where
 \end{lstlisting}
 We will design data types to have the same features as in Agda:
 \begin{enumerate}
+\item Data types may be recursive, that is the data type may take itself as one of the constructor arguments. This can be seen in the definition of \verb|Nat| above.
 \item Parameters, which are datatypes that are polymorphic, and are required to be the same for all constructors, such as
 \begin{lstlisting}
 data Maybe (T : Type) : -> Type where
@@ -30,12 +31,39 @@ data Eq (T : Type) : (e1 : T) (e2 : T) -> Type where
 data Bad : -> Type where
 	bad : (Bad -> Bool) -> Bad;
 \end{lstlisting}
+\end{enumerate}
 
-\section{In statix}
+A difference between Agda and our implementation is that Agda has case matching as a native construct, whereas we chose to use eliminators \todo{Citation}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
+\begin{lstlisting}
+elim Nat : P: (v: Nat -> Type) -> P Z 
+	-> (x: Nat -> P x -> P (S x)) -> n: Nat -> P n
+\end{lstlisting}
+
+The general type of an eliminator for a data type \verb|N| is:
+\begin{lstlisting}
+parameters 
+-> P: (indices -> N params indices -> Type) 
+-> constructors
+-> indices
+-> v: N params indices
+-> P indices v
+\end{lstlisting}
+The meaning of all the arguments is:
+\begin{itemize}
+	\item \verb|parameters| are the parameters of the data type we want to eliminate, since these are constant among all constructors those can be at the start.
+	\item \verb|P| is the type that this eliminator will return. It may depend on the value \verb|v| that is eliminated.
+	\item \verb|constructors| is a function that eliminates each of the constructors of the datatype. To eliminate a constructor of the form \verb|C : args -> N params indices| it generates a function \verb|args -> P indices (C pars args)|.
+	\item \verb|indices| are the indices of the value that is to be eliminated.
+	\item \verb|v| is the value that is to be eliminated.
+	\item Finally, \verb|P indices v| is the result of the elimination.
+\end{itemize}
+
+\section{Defining inductive data types}
+
+
 
 
 
 \section{Positivity Checking}
 \label{ch:datatypes:positivity}
 	
-\end{enumerate}

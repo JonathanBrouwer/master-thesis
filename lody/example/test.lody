@@ -1,2 +1,7 @@
-data Empty = -> Type 0 where
-E
+let x = _;
+let y = _;
+let _ = Bool : x;
+let _ = Bool : y;
+
+
+x

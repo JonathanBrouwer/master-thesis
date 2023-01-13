@@ -26,9 +26,13 @@ rules
     expectBetaEq_((s2, e2), (_, Infer(e1))).
     
   expectBetaEq_((s1, e1@Type(_)), (_, Infer(e2))) :- e1 == e2.
+  expectBetaEq_((s1, e1@Var(_)), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@AlphaEqVars(_, _)), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@FnType(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_type2 body2}
-  	e2 == FnType(arg_name1, Infer(arg_type2), Infer(body2)),
+  	e2 == FnType(Syn(_), Infer(arg_type2), Infer(body2)),
+  	expectBetaEq_((s1, e1), (sEmpty(), e2)).
+  expectBetaEq_((s1, e1@FnConstruct(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_type2 body2}
+  	e2 == FnConstruct(Syn(_), Infer(arg_type2), Infer(body2)),
   	expectBetaEq_((s1, e1), (sEmpty(), e2)).
   expectBetaEq_((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.

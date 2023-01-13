@@ -17,7 +17,7 @@ postulate g: f true -> Type;
 \section{Different algorithms for inference}
 \label{strength-inference}
 
-There are a lot of different algorithms for inference\cite{typeinference}, some algorithms can solve more inferences than others. One algorithm for unification is \emph{first-order unification}, where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free variable, we set the the value free variable to be equal to the value of the non-free variable. There are some situations in which this approach fails, but in most real-world scenarios it works perfectly. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
+There are a lot of different algorithms for inference\cite{typeinference}, some algorithms can solve more inferences than others. One algorithm for unification is \emph{first-order unification} (FOU), where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free variable, we set the the value free variable to be equal to the value of the non-free variable. There are some situations in which this approach fails, but in most real-world scenarios it works perfectly. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
 
 \begin{lstlisting}
 let f = _;
@@ -72,51 +72,47 @@ expectBetaEq((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
 expectBetaEq((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.
 expectBetaEq((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
 	\end{lstlisting}
-	\item A complex expression \verb|e1| on the left, an infer expression on the right. 
+
+	\item A complex expression \verb|e1| on the left, an infer expression on the right. In this case, we know what top-level constructor of the metavariable should be, but not necessarily the entire constructor (there might be infers in \verb|e1|). We introduce new \verb|Infer| expressions on the left, and call \verb|expectBetaEq| recursively. A simple example for \verb|BoolIf| is below:
+	\begin{lstlisting}
+expectBetaEq((s1, e1@BoolIf(c1, t1, b1)), (_, Infer(e2))) :-
+	{c2 t2 b2}
+	e2 == BoolIf(Infer(c2), Infer(t2), Infer(b2)),
+	expectBetaEq((s1, e1), (sEmpty(), e2)).
+	\end{lstlisting}
+	\verb|FnType| and \verb|FnConstruct| work similarly, 
+	
 	\item An infer expression on the left, any expression on the right. We should not duplicate the previous two rules, instead, we can just swap the two expressions and re-use the rules above.
 \begin{lstlisting}
-expectBetaEq_((_, Infer(e1)), (s2, e2)) :-
-	expectBetaEq_((s2, e2), (_, Infer(e1))).
+expectBetaEq((_, Infer(e1)), (s2, e2)) :-
+	expectBetaEq((s2, e2), (_, Infer(e1))).
 \end{lstlisting}
-	\item An infer expression on both sides.
+
+	\item \label{inf-case4} An infer expression on both sides. This is where the approximation comes in. In normal first-order unification, we would see if either side is known, and possible apply one of the rules above depending on the result. This is not possible, so we're going to do something that approximates first-order unification: just set both sides to be equal. This is an approximation because this might fail if both sides are equal under beta equality but not identical. This approximation is analyzed in section \ref{analysing-inference}.
+\begin{lstlisting}
+expectBetaEq((_, Infer(e1)), (_, Infer(e2))) :-
+	e1 == e2.
+\end{lstlisting}
+	
 \end{enumerate}
 
-
-\section{Analysis of the power of AFOU}
+\section{Analysis of the approximation}
 \label{analysing-inference}
 
+The only difference between AFOU and FOU is case \ref{inf-case4}. Instead of asserting that both sides are equal under beta equality, we assert that both sides are identical. Both sides being identical implies that they are beta-equal, so this approximation is sound, meaning there is no program that AFOU can infer but FOU cannot. 
 
-\begin{comment}
-	
+The approximation is not complete: There are situations where AFOU fails to infer a program that FOU can infer. However, these programs are rare. This happens when a program contains multiple infer points, two of these are asserted to be beta-equal, and they are not identical but they are beta-equal. \todo{Find program where this fails.}
 
-\section{Using Statix' first-order unification for inference}
+\section{Analysis of the implementation}
+\label{analysing-inference-impl}
 
-
-
-When an \verb|Infer| needs to be type-checked, the logic is very similar, except that we don't need to generate a new metavariable:
+This process of defining a rule for each constructor in the language is a bit tedious, and it easy to accidentally get wrong. Stratego (the transformation language of Spoofax) allows for \emph{generic term deconstruction} \cite{generictermdestr}, if Statix would also have this feature this would make writing the rules above in a generic way possible. Borrowing some of the syntax from Stratego, this would look like this:
 
 \begin{lstlisting}
-typeOfExpr_(s, Infer(q)) = (Infer(q), t) :-
-	typeOfExpr_(s, q) == (_, t).
-\end{lstlisting}
-When we encounter a \verb|Infer| in \verb|betaReduceHead|, we keep it intact, because we still want to know that it is a \verb|Infer| in the \verb|expectBetaEq| rule. 
-
-The \verb|expectBetaEq| is where it gets interesting. We have a rule for each constructor in the language. For simple cases like \verb|BoolTrue|, we assert that \verb|e2| must be equal.
-\begin{lstlisting}
-expectBetaEq_((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
-\end{lstlisting}
-For more complicated constructors such as \verb|FnType|, we generate new metavariables for the subexpressions, and assert they it must be beta-equal to the provided ones:
-\begin{lstlisting}
-expectBetaEq_(
-	(s1, e1@FnType(arg_name1, arg_type1, body1)), 
-	(_, Infer(e2))) :- {arg_type2 body2}
-  e2 == FnType(arg_name1, Infer(arg_type2), Infer(body2)),
-  expectBetaEq_((s1, e1), (sEmpty(), e2)).
+expectBetaEq((s1, e1@c#(xs)), (_, Infer(e2))) :-
+	e2 == c#(<all(Infer)>(xs)),
+	expectBetaEq((s1, e1), (sEmpty(), e2)).
 \end{lstlisting}
 
-Finally, there is a case for if we encounter two \verb|Infer|s. Ideally, we would look at whether one infer is instantiated, and apply the rules above. However, this is not possible since we cannot do such queries in Statix. Instead, we say that they must be exactly equal and we hope for the best. There are situations where this rule fails (where e1 and e2 are beta-equal but not identical), but this works well enough for practical use.
-\begin{lstlisting}
-expectBetaEq_((_, Infer(e1)), (_, Infer(e2))) :-
-    e1 == e2.
-\end{lstlisting}
-\end{comment}
+
+

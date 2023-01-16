@@ -124,7 +124,7 @@ In this section, we will describe how to implement a dependently typed language 
 \subsection{The language}
 \label{sec:coc-syntax}
 
-The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax~\cite{sdf3} of the language is available in figure \ref{fig:syntax}.
+The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax (written in SDF3~\cite{sdf3}) of the language is available in figure \ref{fig:syntax}.
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -145,7 +145,7 @@ An example program is the following, which defines a polymorphic identity functi
 
 \begin{lstlisting}
 let f = \T: Type. \x: T. x;
-f (T: Type -> Type) (\x: Type. x)
+f (T: Type -> Type) (\y: Type. y)
 \end{lstlisting}
 
 \subsection{Scope Graphs}
@@ -183,7 +183,7 @@ We implemented beta reduction using a Krivine abstract machine~\cite{krivine}. T
 
 In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition), such as renaming.
 
-We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from~\cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s_1}{e_1}}{t}{\scope{s_2}{e_2}}$ to express \verb|betaReduceHead((s1, e1), t) == (s2, e2)|. The \verb|t| in this definition is the argument stack of the Krivine machine. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and the stack of arguments (of the Krivine machine state) and converts it to an expression by adding \verb|FnDestruct|s. Its signature is:
+We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from~\cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ to express \verb|betaReduceHead((s1, e1), ps) == (s2, e2)|. The \verb|p| in this definition is the argument stack of the Krivine machine. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and the stack of arguments (of the Krivine machine state) and converts it to an expression by adding \verb|FnDestruct|s. Its signature is:
 \begin{lstlisting}
 rebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
 \end{lstlisting}
@@ -195,7 +195,7 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 
 
 \begin{figure}[h]
-	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{t}{\scope{s_2}{e_2}}$}]{Beta head-reduction rules}
+	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$}]{Beta head-reduction rules}
 	
 	\begin{mathpar}	
 		% Type rule
@@ -211,12 +211,12 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		\inferrule{ 
 			\bhr 
 			{ \scope{ \co{sPutSubst}(s, x, (s, e))}{b} } 
-			{ t }
+			{ \overline{p} }
 			{ \scope{ s' } { b' } }
 		}{
 			\bhr
 			{ \scope{ s }{ \co{Let}(x, e, b) } }
-			{ t }
+			{ \overline{p} }
 			{ \scope { s' } { b' } }
 		}
 	
@@ -225,12 +225,12 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 			\co{sGetName}(s, x) = \co{NSubst}(s_e, e) 
 			\\ \bhr
 			{\scope{s_e}{e}}
-			{t}
+			{\overline{p}}
 			{\scope{s_{e'}}{e'}} 
 		}{
 			\bhr
 			{\scope{s}{\co{Var}(x)}}
-			{t}
+			{\overline{p}}
 			{\scope{s_{e'}}{e'}} 
 		}
 	
@@ -240,8 +240,8 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		}{ 
 			\bhr
 			{\scope{s}{\co{Var}(x)}}
-			{t}
-			{\co{rebuild}(s, \co{Var}(x), t)} 
+			{\overline{p}}
+			{\co{rebuild}(s, \co{Var}(x), \overline{p})} 
 		}
 		
 		% FnType rule
@@ -265,13 +265,13 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		% FnConstruct rule - Args
 		\inferrule{ 
 			\bhr
-			{\scope{\co{sPutSubst}(s, x, t)}{b}}
-			{ts}
+			{\scope{\co{sPutSubst}(s, x, p)}{b}}
+			{\overline{p}}
 			{\scope{s'}{e'}} 
 		} { 
 			\bhr
 			{\scope{s}{\co{FnConstruct}(x, \_, b)}}
-			{(t::ts)}
+			{(p::\overline{p})}
 			{\scope{s'}{e'}} 
 		}
 		
@@ -279,12 +279,12 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 		\inferrule{ 
 			\bhr
 			{\scope{s}{f}}
-			{(a::ts)}
+			{(a::\overline{p})}
 			{\scope{s'}{e'}} 
 		} { 
 			\bhr
 			{\scope{s}{\co{FnDestruct}(f, a)}}
-			{ts}
+			{\overline{p}}
 			{\scope{s'}{e'}} 
 		}
 	\end{mathpar}
@@ -304,7 +304,7 @@ We can then start defining type checking rules for the language. We introduce a 
 \begin{enumerate}
 	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|
 	\item $\beq{\scope{s1}{e1}}{\scope{s2}{e2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
-	\item $\bhr{\scope{s1}{e1}}{t}{\scope{s2}{e2}}$ is the same as \verb|betaReduceHead((s1, e1), t) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
+	\item $\bhr{\scope{s1}{e1}}{\overline{p}}{\scope{s2}{e2}}$ is the same as \verb|betaReduceHead((s1, e1), ps) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
 	\item $\bred{s1}{e1}{e2}$ is the same as \verb|betaReduce((s1, e1)) == e2|
 	\item $\scope{sEmpty}{e}$ is the same as $e$ (empty scopes can be left out)
 \end{enumerate}
@@ -421,11 +421,20 @@ data Maybe (T : Type) =
 \paragraph*{Semantic Code Completion}
 Finally, we explored how semantic code completion presented by Pelsmaeker et al.~\cite{codecompletion} applies to dependently typed languages. It works well, only showing completions that are semantically possible.
 
-For example, in the following code it would only suggest expressions that can be booleans (including variables that are booleans):
+For example, in the following code it would only suggest expressions that can be booleans:
 \begin{lstlisting}
 let f = \b: Bool. b;
-f {{Expr}}
+f [[Expr]]
 \end{lstlisting}
+
+This would return the following suggestions: (Note that \verb|f| and \verb|Type| are not suggested, since they cannot have type boolean)
+\begin{itemize}
+	\item \verb|[[Expr]] [[Expr]]|
+	\item \verb|let [[ID]] = [[Expr]]; [[Expr]]|
+	\item \verb|true|
+	\item \verb|false|
+	\item \verb|if [[Expr]] then [[Expr]] else [[Expr]] end|
+\end{itemize}
 
 
 \section{Related Work}

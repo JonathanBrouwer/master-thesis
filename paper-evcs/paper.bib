@@ -37,13 +37,26 @@
 	publisher = {MIT Press},
 	timestamp = {2017-06-29T07:13:07.000+0200},
 	title = {{Types and Programming Languages}},
-	url = {http://ropas.snu.ac.kr/\~{}kwang/520/pierce\_book.pdf},
 	year = 2002
 }
 
 
- @phdthesis{thesis, title={Dependently Typed Languages in Statix}, author={Brouwer, Jonathan and Cockx, Jesper and Zwaan, Aron}, school={Delft University Of Technology}, year={2023}} 
+ @mastersthesis{thesis, title={Dependently Typed Languages in Statix}, author={Brouwer, Jonathan and Cockx, Jesper and Zwaan, Aron}, school={Delft University Of Technology}, year={-}, note={To be published on repository.tudelft.nl}} 
 
+@article{bidirectional,
+	author    = {Jana Dunfield and
+	Neel Krishnaswami},
+	title     = {Bidirectional Typing},
+	journal   = {CoRR},
+	volume    = {abs/1908.05839},
+	year      = {2019},
+	url       = {http://arxiv.org/abs/1908.05839},
+	eprinttype = {arXiv},
+	eprint    = {1908.05839},
+	timestamp = {Fri, 11 Dec 2020 08:11:29 +0100},
+	biburl    = {https://dblp.org/rec/journals/corr/abs-1908-05839.bib},
+	bibsource = {dblp computer science bibliography, https://dblp.org}
+}
 
  @article{scopes_as_types, title={Scopes as types}, volume={2}, DOI={10.1145/3276484}, number={OOPSLA}, journal={Proceedings of the ACM on Programming Languages}, author={van Antwerpen, Hendrik and Bach Poulsen, Casper and Rouvoet, Arjen and Visser, Eelco}, year={2018}, pages={1–30}} 
  
@@ -69,7 +82,6 @@
 	volume = {20},
 	number = {3},
 	issn = {1388-3690},
-	url = {https://doi.org/10.1007/s10990-007-9018-9},
 	doi = {10.1007/s10990-007-9018-9},
 	abstract = {We present a particularly simple lazy lambda-calculus machine, which was introduced twenty-five years ago. It has been, since, used and implemented by several authors, but remained unpublished. We also build an extension, with a control instruction and continuations. This machine was conceived in order to execute programs obtained from mathematical proofs, by means of the Curry-Howard (also known as "proof-program") correspondence. The control instruction corresponds to the axiom of excluded middle.},
 	journal = {Higher Order Symbol. Comput.},
@@ -92,16 +104,23 @@
 	copyright = {Creative Commons Attribution 4.0 International}
 }
 
-
-@inproceedings{codecompletion,
-	author = {Pelsmaeker, Daniel and Antwerpen, Hendrik and Visser, Eelco},
-	year = {2019},
-	month = {10},
-	pages = {19-20},
-	title = {Towards language-parametric semantic editor services based on declarative type system specifications},
-	booktitle = {33rd European Conference on Object-Oriented Programming},
-	isbn = {978-1-4503-6992-3},
-	doi = {10.1145/3359061.3362782}
+@article{codecompletion,
+	author = {Pelsmaeker, Daniel A. A. and van Antwerpen, Hendrik and Poulsen, Casper Bach and Visser, Eelco},
+	title = {Language-Parametric Static Semantic Code Completion},
+	year = {2022},
+	issue_date = {April 2022},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {6},
+	number = {OOPSLA1},
+	url = {https://doi.org/10.1145/3527329},
+	doi = {10.1145/3527329},
+	abstract = {Code completion is an editor service in IDEs that proposes code fragments for the user to insert at the caret position in their code. Code completion should be sound and complete. It should be sound, such that it only proposes fragments that do not violate the syntactic and static semantic rules of the language. It should be complete, such that it proposes all valid fragments so that code completion can be used to construct all programs. To realize soundness and completeness, code completion should be informed by the language definition. In practice, the implementation of code completion is an additional effort in the implementation of a language. In this paper, we develop a framework for language-parametric semantic code completion for statically typed programming languages based on their specification of syntax and static semantics, realizing the implementation of a code completion editor service with minimal additional effort. The framework builds on the SDF3 syntax definition formalism and the Statix static semantics specification language. The algorithm reinterprets the static semantics definition to find sound expansions of predicates and solutions to name resolution queries in scope graphs. This allows a search strategy to explore the solution space and synthesize completion proposals. The implementation of the strategy language and code completion algorithm extend the implementation of the Statix solver, and can be used for any language defined in Statix. We demonstrate soundness and completeness of the completion proposal synthesis, and evaluate its performance.},
+	journal = {Proc. ACM Program. Lang.},
+	month = {apr},
+	articleno = {85},
+	numpages = {30},
+	keywords = {semantic code completion, reference resolution, constraint solving, semantics, name binding, code completion, editor services}
 }
 
 @inproceedings{scope_graphs,
@@ -109,7 +128,6 @@
 	author = {Pierre Néron and Andrew P. Tolmach and Eelco Visser and Guido Wachsmuth},
 	year = {2015},
 	doi = {10.1007/978-3-662-46669-8_9},
-	url = {http://dx.doi.org/10.1007/978-3-662-46669-8_9},
 	researchr = {https://researchr.org/publication/NeronTVW15},
 	cites = {0},
 	citedby = {0},
@@ -136,6 +154,8 @@
 	series = {Lecture Notes in Computer Science},
 	publisher = {Springer},
 	isbn = {3-540-58085-9},
+	doi = {10.1007/3-540-58085-9_78},
+	
 }
 
 @inproceedings{PfenningS99,
@@ -176,7 +196,6 @@
 	author = {Andrej Bauer and Philipp G. Haselwarter and Anja Petkovic},
 	year = {2020},
 	doi = {10.1007/978-3-030-52200-1_25},
-	url = {https://doi.org/10.1007/978-3-030-52200-1_25},
 	researchr = {https://researchr.org/publication/BauerHP20},
 	cites = {0},
 	citedby = {0},
@@ -204,6 +223,7 @@
 	series = {Lecture Notes in Computer Science},
 	publisher = {Springer},
 	isbn = {3-540-53590-X},
+	doi = {10.1007/BFb0038698},
 }
 
 @inbook{pfenning_1991, place={Cambridge}, title={Logic programming in the LF logical framework}, DOI={10.1017/CBO9780511569807.008}, booktitle={Logical Frameworks}, publisher={Cambridge University Press}, author={Pfenning, Frank}, year={1991}, pages={149–182}}

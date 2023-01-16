@@ -126,8 +126,6 @@ In this section, we will describe how to implement a dependently typed language 
 
 The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax~\cite{sdf3} of the language is available in figure \ref{fig:syntax}.
 
-Please observe that the syntax definition does not have a separate sort for types, as types may be arbitrary expressions in a dependently typed language. Furthermore, \verb|FnType| assigns a name to its first argument to allow the return type of the function to depend on the argument type.  
-
 \begin{figure}[h]
 \begin{lstlisting}
 Expr.Let = "let" ID "=" Expr ";" Expr
@@ -140,6 +138,8 @@ Expr.FnDestruct = Expr Expr {left}
 \caption{The concrete syntax for the base language. $\co{FnConstruct}$ is a lambda function, $\co{FnDestruct}$ is application of a lambda function.}
 \label{fig:syntax}
 \end{figure}
+
+Please observe that the syntax definition does not have a separate sort for types, as types may be arbitrary expressions in a dependently typed language. Furthermore, \verb|FnType| assigns a name to its first argument to allow the return type of the function to depend on the argument type.  
 
 An example program is the following, which defines a polymorphic identity function and applies it to a function:
 

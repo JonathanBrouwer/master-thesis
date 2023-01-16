@@ -41,21 +41,26 @@
 }
 
 
- @mastersthesis{thesis, title={Dependently Typed Languages in Statix}, author={Brouwer, Jonathan and Cockx, Jesper and Zwaan, Aron}, school={Delft University Of Technology}, year={-}, note={To be published on repository.tudelft.nl}} 
+ @mastersthesis{thesis, title={Dependently Typed Languages in Statix}, author={Brouwer, Jonathan and Cockx, Jesper and Zwaan, Aron}, school={Delft University Of Technology}, year={-}, note={To be published on \url{https://repository.tudelft.nl}}} 
 
 @article{bidirectional,
-	author    = {Jana Dunfield and
-	Neel Krishnaswami},
-	title     = {Bidirectional Typing},
-	journal   = {CoRR},
-	volume    = {abs/1908.05839},
-	year      = {2019},
-	url       = {http://arxiv.org/abs/1908.05839},
-	eprinttype = {arXiv},
-	eprint    = {1908.05839},
-	timestamp = {Fri, 11 Dec 2020 08:11:29 +0100},
-	biburl    = {https://dblp.org/rec/journals/corr/abs-1908-05839.bib},
-	bibsource = {dblp computer science bibliography, https://dblp.org}
+	author = {Dunfield, Jana and Krishnaswami, Neel},
+	title = {Bidirectional Typing},
+	year = {2021},
+	issue_date = {June 2022},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {54},
+	number = {5},
+	issn = {0360-0300},
+	url = {https://doi.org/10.1145/3450952},
+	doi = {10.1145/3450952},
+	abstract = {Bidirectional typing combines two modes of typing: type checking, which checks that a program satisfies a known type, and type synthesis, which determines a type from the program. Using checking enables bidirectional typing to support features for which inference is undecidable; using synthesis enables bidirectional typing to avoid the large annotation burden of explicitly typed languages. In addition, bidirectional typing improves error locality. We highlight the design principles that underlie bidirectional type systems, survey the development of bidirectional typing from the prehistoric period before Pierce and Turner's local type inference to the present day, and provide guidance for future investigations.},
+	journal = {ACM Comput. Surv.},
+	month = {may},
+	articleno = {98},
+	numpages = {38},
+	keywords = {Type checking, type inference}
 }
 
  @article{scopes_as_types, title={Scopes as types}, volume={2}, DOI={10.1145/3276484}, number={OOPSLA}, journal={Proceedings of the ACM on Programming Languages}, author={van Antwerpen, Hendrik and Bach Poulsen, Casper and Rouvoet, Arjen and Visser, Eelco}, year={2018}, pages={1–30}} 
@@ -103,6 +108,23 @@
 	year = {2022},
 	copyright = {Creative Commons Attribution 4.0 International}
 }
+
+@InProceedings{sdf3,
+	author="de Souza Amorim, Lu{\'i}s Eduardo
+	and Visser, Eelco",
+	editor="de Boer, Frank
+	and Cerone, Antonio",
+	title="Multi-purpose Syntax Definition with SDF3",
+	booktitle="Software Engineering and Formal Methods",
+	year="2020",
+	publisher="Springer International Publishing",
+	address="Cham",
+	pages="1--23",
+	abstract="SDF3 is a syntax definition formalism that extends plain context-free grammars with features such as constructor declarations, declarative disambiguation rules, character-level grammars, permissive syntax, layout constraints, formatting templates, placeholder syntax, and modular composition. These features support the multi-purpose interpretation of syntax definitions, including derivation of type schemas for abstract syntax tree representations, scannerless generalized parsing of the full class of context-free grammars, error recovery, layout-sensitive parsing, parenthesization and formatting, and syntactic completion. This paper gives a high level overview of SDF3 by means of examples and provides a guide to the literature for further details.",
+	isbn="978-3-030-58768-0"
+}
+
+
 
 @article{codecompletion,
 	author = {Pelsmaeker, Daniel A. A. and van Antwerpen, Hendrik and Poulsen, Casper Bach and Visser, Eelco},

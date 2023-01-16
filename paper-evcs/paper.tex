@@ -32,6 +32,15 @@
 \newcommand{\beq}[2]{ #1 \underset{\beta}{=} #2 }
 \newcommand{\co}[1]{ \mathsf{#1} }
 
+\makeatletter
+\newcommand\@eatpar{\@ifnextchar\par{\expandafter\@eatpar\@gobble}\relax}
+\newcommand{\figuresection}[2][]{%
+	\par%
+	{\sffamily\bfseries #2}\hfill{#1}%
+	\smallskip%
+	\@eatpar}
+\makeatother
+
 \bibliographystyle{plainurl}
 
 \title{Dependently Typed Languages in Statix}
@@ -99,7 +108,7 @@ Static type systems can greatly enhance the quality of programs, but implementin
 
 \section{Introduction}
 
-Spoofax is a language workbench: \label{key}a collection of tools that enable the development of textual languages~\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. It is a declarative language that uses inference rules to define the static semantics. From these rules a type checker and other editor tools can be derived. Statix aims to cover a broad range of languages and type systems. However, no attempts have been made to express dependently typed languages in Statix until now. 
+Spoofax is a language workbench: \label{key}a collection of tools that enable the development of textual languages~\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. It is a declarative language that uses inference rules to define static semantics. From these rules a type checker and other editor tools can be derived. Statix aims to cover a broad range of languages and type systems. However, no attempts have been made to express dependently typed languages in Statix until now. 
 
 Dependently typed languages are different from other languages, because they allow types to be parameterized by values. This allows types to express properties of values that cannot be expressed in a simple type system, such as the length of a list or the well-formedness of a binary search tree. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires normalization of the terms they are parameterized by. 
 
@@ -115,7 +124,9 @@ In this section, we will describe how to implement a dependently typed language 
 \subsection{The language}
 \label{sec:coc-syntax}
 
-The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax of the language is available in figure \ref{fig:syntax}.
+The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax~\cite{sdf3} of the language is available in figure \ref{fig:syntax}.
+
+Please observe that the syntax definition does not have a separate sort for types, as types may be arbitrary expressions in a dependently typed language. Furthermore, \verb|FnType| assigns a name to its first argument to allow the return type of the function to depend on the argument type.  
 
 \begin{figure}[h]
 \begin{lstlisting}
@@ -134,13 +145,13 @@ An example program is the following, which defines a polymorphic identity functi
 
 \begin{lstlisting}
 let f = \T: Type. \x: T. x;
-f (_: Type -> Type) (\x: Type. x)
+f (T: Type -> Type) (\x: Type. x)
 \end{lstlisting}
 
 \subsection{Scope Graphs}
 \label{sec:coc-scopes}
 
-To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), which are names created by function arguments, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
+To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), which are names created by function arguments and dependent function types, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
 
 In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}. It is a graph consisting of nodes for scopes, labeled edges for visibility relations, scoped declarations for a relation, and queries for references. We only use a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below: 
 \begin{lstlisting}
@@ -184,6 +195,8 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 
 
 \begin{figure}[h]
+	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{t}{\scope{s_2}{e_2}}$}]{Beta head-reduction rules}
+	
 	\begin{mathpar}	
 		% Type rule
 		\inferrule{ 
@@ -303,7 +316,9 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 \end{lstlisting}
 
 \begin{figure}[h]
+	\figuresection[\fbox{$\toe{s}{e}{t}$}]{Type checking rules}
 	\begin{mathpar}	
+		\mprset{vskip=0.7ex}
 		% Type rule
 		\inferrule{ 
 		} {
@@ -312,7 +327,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 		
 		% Let rule
 		\inferrule{ 
-			\toe{s}{v}{t_e}
+			\toe{s}{e}{t_e}
 			\\ \toe{\co{sPutSubst}(s, x, (s, e))}{b}{t_b}
 		}{
 			\toe{s}{\co{Let}(x, e, b)}{t_b}
@@ -336,15 +351,17 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 		}
 		
 		% FnType rule
+		
 		\inferrule{ 
 			\toe{s}{a}{t_a}
 			\\ \beq{t_a}{\co{Type}()} 
 			\\ \bred{s}{a}{a'}
-			\\\\  \toe{\co{sPutType}(s, x, a')}{b}{t_b}
+			\\\\ \toe{\co{sPutType}(s, x, a')}{b}{t_b}
 			\\ \beq{t_b}{\co{Type}()}
 		} { 
 			\toe{s}{\co{FnType}(x, a, b)}{\co{Type}()}
 		}
+		
 	
 		% Force these to be on the same line, using negative spaces
 		\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!
@@ -374,7 +391,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 			\toe{s}{\co{FnDestruct}(f, a)}{t_b'}
 	 	}
 		
-		
+		\mprset{vskip=0ex}
 	\end{mathpar}
 	\caption{Rules for type checking the Calculus of Constructions}
 	\label{fig:type-check-rules}
@@ -398,7 +415,7 @@ Another common feature in dependently typed language is support for inductive da
 \begin{lstlisting}
 data Maybe (T : Type) = 
     None : Maybe T,
-    Some : _: T -> Maybe T;
+    Some : x: T -> Maybe T;
 \end{lstlisting}
 
 \paragraph*{Semantic Code Completion}

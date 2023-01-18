@@ -1,1 +1,47 @@
+% !TEX root = document.tex
+\chapter{\label{chap:editor-services}Semantic Code Completion}
  
+We explored how semantic code completion presented by Pelsmaeker et al.~\cite{codecompletion} applies to dependently typed languages. Code completion is an editor service in IDEs that proposes code fragments for the user to insert at the caret position in their code.
+
+\section{Setup required}
+To set up editor services, we followed the steps at \todo{cite} \url{https://spoofax.dev/spoofax-pie/develop/guide/static-semantics/code-completion/}. To be precise, we followed the following steps:
+\begin{enumerate}
+	\item Add \verb|tego-runtime {}| and \verb|code-completion {}| to the \verb|spoofax.cfg| file, to enable code completion.
+	\item Add the following rules to the \verb|main.str2| file, to pre-process and post-process the AST for code completion.
+	\begin{lstlisting}
+rules
+	downgrade-placeholders = downgrade-placeholders-MyLang
+	upgrade-placeholders   = upgrade-placeholders-MyLang
+	is-inj                 = is-MyLang-inj-cons
+	pp-partial             = pp-partial-MyLang-string
+	pre-analyze            = explicate-injections-MyLang
+	post-analyze           = implicate-injections-MyLang
+	\end{lstlisting}
+	\item For each rule define a predicate that accepts a placeholder where a syntactic sort is permitted. For our language, those are the following:
+	\begin{lstlisting}
+expectBetaEq((_, Expr-Plhdr()), _).
+expectBetaEq(_, (_, Expr-Plhdr())).
+betaReduceHead((_, Expr-Plhdr())) = _.
+betaReduce((_, Expr-Plhdr())) = _.
+typeOfExpr(_, Expr-Plhdr()) = _.
+programOk(Start-Plhdr()).
+	\end{lstlisting}
+	
+\end{enumerate}
+
+\section{How well it works}
+In order to get suggestions, we can now insert a placeholder \verb|[[Expr]]| and press \verb|ctrl + space| in the editor to get semantic suggestions.
+
+It works well, only showing completions that are semantically relevant. For example, given the following code it only suggests expressions that can be booleans:
+\begin{lstlisting}
+let f = \b: Bool. b;
+f [[Expr]]
+\end{lstlisting}
+This would return the following suggestions: (Note that \verb|f| and \verb|Type| are not suggested, since they cannot have type \verb|Bool|)
+ \begin{itemize}
+ 	\item \verb|[[Expr]] [[Expr]]|
+ 	\item \verb|let [[ID]] = [[Expr]]; [[Expr]]|
+ 	\item \verb|true|
+ 	\item \verb|false|
+ 	\item \verb|if [[Expr]] then [[Expr]] else [[Expr]] end|
+ \end{itemize}

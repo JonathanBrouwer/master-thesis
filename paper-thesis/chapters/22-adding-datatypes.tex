@@ -55,7 +55,7 @@ The meaning of all the arguments is:
 \begin{itemize}
 	\item \verb|parameters| are the parameters of the data type we want to eliminate, since these are constant among all constructors those can be at the start.
 	\item \verb|P| is the type that this eliminator will return. It may depend on the value \verb|v| that is eliminated.
-	\item \verb|constructors| is a function that eliminates each of the constructors of the datatype. To eliminate a constructor of the form \verb|C : args -> N params indices| it generates a function \verb|args -> P indices (C pars args)|.
+	\item \verb|constructors| is a function that eliminates each of the constructors of the datatype. To eliminate a constructor of the form \verb|C : args -> N params indices| it generates a function \verb|args -> P indices (C pars args)|. For recursive datatypes, a previous case is generated, such as the \verb|P x| in the eliminator of \verb|Nat| above.
 	\item \verb|indices| are the indices of the value that is to be eliminated.
 	\item \verb|v| is the value that is to be eliminated.
 	\item Finally, \verb|P indices v| is the result of the elimination.
@@ -137,10 +137,20 @@ The second part that needs to be defined is beta reducing an eliminator. During 
 \begin{enumerate}
 	\item Query the scope to find the data type declaration that we created in point \ref{datatype-decl} of section \ref{ch:datatypes:typechecking}. This gives us access to the parameters, indices and constructors of the data type that is being eliminated. (Same as during type checking)
 	\item Try to split the arguments applied to the eliminator into the groups defined in section \ref{ch:datatypes:intro}. If this fails (because there are not enough arguments), the eliminator cannot be reduced.
-	\item Beta head reduce \verb|v|, if this does not result in one of the constructors at the head then the eliminator cannot be reduced. 
-	\item 
+	\item Beta head reduce \verb|v|, if this does not result in one of the constructors of the datatype at the head then the eliminator cannot be reduced. 
+	\item Apply the relevant function that eliminates the constructor to the arguments of the datatype. Generate recursive calls to the eliminator for recursive datatypes.
 \end{enumerate}
 
 \section{Positivity Checking}
 \label{ch:datatypes:positivity}
 	
+When defining a recursive data type, we would like our datatype to be \emph{strictly positive}, meaning that it can only be recursive on positive positions. If this rule would not exist, we would be able to create non-terminating functions using the datatype. Since under the curry-howard correspondence this allows to prove false, this is undesirable.
+
+\begin{lstlisting}
+data Bad : Set where
+	bad : (Bad -> Bad) -> Bad
+	--     A       B       C
+	-- A is in a negative position, B and C are OK
+\end{lstlisting}
+
+The implementation is simply an extra check during the type checking of data type declarations. It checks that the datatype only refers to itself in positive positions.

@@ -1,5 +1,6 @@
-<s | E>
-Example semantic code completion
-
-Type theory and functional programming - Universes
-Make project plan
+Scoped expressions using aliases
+FOU = AFOU except if we remove betaReduce
+Feedback on spoofax rather than only statix (maybe 2 different chapters / sections?)
+Finally do syntax sugar
+Fix bug in test.lody
+Merge chapters: Background

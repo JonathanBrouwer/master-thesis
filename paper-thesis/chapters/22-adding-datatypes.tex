@@ -67,14 +67,16 @@ The meaning of all the arguments is:
 The definition of \verb|type_check| for an inductive data type \verb|N| is, conceptually:
 \begin{enumerate}
 	\item Create a new scope \verb|s1| whose parent is the scope the declaration was in \verb|s0|.
-	\item Declare \verb|N : Params -> Indices -> Type| in \verb|s1|.
+	\item \label{name-decl}Declare \verb|N : Params -> Indices -> Type| in \verb|s1|.
 	\item \label{datatype-decl}We use a new scope-graph relation \verb|datatype : ID -> Expr| and declare \\ \verb|N : DataType(name, params, indices, constructors)| in \verb|s1| so that we can access information about the data type later.
 	
 	\item Create a chain of scopes starting in \verb|s1| that will contain a scope for each parameter. We will type-check each next parameter using the previous parameters scope, so that parameters can depend on previous parameters. Call the end of this chain \verb|s2|.
 	
 	\item Create a chain of scopes starting in \verb|s2| that will contain a scope for each index. We will type-check each next index using the previous index' scope, so that one index can depend on parameters and previous indices. Call the end of this chain \verb|s3|.
 	
-	\item Create a new scope \verb|s4| with \verb|s1| as the parent which will be the scope that the rest of the program will be type-checked with. Then type-check each constructor with \verb|s2| as scope (so that the constructors can depend on parameters, but cannot depend on indices), and declare the type of that constructor in \verb|s4|. The parameters are automatically added to the type of the constructor.
+	\item Create a new scope \verb|s4| with \verb|s1| as the parent. Then type-check each constructor with \verb|s2| as scope (so that the constructors can depend on parameters, but cannot depend on indices), and declare the type of that constructor in \verb|s4|. The parameters are automatically added to the type of the constructor.
+	
+	\item Type-check the rest of the program with scope \verb|s4|.
 \end{enumerate}
 For example, for the following inductive datatype:
 \begin{lstlisting}

@@ -105,17 +105,4 @@ The only difference between AFOU and FOU is case \ref{inf-case4}. Instead of ass
 
 The approximation is not complete: There are situations where AFOU fails to infer a program that FOU can infer. However, these programs are rare. This happens when a program contains multiple infer points, two of these are asserted to be beta-equal, and they are not identical but they are beta-equal. \todo{Find program where this fails.}
 
-\begin{comment}
-\section{Analysis of the implementation}
-\label{analysing-inference-impl}
-
-This process of defining a rule for each constructor in the language is a bit tedious, and it easy to accidentally get wrong. Stratego (the transformation language of Spoofax) allows for \emph{generic term deconstruction} \cite{generictermdestr}, if Statix would also have this feature this would make writing the rules above in a generic way possible. Borrowing some of the syntax from Stratego, this would look like this:
-
-\begin{lstlisting}
-expectBetaEq((s1, e1@c#(xs)), (_, Infer(e2))) :-
-	e2 == c#(<all(Infer)>(xs)),
-	expectBetaEq((s1, e1), (sEmpty(), e2)).
-\end{lstlisting}
-\end{comment}
-
 

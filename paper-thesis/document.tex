@@ -26,6 +26,15 @@
 
 \usepackage{scopegraph}
 
+\makeatletter
+\newcommand\@eatpar{\@ifnextchar\par{\expandafter\@eatpar\@gobble}\relax}
+\newcommand{\figuresection}[2][]{%
+	\par%
+	{\sffamily\bfseries #2}\hfill{#1}%
+	\smallskip%
+	\@eatpar}
+\makeatother
+
 
 \title{Dependently Typed Languages in Statix}
 \subtitle{Version of \today}

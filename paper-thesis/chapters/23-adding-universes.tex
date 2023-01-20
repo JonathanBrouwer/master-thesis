@@ -1,3 +1,78 @@
 \chapter{Universes}
 \label{ch:universes}
 
+Our language so far has the property that the type of \verb|Type| is \verb|Type|, this is called \emph{type in type}. This allows for \emph{Girard's paradox}, which means that the logic created by this language is inconsistent, we can prove false. 
+
+\section{Universes}
+
+The solution to this problem is introducing universes into the language. We now have the following hierarchy of types:
+\begin{lstlisting}
+true : Bool : Type 0 : Type 1 : Type 2 : ...
+\end{lstlisting}
+
+In the rest of this chapter we will show how universes have been implemented. It turns out to be relatively easy to add this feature to the language, only requiring a few changes.
+
+\section{Implementing universes in the CoC}
+
+The constructor of Type has been changed to \verb|Type : int -> Expr|. We need to update all occurrences of \verb|Type| in figure \ref{fig:type-check-rules}. Figure \ref{fig:type-check-rules-universes} contains all the rules that require a change.
+
+The three rules that were changed are:
+\begin{enumerate}
+	\item The rule for type-checking a \verb|Type| expression, which now is explicit about the universes of each \verb|Type|.
+	\item The rule for type-checking \verb|FnType|, which takes the maximum of the two arguments.
+	\item The rule for type-checking \verb|FnConstruct|, which ignores the universe of its argument type, and only verifies that it is a type.
+\end{enumerate}
+
+\begin{figure}[h]
+	\figuresection[\fbox{$\toe{s}{e}{t}$}]{Type checking rules with universes}
+	\begin{mathpar}
+		\mprset{vskip=0.7ex}
+		% Type rule
+		\inferrule{
+		} {
+			\toe{s}{\co{Type}(u)}{\co{Type}(u+1)}
+		}
+		
+		% FnType rule
+		\inferrule{
+			\toe{s}{a}{t_a}
+			\\ \beq{t_a}{\co{Type}(u_a)}
+			\\ \bred{s}{a}{a'}
+			\\\\ \toe{\co{sPutType}(s, x, a')}{b}{t_b}
+			\\ \beq{t_b}{\co{Type}(u_b)}
+		} {
+			\toe{s}{\co{FnType}(x, a, b)}{\co{Type}(max(u_a, u_b))}
+		}
+		
+		% FnConstruct rule
+		\inferrule{
+			\toe{s}{a}{t_a}
+			\\ \beq{t_a}{\co{Type}(u_a)}
+			\\ \bred{s}{a}{a'}
+			\\\\ \toe{\co{sPutType}(s, x, a')}{b}{t_b}
+		} {
+			\toe{s}{\co{FnConstruct}(x, a, b)}{\co{FnType}(x, a', t_b)}
+		}
+		
+		\mprset{vskip=0ex}
+	\end{mathpar}
+	\caption{Rules for type checking the Calculus of Constructions with universes}
+	\label{fig:type-check-rules-universes}
+\end{figure}
+
+\newpage
+\section{Implementing universes with inductive data types}
+
+We change data type declarations such that the universe the datatype lives in is now explicit. For example, the \verb|Nat| type now looks like this, explicitly stating that the type of \verb|Nat| is \verb|Type 0|.
+\begin{lstlisting}
+data Nat : -> Type 0 where
+	zero : Nat,
+	suc : Nat -> Nat;
+\end{lstlisting}
+
+We need to make the following changes to the type-checking algorithm:
+\begin{enumerate}
+	\item In point \ref{name-decl} of type-checking data type declarations in section \ref{ch:datatypes:typechecking}, we need to return \verb|Type u| instead of \verb|Type|, where \verb|u| is the declared universe level.
+	\item For all constructors, we need to check that the universe of the constructor arguments is smaller than or equal to \verb|u|. This ensures that the datatype does actually live in the universe \verb|u|.
+\end{enumerate}
+

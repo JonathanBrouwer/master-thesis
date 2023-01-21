@@ -16,12 +16,13 @@ context-free syntax
   Expr.TypeLit = "Type"
   Expr.TypeLitInt = "Type" INT
   Expr.Var = ID
+  Expr.AnonFnType = Expr "->" Expr {right}
   Expr.FnType = ID ":" Expr "->" Expr {right}
   Expr.FnConstruct = "\\" ID ":" Expr "." Expr
   Expr.FnDestruct = Expr Expr {left}
   
   Expr.Postulate = [postulate [ID]: [Expr]; [Expr]]
-  Expr.TypeAssert = Expr ":" Expr
+  Expr.TypeAssert = Expr "::" Expr
   
   Expr.BoolTrue = "true"
   Expr.BoolFalse = "false"
@@ -41,7 +42,7 @@ context-free syntax
   ID.Syn = RID
   
 context-free priorities
-  {Expr.TypeLit Expr.TypeLitInt Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.FnDestruct > Expr.TypeAssert > Expr.FnType > Expr.FnConstruct > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
+  {Expr.TypeLit Expr.TypeLitInt Expr.BoolTrue Expr.BoolFalse Expr.BoolType Expr.BoolIf} > Expr.Var > Expr.FnDestruct > {Expr.AnonFnType Expr.FnType} > Expr.FnConstruct > Expr.TypeAssert > {Expr.Let Expr.Postulate Expr.DataTypeDecl DataConstructor.Constructor}
   
 context-free restrictions
 

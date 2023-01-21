@@ -1,25 +1,25 @@
 module typecheck_infer
 
 test infer true [[
-true : _
+true :: _
 ]] 0 errors
 
 test infer Type [[
-Type : _
+Type :: _
 ]] 0 errors
 
 test infer FnType [[
-(\x : Type. x) : _
+(\x : Type. x) :: _
 ]] 0 errors
 
 test infer identity [[
 let id = (\T : Type. \x: T. x);
-[[(id _ true)]] : Bool
+[[(id _ true)]] :: Bool
 ]] 0 errors run get-type on #1 to BoolType()
 
 test infer inside if [[
 postulate T : Type;
-true : if true then _ else T end
+true :: if true then _ else T end
 ]] 0 errors
 
 test infer nothing [[
@@ -27,7 +27,7 @@ _
 ]] >=1 errors
 
 test infer inside if false [[
-true : if true then Bool else _ end
+true :: if true then Bool else _ end
 ]] >=1 errors
 
 test infer via variable [[
@@ -45,7 +45,7 @@ g x
 
 test variable via type assert [[
 let f = _;
-true : f
+true :: f
 ]] 0 errors
 
 test infer function type [[
@@ -53,7 +53,7 @@ test infer function type [[
 ]] 0 errors
 
 test infer function type via type assert [[
-(\x: _. true) : (_: Bool -> Bool)
+(\x: _. true) :: (_: Bool -> Bool)
 ]] 0 errors
 
 test infer function type via let - app [[
@@ -63,7 +63,7 @@ f true
 
 test infer function type via let - ass [[
 let f = (\x: _. true);
-f : (_: Bool -> Bool)
+f :: (_: Bool -> Bool)
 ]] 0 errors
 
 test infer function type via two lets [[
@@ -88,7 +88,7 @@ g x
 ]] 0 errors
 
 test new infer 2 [[
-let f = _ : (_: Type -> Type);
+let f = _ :: (_: Type -> Type);
 \g : (_: (f Bool) -> (f Bool)).
 \x : f _.
 g x
@@ -97,7 +97,7 @@ g x
 // This is theoretically solvable because we know `f x = Bool`, and x is free.
 // But my approach cannot solve it.
 test new infer 3 [[
-let f = _ : (_: Type -> Type);
+let f = _ :: (_: Type -> Type);
 \x : Type.
 \g: (_: (f x) -> Bool).
 g true

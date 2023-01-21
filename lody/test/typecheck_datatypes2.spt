@@ -2,27 +2,27 @@ module typecheck_datatypes2
 
 test param data type 0 elim [[
 data Maybe (T : Type) : -> Type 0 where;
-(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
+(elim Maybe) :: (T : Type -> P : (_: Maybe T -> Type) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 1 elim [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T;
-(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> v: Maybe T -> P v)
+(elim Maybe) :: (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 2 elim [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T,
 	Some : _: T -> Maybe T;
-(elim Maybe) : (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> _: (x: T -> P (Some T x)) -> v: Maybe T -> P v)
+(elim Maybe) :: (T : Type -> P : (_: Maybe T -> Type) -> _: P (None T) -> _: (x: T -> P (Some T x)) -> v: Maybe T -> P v)
 ]] 0 errors 
 
 test param data type 2 elim 2 simple [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T;
 postulate F : Type;
-true : (elim Maybe 1) F (\_: Maybe F. Type) Bool (None F)
+true :: (elim Maybe 1) F (\_: Maybe F. Type) Bool (None F)
 ]] 0 errors
 
 
@@ -30,42 +30,42 @@ test param data type 2 elim 2 [[
 data MaybeRec (T : Type) : -> Type 0 where
 	None : MaybeRec T,
 	Some : _: MaybeRec T -> MaybeRec T;
-(elim MaybeRec) : (T : Type -> P : (_: MaybeRec T -> Type) -> _: P (None T) -> _: (x: MaybeRec T -> y : P x -> P (Some T x)) -> v: MaybeRec T -> P v)
+(elim MaybeRec) :: (T : Type -> P : (_: MaybeRec T -> Type) -> _: P (None T) -> _: (x: MaybeRec T -> y : P x -> P (Some T x)) -> v: MaybeRec T -> P v)
 ]] 0 errors
 
 test index data type 1 [[
 data IsTrue : (b : Bool) (c : Bool) -> Type 0 where;
-IsTrue : (_: Bool -> _: Bool -> Type)
+IsTrue :: (_: Bool -> _: Bool -> Type)
 ]] 0 errors
 
 test index data type 2 [[
 data IsTrue : (b : Bool) -> Type 0 where
 	isTrue : IsTrue true;
-IsTrue : (_: Bool -> Type)
+IsTrue :: (_: Bool -> Type)
 ]] 0 errors
 
 test index data type 3 [[
 data IsTrue : (b : Bool) -> Type 0 where
 	isTrue : IsTrue true;
-isTrue : IsTrue true
+isTrue :: IsTrue true
 ]] 0 errors
 
 test index data type 4 [[
 data IsTrue : (b : Bool) -> Type 0 where
 	isTrue : b : Bool -> IsTrue b;
-isTrue : (b: Bool -> IsTrue b)
+isTrue :: (b: Bool -> IsTrue b)
 ]] 0 errors
 
 test index data type elim 1 [[
 data IsTrue : (b : Bool) -> Type 0 where
 	isTrue : IsTrue true;
-(elim IsTrue) : (P : (b: Bool -> _: IsTrue b -> Type) -> _: P true isTrue -> b : Bool -> v: IsTrue b -> P b v)
+(elim IsTrue) :: (P : (b: Bool -> _: IsTrue b -> Type) -> _: P true isTrue -> b : Bool -> v: IsTrue b -> P b v)
 ]] 0 errors
 
 test index data type use elim 1 [[
 data IsTrue : (b : Bool) -> Type 0 where
 	isTrue : IsTrue true;
-(elim IsTrue 1) (\b: Bool. \it: IsTrue b. Type) : (_: Type -> b: Bool -> v: IsTrue b -> Type)
+(elim IsTrue 1) (\b: Bool. \it: IsTrue b. Type) :: (_: Type -> b: Bool -> v: IsTrue b -> Type)
 ]] 0 errors
 
 test index data type use elim 2 [[
@@ -83,7 +83,7 @@ Type
 test eq 2 [[
 data Eq (T : Type) : (e1: T) (e2 : T) -> Type 0 where
 	refl : e : T -> Eq T e e;
-(elim Eq) : T: Type -> P: (e1: T -> e2: T -> _: Eq T e1 e2 -> Type) -> _: (e: T -> P e e (refl T e)) -> e1 : T -> e2 : T -> v: Eq T e1 e2 -> P e1 e2 v
+(elim Eq) :: T: Type -> P: (e1: T -> e2: T -> _: Eq T e1 e2 -> Type) -> _: (e: T -> P e e (refl T e)) -> e1 : T -> e2 : T -> v: Eq T e1 e2 -> P e1 e2 v
 ]] 0 errors
 
 test tuple [[
@@ -95,7 +95,7 @@ Type
 test index data type use elim 2 [[
 data IsTrue : (b : Bool) -> Type 0 where
 	isTrue : IsTrue true;
-true : (elim IsTrue 1) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
+true :: (elim IsTrue 1) (\b: Bool. \it: IsTrue b. Type) Bool true isTrue
 ]] 0 errors
 
 test term [[
@@ -130,7 +130,7 @@ test recparam 1 [[
 data Rec (T : Type) : -> Type 0 where
     z : Rec T,
 	c : x: Rec T -> Rec T;
-(elim Rec) : T : Type -> P : (_: Rec T -> Type) -> _: P (z T) -> _: (v: Rec T -> _: P v -> P (c T v)) -> v: Rec T -> P v
+(elim Rec) :: T : Type -> P : (_: Rec T -> Type) -> _: P (z T) -> _: (v: Rec T -> _: P v -> P (c T v)) -> v: Rec T -> P v
 ]] 0 errors
 
 test recparam 1 - apply 1 [[
@@ -139,7 +139,7 @@ data Rec (T : Type) : -> Type 0 where
 	c : x: Rec T -> Rec T;
 postulate F : Type;
 postulate f : F;
-f : (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. \t: Type. _: F -> t) (z Bool)
+f :: (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. \t: Type. _: F -> t) (z Bool)
 ]] 0 errors
 
 test recparam 1 - apply 2 [[
@@ -148,14 +148,14 @@ data Rec (T : Type) : -> Type 0 where
 	c : x: Rec T -> Rec T;
 postulate F : Type;
 postulate f : F;
-(\x: F. f) : (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. \t: Type. _: F -> t) (c Bool (z Bool))
+(\x: F. f) :: (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. \t: Type. _: F -> t) (c Bool (z Bool))
 ]] 0 errors
 
 test recparam 2 [[
 data Rec (T : Type) : -> Type 0 where
     z : Rec T,
 	c : x: Rec Bool -> Rec T;
-(elim Rec) : T : Type -> P : (_: Rec T -> Type) -> _: P (z T) -> _: (v: Rec Bool -> P (c T v)) -> v: Rec T -> P v
+(elim Rec) :: T : Type -> P : (_: Rec T -> Type) -> _: P (z T) -> _: (v: Rec Bool -> P (c T v)) -> v: Rec T -> P v
 ]] 0 errors
 
 test recparam 2 - apply 1 [[
@@ -164,7 +164,7 @@ data Rec (T : Type) : -> Type 0 where
 	c : x: Rec Bool -> Rec T;
 postulate F : Type;
 postulate f : F;
-f : (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. Bool) (z Bool)
+f :: (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. Bool) (z Bool)
 ]] 0 errors
 
 test recparam 2 - apply 2 [[
@@ -172,14 +172,14 @@ data Rec (T : Type) : -> Type 0 where
     z : Rec T,
 	c : x: Rec Bool -> Rec T;
 postulate F : Type;
-false : (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. Bool) (c Bool (z Bool))
+false :: (elim Rec 1) Bool (\_: Rec Bool. Type) F (\v: Rec Bool. Bool) (c Bool (z Bool))
 ]] 0 errors
 
 test recindex 1 [[
 data Rec : (T : Type) -> Type 1 where
     z : T: Type -> Rec T,
 	c : T: Type -> x: Rec T -> Rec T;
-(elim Rec) : P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec T -> _: P T v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
+(elim Rec) :: P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec T -> _: P T v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
 ]] 0 errors
 
 test recindex 1 - apply 1 [[
@@ -188,7 +188,7 @@ data Rec : (T : Type) -> Type 1 where
 	c : T: Type -> x: Rec T -> Rec T;
 postulate F : Type;
 postulate f : F;
-f : (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec V. \p: Type. _: F -> p) F (z F)
+f :: (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec V. \p: Type. _: F -> p) F (z F)
 ]] 0 errors
 
 test recindex 1 - apply 2 [[
@@ -197,14 +197,14 @@ data Rec : (T : Type) -> Type 1 where
 	c : T: Type -> x: Rec T -> Rec T;
 postulate F : Type;
 postulate f : F;
-(\w: F. f) : (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec V. \p: Type. _: F -> p) F (c F (z F))
+(\w: F. f) :: (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec V. \p: Type. _: F -> p) F (c F (z F))
 ]] 0 errors
 
 test recindex 2 [[
 data Rec : (T : Type) -> Type 1 where
     z : T: Type -> Rec T,
 	c : T: Type -> x: Rec Bool -> Rec T;
-(elim Rec) : P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec Bool -> _: P Bool v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
+(elim Rec) :: P : (T : Type -> _: Rec T -> Type) -> _: (T : Type -> P T (z T)) -> _: (T : Type -> v: Rec Bool -> _: P Bool v -> P T (c T v)) -> T : Type -> v: Rec T -> P T v
 ]] 0 errors
 
 test recindex 2 - apply 1 [[
@@ -213,7 +213,7 @@ data Rec : (T : Type) -> Type 1 where
 	c : T: Type -> x: Rec Bool -> Rec T;
 postulate F : Type;
 postulate f : F;
-true : (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: F -> p) Bool (z Bool)
+true :: (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: F -> p) Bool (z Bool)
 ]] 0 errors
 
 test recindex 2 - apply 2 [[
@@ -222,21 +222,21 @@ data Rec : (T : Type) -> Type 1 where
 	c : T: Type -> x: Rec Bool -> Rec T;
 postulate F : Type;
 postulate f : F;
-(\w: F. true) : (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: F -> p) F (c F (z Bool))
+(\w: F. true) :: (elim Rec 1) (\T: Type. \r: Rec T. Type) (\W: Type. W) (\V: Type. \v: Rec Bool. \p: Type. _: F -> p) F (c F (z Bool))
 ]] 0 errors
 
 test multiple args cons 1 [[
 data Test : -> Type 1 where
 	c : X : Type -> Y : Type -> Test;
 postulate F : Type;
-true : elim Test 1 (\x: Test. Type) (\x: Type. \y: Type. x) (c Bool F)
+true :: elim Test 1 (\x: Test. Type) (\x: Type. \y: Type. x) (c Bool F)
 ]] 0 errors
 
 test multiple args cons 2 [[
 data Test : -> Type 1 where
 	c : X : Type -> Y : Type -> Test;
 postulate F : Type;
-true : elim Test 1 (\x: Test. Type) (\x: Type. \y: Type. y) (c F Bool)
+true :: elim Test 1 (\x: Test. Type) (\x: Type. \y: Type. y) (c F Bool)
 ]] 0 errors
 
 

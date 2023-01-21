@@ -40,14 +40,14 @@ test list of types 0 [[
 data List : -> Type 1 where
 	Nil : List,
 	Cons : t: Type -> c: List -> List;
-Nil : List
+Nil :: List
 ]] 0 errors 
 
 test list of types 1 [[
 data List : -> Type 1 where
 	Nil : List,
 	Cons : t: Type -> c: List -> List;
-(Cons Bool Nil) : List
+(Cons Bool Nil) :: List
 ]] 0 errors 
 
 test list of types 2 [[
@@ -55,7 +55,7 @@ data List : -> Type 1 where
 	Nil : List,
 	Cons : t: Type -> c: List -> List;
 postulate F : Type;
-(Cons F (Cons Bool Nil)) : List
+(Cons F (Cons Bool Nil)) :: List
 ]] 0 errors 
 
 

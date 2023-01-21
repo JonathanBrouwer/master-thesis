@@ -1,5 +1,1 @@
-postulate f1 : (A : Type -> _: A -> _: A -> A);
-postulate f2 : (A : Type -> _: A -> A);
-postulate u : X : Bool -> Bool;
-postulate v : Y : Bool -> Bool;
-(f1 _ (f2 _ u) (f2 _ v))
+_: X -> Y

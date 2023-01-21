@@ -20,7 +20,7 @@ signature constructors
 
 rules // Analysis
   
-  pre-analyze  = type-converter
+  pre-analyze  = desugar
   post-analyze = id
 
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
@@ -49,14 +49,15 @@ rules // Analysis
   pp-partial             = pp-partial-lody-string  
 
 
-  type-converter :: ? -> ?
-  type-converter = topdown(preserve-annos(try(type-converter-sub)))
+  desugar :: ? -> ?
+  desugar = topdown(preserve-annos(try(desugar-sub)))
   
-  type-converter-sub :: ? -> ?
-  type-converter-sub : TypeLit() -> Type(0)
-  type-converter-sub : TypeLitInt(u) -> Type(<string-to-int> u)
-  type-converter-sub : DataElimLit(n) -> DataElim(n, 0)
-  type-converter-sub : DataElimLitInt(n, u) -> DataElim(n, <string-to-int> u)
+  desugar-sub :: ? -> ?
+  desugar-sub : TypeLit() -> Type(0)
+  desugar-sub : TypeLitInt(u) -> Type(<string-to-int> u)
+  desugar-sub : DataElimLit(n) -> DataElim(n, 0)
+  desugar-sub : DataElimLitInt(n, u) -> DataElim(n, <string-to-int> u)
+  desugar-sub : AnonFnType(a, b) -> FnType(Syn("_"), a, b)
   
   
   uniquify-sub :: ? -> ?

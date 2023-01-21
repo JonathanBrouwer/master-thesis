@@ -18,7 +18,7 @@ test nats check [[
 data Nat : -> Type 0 where
 	Z : Nat,
 	S : x: Nat -> Nat;
-Z : Nat
+Z :: Nat
 ]] 0 errors
 
 test with postulate [[
@@ -40,7 +40,7 @@ x
 
 test empty create elim [[
 data Empty : -> Type 0 where;
-elim Empty : P: (_ : Empty -> Type) -> v: Empty -> P v
+elim Empty :: P: (_ : Empty -> Type) -> v: Empty -> P v
 ]] 0 errors
 
 
@@ -48,41 +48,41 @@ elim Empty : P: (_ : Empty -> Type) -> v: Empty -> P v
 test unit create elim [[
 data Unit : -> Type 0 where
 	MakeUnit : Unit;
-elim Unit : P: (_ : Unit -> Type) -> _: (P MakeUnit) -> n: Unit -> P n
+elim Unit :: P: (_ : Unit -> Type) -> _: (P MakeUnit) -> n: Unit -> P n
 ]] 0 errors
 
 test unit use elim [[
 data Unit : -> Type 0 where
 	MakeUnit : Unit;
-false : (elim Unit 1) (\_: Unit. Type) Bool MakeUnit
+false :: (elim Unit 1) (\_: Unit. Type) Bool MakeUnit
 ]] 0 errors
 
 test elim create bool [[
 data MyBool : -> Type 0 where
 	MyFalse : MyBool,
 	MyTrue : MyBool;
-elim MyBool : P: (_ : MyBool -> Type) -> _: (P MyFalse) -> _: (P MyTrue) -> n: MyBool -> P n
+elim MyBool :: P: (_ : MyBool -> Type) -> _: (P MyFalse) -> _: (P MyTrue) -> n: MyBool -> P n
 ]] 0 errors
 
 test elim use bool 1 [[
 data MyBool : -> Type 0 where
 	MyFalse : MyBool,
 	MyTrue : MyBool;
-(((elim MyBool 1) (\_: MyBool. Type) Bool MyBool) MyFalse) : Type
+(((elim MyBool 1) (\_: MyBool. Type) Bool MyBool) MyFalse) :: Type
 ]] 0 errors
 
 test elim use bool 2 [[
 data MyBool : -> Type 0 where
 	MyFalse : MyBool,
 	MyTrue : MyBool;
-false : (((elim MyBool 1) (\_: MyBool. Type) Bool MyBool) MyFalse)
+false :: (((elim MyBool 1) (\_: MyBool. Type) Bool MyBool) MyFalse)
 ]] 0 errors
 
 test elim use bool 3 [[
 data MyBool : -> Type 0 where
 	MyFalse : MyBool,
 	MyTrue : MyBool;
-((elim MyBool) (\_: MyBool. Bool) false true) : (_: MyBool -> Bool)
+((elim MyBool) (\_: MyBool. Bool) false true) :: (_: MyBool -> Bool)
 ]] 0 errors
 
 test elim use more options [[
@@ -93,14 +93,14 @@ data MyBool : -> Type 0 where
 	My4 : MyBool,
 	My5 : MyBool;
 postulate T : Type;
-false : (((elim MyBool 1) (\_: MyBool. Type) T Bool T T T) My2)
+false :: (((elim MyBool 1) (\_: MyBool. Type) T Bool T T T) My2)
 ]] 0 errors
 
 test elim create MaybeBool [[
 data MaybeBool : -> Type 0 where
 	None : MaybeBool,
 	Some : x: Bool -> MaybeBool;
-elim MaybeBool : P: (_: MaybeBool -> Type) -> _: (P None) -> _: (x: Bool -> P (Some x)) -> n: MaybeBool -> P n
+elim MaybeBool :: P: (_: MaybeBool -> Type) -> _: (P None) -> _: (x: Bool -> P (Some x)) -> n: MaybeBool -> P n
 ]] 0 errors 
 
 test elim use MaybeBool [[
@@ -108,14 +108,14 @@ data MaybeBool : -> Type 0 where
 	None : MaybeBool,
 	Some : x: Bool -> MaybeBool;
 postulate T : Type;
-true : ((elim MaybeBool 1) (\_: MaybeBool. Type) T (\b: Bool. Bool) (Some true))
+true :: ((elim MaybeBool 1) (\_: MaybeBool. Type) T (\b: Bool. Bool) (Some true))
 ]] 0 errors 
 
 test elim create nat [[
 data Nat : -> Type 0 where
 	Z : Nat,
 	S : x: Nat -> Nat;
-elim Nat : P: (_: Nat -> Type) -> _: (P Z) -> _: (x: Nat -> _: P x -> P (S x)) -> n: Nat -> P n
+elim Nat :: P: (_: Nat -> Type) -> _: (P Z) -> _: (x: Nat -> _: P x -> P (S x)) -> n: Nat -> P n
 ]] 0 errors 
 
 test elim use nat 0 [[
@@ -124,7 +124,7 @@ data Nat : -> Type 0 where
 	S : x: Nat -> Nat;
 postulate T : Type;
 postulate x : T;
-x : ((elim Nat 1) (\_: Nat. Type) T (\n: Nat. \b: Type. Bool) Z)
+x :: ((elim Nat 1) (\_: Nat. Type) T (\n: Nat. \b: Type. Bool) Z)
 ]] 0 errors 
 
 test elim use nat 1 [[
@@ -132,7 +132,7 @@ data Nat : -> Type 0 where
 	Z : Nat,
 	S : x: Nat -> Nat;
 postulate T : Type;
-false : ((elim Nat 1) (\_: Nat. Type) T (\n: Nat. \b: Type. Bool) (S Z))
+false :: ((elim Nat 1) (\_: Nat. Type) T (\n: Nat. \b: Type. Bool) (S Z))
 ]] 0 errors 
 
 test elim use nat 2 [[
@@ -183,46 +183,46 @@ x
 
 test param data type 0 type [[
 data Maybe (T : Type) : -> Type where;
-Maybe : (T : Type -> Type)
+Maybe :: (T : Type -> Type)
 ]] 0 errors 
 
 test param data type 0 type [[
 data Maybe (T : Type) : -> Type 0 where;
-Maybe Bool : Type
+Maybe Bool :: Type
 ]] 0 errors 
 
 test param data type 1 type [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T;
-Maybe : (T : Type -> Type)
+Maybe :: (T : Type -> Type)
 ]] 0 errors 
 
 test param data type 2 type [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T,
 	Some : _: T -> Maybe T;
-Maybe : (T : Type -> Type)
+Maybe :: (T : Type -> Type)
 ]] 0 errors 
 
 test param data type 2 type applied [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T,
 	Some : _: T -> Maybe T;
-Maybe Bool : Type
+Maybe Bool :: Type
 ]] 0 errors 
 
 test param data type 2 none [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T,
 	Some : _: T -> Maybe T;
-None : (T : Type -> Maybe T)
+None :: (T : Type -> Maybe T)
 ]] 0 errors 
 
 test param data type 2 some [[
 data Maybe (T : Type) : -> Type 0 where
 	None : Maybe T,
 	Some : _: T -> Maybe T;
-Some : (T : Type -> v : T -> Maybe T)
+Some :: (T : Type -> v : T -> Maybe T)
 ]] 0 errors 
 
 test param data T does not leak [[

@@ -87,4 +87,8 @@ let x = a;
 let x = a;
 ]] parse fails
 
+test parse fun type anon [[
+X -> Y
+]] parse succeeds
+
 

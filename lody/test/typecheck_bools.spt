@@ -40,14 +40,14 @@ and
 test bool decomp true [[
 [[
 postulate T : Type;
-true : if true then Bool else T end
+true :: if true then Bool else T end
 ]]
 ]] 0 errors run get-type on #1 to BoolType()
 
 test bool decomp false [[
 [[
 postulate T : Type;
-true : if false then T else Bool end
+true :: if false then T else Bool end
 ]]
 ]] 0 errors run get-type on #1 to BoolType()
 

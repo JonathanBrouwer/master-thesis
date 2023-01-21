@@ -25,13 +25,13 @@ test tricky 4 [[
 
 test tricky 5 simple [[
 [[
-(\T : Type. \G : T. G) : (H: Type -> I: H -> H)
+(\T : Type. \G : T. G) :: (H: Type -> I: H -> H)
 ]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("G", Var("T"), Var("T")))
 
 test tricky 5 complex [[
 [[
-(\T : Type. \T : T. T) : (H: Type -> I: H -> H)
+(\T : Type. \T : T. T) :: (H: Type -> I: H -> H)
 ]]
 ]] 0 errors run get-type on #1 to FnType("T", Type(0), FnType("T'", Var("T"), Var("T")))
 

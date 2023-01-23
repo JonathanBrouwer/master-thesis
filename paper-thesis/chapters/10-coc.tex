@@ -191,6 +191,8 @@ We can then start defining type checking rules for the language. We introduce a 
 	\item $\scope{sEmpty}{e}$ is the same as $e$ (empty scopes can be left out)
 \end{enumerate}
 
+One thing to note is that some rules use \verb|betaReduce|. The goal of this beta reduce is to make the term into a term that does not need an environment (by substituting all let bindings). A full beta reduce is not necessary, but this is merely a performance optimization.
+
 The inference rules in figure \ref{fig:type-check-rules} can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings is expressed like this in Statix:
 \begin{lstlisting}
 typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-

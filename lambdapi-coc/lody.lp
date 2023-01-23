@@ -1,7 +1,7 @@
-// Represents a term of sort `s`, so this term is a type in the embedded language.
+// Represents a term of sort, so this term is a type in the embedded language.
 constant symbol TmSort : TYPE;
 
-// Rerpesents a term of type `a`, which has sort `s`. 
+// Rerpesents a term of type `a`. 
 symbol TmType : Π (a : TmSort), TYPE;
 
 // This is `Type` in the embedded language

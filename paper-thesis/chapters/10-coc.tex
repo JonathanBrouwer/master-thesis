@@ -61,7 +61,7 @@ We will define a \emph{scoped expression}, as a pair of a scope and an expressio
 
 A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare. Beta reduction is the process of reduction a term to its beta normal form, which is the state where no further beta reductions are possible~\cite{tapl}. It works by matching a term of the form \verb|(\x. b) e|. and substituting \verb|x| in \verb|b| with \verb|e|. Beta reduction applies this rule anywhere in the term, whereas beta head-reduction only applies this rule at the head (outermost expression) of the term, and produces a term in beta-head normal form.
 
-We implemented beta reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types; more information about this will be in the full master's thesis~\cite{thesis}. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
+We implemented beta reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
 
 In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition), such as renaming.
 
@@ -280,3 +280,6 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 	\caption{Rules for type checking the Calculus of Constructions}
 	\label{fig:type-check-rules}
 \end{figure}
+
+\section{Discussion of a substitution-based approach}
+\todo{Do this}

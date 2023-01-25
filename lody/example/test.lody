@@ -1,4 +1,1 @@
-postulate f : (A : Type -> _: A -> _: A -> A);
-postulate u : X : Bool -> Bool;
-postulate v : Y : Bool -> Bool;
-(f _ u v)
+(\x: Bool. x) :: (Bool -> Bool)

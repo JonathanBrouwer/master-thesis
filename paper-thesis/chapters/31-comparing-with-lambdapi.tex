@@ -9,7 +9,7 @@ In this chapter we will be implementing the language defined in chapter \ref{cha
 
 We will define a symbol in the meta language (lambdapi) for each construct in the object language. The result is visible in figure \ref{fig:lp-symbols}. We will leave \verb|Let| out of the language for now, it will be discussed separately in section \ref{ch:comp-lambdapi:let}.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 \begin{lstlisting}
 constant symbol TmSort : TYPE;
 symbol TmType : Π (a : TmSort), TYPE;
@@ -57,7 +57,7 @@ It seems like it should be possible to infer these, but lambdapi fails to infer 
 We define reduction rules to reduce the symbols we defined in the previous section into lambdapi. Lambdapi can then evaluate the rules using its own semantics, not requiring any additional rules similar to the ones in figure \ref{fig:beta-head-reduce-rules}. The reduction rules are given in figure \ref{fig:lp-rules}. Each of the constructs is reduced to the corresponding construct in the meta language.
 
 	\todo{invisible chars}
-\begin{figure}[h]
+\begin{figure}[ht]
 	\begin{lstlisting}
 rule TmType Type ↪ TmSort;
 rule TmType (FnType $A $B) ↪ Π (x : TmType $A), TmType ($B x);
@@ -73,7 +73,7 @@ rule FnDestruct _ _ $f $a ↪ $f $a;
 Let bindings require substitution, which is not possible to encode in lambdapi. We can encode a less powerful version of let bindings, which are not substituted but evaluated via functions. The definition of this is given in figure \ref{fig:lp-let}. The body of the let binding is allowed to depend on a value of type \verb|A|, but it is not aware of the exact value \verb|v| of the let binding. 
 
 	\todo{invisible chars}
-\begin{figure}[h]
+\begin{figure}[ht]
 	\begin{lstlisting}
 symbol Let : 
 	Π (A : TmSort), 

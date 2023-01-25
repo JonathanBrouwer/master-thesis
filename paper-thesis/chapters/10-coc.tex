@@ -72,10 +72,6 @@ rebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
 
 Additionally, we define \verb|betaReduce| which fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
 
-Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with placeholders.
-
-
-
 \begin{figure}[h]
 	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$}]{Beta head-reduction rules}
 
@@ -172,6 +168,59 @@ Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads o
 	\end{mathpar}
 	\caption{Rules for beta head reducing the Calculus of Constructions}
 	\label{fig:beta-head-reduce-rules}
+\end{figure}
+
+\section{Beta equality}
+\label{sec:coc-betaeq}
+
+Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with a unique placeholder.
+
+This substitution is called \verb|AlphaEqVars : ID * ID -> Expr|. The combination of the ID on the left and right hand side of the equality guarantees that the substitution is unique. In figure \ref{fig:beta-eq-rules} we show how \verb|AlphaEqVars| is used to determine equality of functions.
+
+\begin{figure}[h]
+	\figuresection[\fbox{$\beq{\scope{s_1}{e_1}}{\scope{s_2}{e_2}}$}]{Beta equality rules}
+	
+	\begin{mathpar}
+		\inferrule{
+		} {
+			\beq
+			{ \co{AlphaEqVars}(x_1, x_2) }
+			{ \co{AlphaEqVars}(x_1, x_2) }
+		}
+	
+		\inferrule{
+			\beq{\scope{s_1}{a_1}}{\scope{s_2}{a_2}}
+			\\\\ s_1' = \co{sPutSubst}(s_1, x_1, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
+			\\\\ s_2' = \co{sPutSubst}(s_2, x_2, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
+			\\\\ \beq{
+				\scope{s_1'}{b_1}
+				}{ 
+				\scope{s_2'}{b_2}
+			}
+		} {
+			\beq
+			{ \scope{s_1}{\co{FnType}(x_1, a_1, b_1)} }
+			{ \scope{s_2}{\co{FnType}(x_1, a_2, b_2)} }
+		}
+	
+		\inferrule{
+			\beq{\scope{s_1}{a_1}}{\scope{s_2}{a_2}}
+			\\\\ s_1' = \co{sPutSubst}(s_1, x_1, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
+			\\\\ s_2' = \co{sPutSubst}(s_2, x_2, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
+			\\\\ \beq{
+				\scope{s_1'}{b_1}
+			}{ 
+				\scope{s_2'}{b_2}
+			}
+		} {
+			\beq
+			{ \scope{s_1}{\co{FnConstruct}(x_1, a_1, b_1)} }
+			{ \scope{s_2}{\co{FnConstruct}(x_1, a_2, b_2)} }
+		}
+	\end{mathpar}
+
+	\caption{Rules for beta equality in the Calculus of Constructions}
+	\label{fig:beta-eq-rules}
 \end{figure}
 
 \section{Type checking the Calculus of Constructions}

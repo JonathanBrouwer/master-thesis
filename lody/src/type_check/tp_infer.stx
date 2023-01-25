@@ -11,7 +11,7 @@ signature constructors
   
 rules
   	
-  // Infer constructors can occur here because betaEq can introduce them inside of Infer terms (like the one above)
+  // Infer constructors can occur here because betaEq can introduce them inside of Infer terms
   // They should just be flattened
   typeOfExpr_(s, Infer(q)) = (Infer(q), t) :-
     typeOfExpr_(s, q) == (_, t).
@@ -29,10 +29,10 @@ rules
   expectBetaEq_((s1, e1@Var(_)), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@AlphaEqVars(_, _)), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@FnType(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_type2 body2}
-  	e2 == FnType(Syn(_), Infer(arg_type2), Infer(body2)),
+  	e2 == FnType(arg_name1, Infer(arg_type2), Infer(body2)),
   	expectBetaEq_((s1, e1), (sEmpty(), e2)).
   expectBetaEq_((s1, e1@FnConstruct(arg_name1, arg_type1, body1)), (_, Infer(e2))) :- {arg_type2 body2}
-  	e2 == FnConstruct(Syn(_), Infer(arg_type2), Infer(body2)),
+  	e2 == FnConstruct(arg_name1, Infer(arg_type2), Infer(body2)),
   	expectBetaEq_((s1, e1), (sEmpty(), e2)).
   expectBetaEq_((s1, e1@BoolTrue()), (_, Infer(e2))) :- e1 == e2.
   expectBetaEq_((s1, e1@BoolFalse()), (_, Infer(e2))) :- e1 == e2.

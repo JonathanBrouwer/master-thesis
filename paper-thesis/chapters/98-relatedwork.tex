@@ -1,5 +1,2 @@
 \chapter{Related Work}
-The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. Van Antwerpen et al. \cite[sect 2.5]{scopes_as_types} present an implementation of System F that does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can contain terms. 
-
-Another interesting comparison is to see how implementing a dependently typed language in Statix differs from implementing it in a general purpose language. The pi-forall language\cite{pi_forall} is a good example of a language with a similar complexity to the language presented in this paper. In principle, the implementations are very similar. For example, the inference rules presented in \cite{pi_forall} are similar to the inference rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system, whereas this paper does not.
-
+\label{ch:relatedwork}

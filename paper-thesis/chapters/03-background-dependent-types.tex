@@ -14,7 +14,7 @@ add_vec : (n : Nat) -> Vec n -> Vec n -> Vec n
 
 \section{The Curry-Howard Isomorphism}
 
-The Curry-Howard correspondence is a relationship that can be used to interpret typed programs as mathematical proofs \cite{chc}. This is done by representing false statements as empty types, and true statements as non-empty (inhabited) types. 
+The Curry-Howard correspondence is a relationship that can be used to interpret typed programs as mathematical proofs~\cite{chc}. This is done by representing false statements as empty types, and true statements as non-empty (inhabited) types. 
 
 For example, it is possible to define a type \verb|IsEven n|, that represent the statement "\verb|n| is even", and declare it in such a way that it is only inhabited if \verb|n| is even.
 
@@ -22,7 +22,7 @@ In order to use a type system to prove things it is important that the type syst
 
 \section{The Lambda Cube}
 
-The lambda cube is a framework to categorize programming languages based on whether terms and types can depend on each other \cite{lambda_cube}. Specifically, it categorizes languages on three axis: \footnote{Note that the "Terms can depend on terms" axis is missing, this is because a language where terms cannot depend on terms cannot compute anything and is thus pretty useless.}
+The lambda cube is a framework to categorize programming languages based on whether terms and types can depend on each other~\cite{lambda_cube}. Specifically, it categorizes languages on three axis: \footnote{Note that the "Terms can depend on terms" axis is missing, this is because a language where terms cannot depend on terms cannot compute anything and is thus pretty useless.}
 
 \begin{enumerate}
 	\item Terms can depend on types. This corresponds to type-polymorphic (generic) functions. For example, it allows us to define the polymorphic identity function:

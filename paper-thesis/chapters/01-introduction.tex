@@ -1,17 +1,29 @@
 \chapter{Introduction}
 
-Spoofax is a textual language workbench: \label{key}a collection of tools that enable the development of textual languages \cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. To provide these advantages to as many language developers as possible, Statix aims to cover a broad range of languages and type systems. However, no attempts have been made to express dependently typed languages in Statix. 
+Spoofax is a language workbench: a collection of tools that enable the development of textual languages~\cite{spoofax}. When working with the Spoofax workbench, the Statix meta-language can be used for the specification of static semantics. It is a declarative language that uses inference rules to define static semantics. From these rules a type checker and other editor tools can be derived. Statix aims to cover a broad range of languages and type systems. However, no attempts have been made to express dependently typed languages in Statix until now. 
 
-Dependently typed languages are different from other languages, because they allow types to be parameterized by values. This allows types to express properties of values that cannot be expressed in a simple type system, such as the length of a list or the well-formedness of a binary search tree. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires evaluation of the terms they are parameterized by. 
+Dependently typed languages are different from other languages, because they allow types to be parameterized by values. This allows types to express properties of values that cannot be expressed in a simple type system, such as the length of a list or the well-formedness of a binary search tree. This expressiveness also makes dependent type systems more complicated to implement. Especially, deciding equality of types requires normalization of the terms they are parameterized by. 
 
-\section{Contributions}
-This goal of this paper is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed languages can be encoded concisely in Statix. The goal is not only to show that Statix can implement it, but to investigate whether implementing a dependent type checker is easier in Statix than in a general-purpose programming language. 
+\section*{Contributions}
+This goal of this thesis is to investigate how well Statix is fit for the task of defining a simple dependently-typed language. We want to investigate whether typical features of dependently typed languages can be encoded concisely in Statix. The goal is not only to show that Statix can implement it, but also that the implementation is concise.
 
 The technical contributions of this thesis are the following:
 \begin{itemize}
-	\item 
+	\item We present a implementation of the Calculus of Constructions in Statix (Chapter \ref{chap:baselang})
+	\item We show the implementation is easily extendable (Chapter \ref{chap:bools})
+	\item We show how to add inference to the implementation (Chapter \ref{ch:inference})
+	\item We show how to add support for inductive datatypes to the implementation (Chapter \ref{ch:datatypes})
+	\item We show how to add support for universes to the implementation (Chapter \ref{ch:universes})
 \end{itemize}
 
-\section{Outline}
+\section*{Discussions}
 
-TODO navigation
+Furthermore, the thesis contains some discussions:
+\begin{itemize}
+	\item We discuss how well semantic code completion works for our language (Chapter \ref{chap:editor-services})
+	\item We compare our implementation with an implementation of the same language in Haskell (Chapter \ref{ch:comp-haskell})
+	\item We compare our implementation with an implementation of the same language in LambdaPi (Chapter \ref{ch:comp-lambdapi})
+	\item We discuss how Spoofax can be improved to better support implementing dependently typed languages (Chapter \ref{ch:ergonomics})
+	\item We discuss related work (Chapter \ref{ch:relatedwork}) and future work (Chapter \ref{ch:futurework})
+	
+\end{itemize}

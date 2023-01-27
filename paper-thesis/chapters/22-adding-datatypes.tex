@@ -36,7 +36,7 @@ data Bad : -> Type where
 \end{lstlisting}
 \end{enumerate}
 
-A difference between Agda and our implementation is that Agda has case matching as a native construct, whereas we chose to use eliminators \todo{Citation}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
+A difference between Agda and our implementation is that Agda has case matching as a native construct, whereas we chose to use eliminators~\cite{eliminators}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
 \begin{lstlisting}
 elim Nat : P: (v: Nat -> Type) -> P Z 
 	-> (x: Nat -> P x -> P (S x)) -> n: Nat -> P n

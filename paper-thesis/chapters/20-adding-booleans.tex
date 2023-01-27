@@ -20,14 +20,14 @@ BoolIf : Expr * Expr * Expr -> Expr
 Then, the rules for beta reducing the language are in figure \ref{fig:bool-rules-beta}. There is one particularly interesting case, that is how to beta-reduce if statements. Converting this rule to Statix is not entirely trivial, since you need to choose which rule to apply based on what \verb|c| evaluates to. A new rule is needed, which has 3 cases. One for if \verb|c| evaluates to true, one for if \verb|c| evaluates to false, and finally a third case for other cases (such as when \verb|c| is a variable that does not have a substitution). These rules are stated below: (Remember that \verb|rebuild| is the rule introduced in chapter \ref{chap:baselang}, which takes a scoped expression and a list of arguments and converts it to an expression by adding \verb|FnDestruct|s)
 
 \begin{lstlisting}
-betaReduceHead((s, BoolIf(c, b1, b2)), t) = 
-  betaReduceHeadIf(s, betaReduceHead((s, c), []), c, b1, b2, t).
-betaReduceHeadIf(s, (_, BoolTrue()), _, b1, _, t) = 
-  betaReduceHead((s, b1), t).
-betaReduceHeadIf(s, (_, BoolFalse()), _, _, b2, t) = 
-  betaReduceHead((s, b2), t).
-betaReduceHeadIf(s, _, c, b1, b2, t) = 
-  rebuild((s, BoolIf(c, b1, b2)), t).
+betaReduceHead((s, BoolIf(c, b1, b2)), ps) = 
+  betaReduceHeadIf(s, betaReduceHead((s, c), []), c, b1, b2, ps).
+betaReduceHeadIf(s, (_, BoolTrue()), _, b1, _, ps) = 
+  betaReduceHead((s, b1), ps).
+betaReduceHeadIf(s, (_, BoolFalse()), _, _, b2, ps) = 
+  betaReduceHead((s, b2), ps).
+betaReduceHeadIf(s, _, c, b1, b2, ps) = 
+  rebuild((s, BoolIf(c, b1, b2)), ps).
 \end{lstlisting}
 
 \begin{figure}[ht]
@@ -56,19 +56,21 @@ betaReduceHeadIf(s, _, c, b1, b2, t) =
 		{ \scope{s}{\co{BoolType}()}}
 	}
 
+	\\
+
 	\inferrule{
 		\bhr
 		{ \scope{s}{c} }
 		{ [] }
 		{ \scope{s'}{\co{BoolTrue}()} }
-		\\\bhr
+		\\\\\bhr
 		{ \scope{s}{b1} }
-		{ t }
+		{ \overline{p} }
 		{ \scope{s''}{b1'} }
 	} {
 		\bhr
 		{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
-		{ t }
+		{ \overline{p} }
 		{ \scope{s}{b1'}}
 	}
 
@@ -77,16 +79,30 @@ betaReduceHeadIf(s, _, c, b1, b2, t) =
 		{ \scope{s}{c} }
 		{ [] }
 		{ \scope{s'}{\co{BoolFalse}()} }
-		\\\bhr
+		\\\\\bhr
 		{ \scope{s}{b2} }
-		{ t }
+		{ \overline{p} }
 		{ \scope{s''}{b2'} }
 	} {
 		\bhr
 		{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
-		{ t }
+		{ \overline{p} }
 		{ \scope{s}{b2'}}
 	}
+
+	\inferrule{
+	\bhr
+	{ \scope{s}{c} }
+	{ [] }
+	{ \scope{s'}{c'} }
+	\\\\ c' \neq \co{BoolTrue}()
+	\\ c' \neq \co{BoolFalse}()
+} {
+	\bhr
+	{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
+	{ \overline{p} }
+	{ \co{rebuild}((s, \co{BoolIf}(c, b1, b2)), \overline{p}) }
+}
 \end{mathpar}
 \caption{Rules for beta head reducing booleans}
 \label{fig:bool-rules-beta}
@@ -112,14 +128,14 @@ Next, the rules for type-checking booleans are in figure \ref{fig:bool-rules-typ
 	}
 
 	\inferrule{
-		\toe{s}{c}{ct}
-		\\\beq{ct}{\co{BoolType}()}
+		\toe{s}{c}{t_c}
+		\\\beq{t_c}{\co{BoolType}()}
 		\\\\
-		\\\toe{s}{b1}{tb1}
-		\\\toe{s}{b2}{tb2}
-		\\\beq{tb1}{tb2}
+		\\\toe{s}{b1}{t_{b1}}
+		\\\toe{s}{b2}{t_{b2}}
+		\\\beq{t_{b1}}{t_{b2}}
 	} {
-		\toe{s}{\co{BoolIf}(c, b1, b2)}{tb1}
+		\toe{s}{\co{BoolIf}(c, b1, b2)}{t_{b1}}
 	}
 \end{mathpar}
 \caption{Rules for type checking booleans}
@@ -140,22 +156,22 @@ The following rules are used to implement the feature, which translate cleanly t
 		\inferrule{
 			\bhr
 			{\scope{s}{b}}
-			{a}
+			{\overline{p}}
 			{\scope{s'}{b'}}
 		}{
 			\bhr
 			{\scope{s}{\co{Postulate}(n, t, b)}}
-			{a}
+			{\overline{p}}
 			{\scope{s'}{b'}}
 		}
 	
 		\inferrule{
-			\toe{s}{t}{tt}
-			\\\beq{tt}{\co{Type}()}
+			\toe{s}{t}{t_t}
+			\\\beq{t_t}{\co{Type}()}
 			\\\\\bred{s}{t}{t'}
-			\\\toe{\co{sPutType}(s, n, t')}{b}{bt}
+			\\\toe{\co{sPutType}(s, n, t')}{b}{t_b}
 		} {
-			\toe{s}{\co{Postulate}(n, t, b)}{bt}
+			\toe{s}{\co{Postulate}(n, t, b)}{t_b}
 		}
 	\end{mathpar}
 	\caption{Rules for postulates}

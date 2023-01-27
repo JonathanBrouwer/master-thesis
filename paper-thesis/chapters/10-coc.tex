@@ -52,7 +52,7 @@ sPutSubst : scope * ID * (scope * Expr) -> scope
 sGetName  : scope * ID -> NameEntry
 sEmpty    : -> scope
 \end{lstlisting}
-The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching same. Finally, \verb|sEmpty| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching name. Finally, \verb|sEmpty| returns a fresh empty scope.
 
 We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression.
 

@@ -28,7 +28,7 @@ g true
 
 We know that \verb|f| is a function from \verb|Type -> Type|, but it fails to infer the value of \verb|f|. Because of the way that \verb|g| is used, the type checker asserts that $\beq{f x}{Bool}$. Since x is declared as a function argument and it is completely free, this means that for any \verb|x|, \verb|f x = Bool|. But the rule above is not powerful enough to derive this, so it fails.
 
-A more powerful algorithm that could solve this is \emph{higher-order pattern unification} as defined by Miller~\cite{Miller89}, which is implemented in Agda. Implementing this in Statix is theoretically possible\footnote{since Statix is turing-complete}, but would be quite difficult to do in practice.
+A more powerful algorithm that could solve this is \emph{higher-order pattern unification} as defined by Miller~\cite{Miller89}, which is implemented in Agda. Implementing this in Statix is theoretically possible\footnote{Since Statix is turing-complete}, but would be quite difficult to do in practice.
 
 \section{Inference in Statix}
 \label{statix-inference}
@@ -39,7 +39,7 @@ However, we cannot immediately use Statix' built-in first-order unification (whi
 
 Instead, we will be implementing a novel, less powerful form of first-order unification. This will work by explicitly denoting which variables \emph{could be} free, and explicitly handling these cases in a way that approximates first-order unification. We will name this algorithm \emph{approximated first-order unification (AFOU)}.
 
-\section{Implementing AFOU}
+\section{Implementing AFOU} \todo{Do we want all these examples in Statix or math notation?}
 \label{implementing-inference}
 
 First, we introduce a new constructor \verb|Infer : Expr -> Expr|, which denotes the variables which could be free. The constructor is introduced when we encounter a \verb|_| variable, a marker that something needs to be inferred.
@@ -78,11 +78,18 @@ expectBetaEq((s1, e1@BoolType()), (_, Infer(e2))) :- e1 == e2.
 	\item A complex expression \verb|e1| on the left, an infer expression on the right. In this case, we know what top-level constructor of the metavariable should be, but not necessarily the entire constructor (there might be infers in \verb|e1|). We introduce new \verb|Infer| expressions on the left, and call \verb|expectBetaEq| recursively. A simple example for \verb|BoolIf| is below:
 	\begin{lstlisting}
 expectBetaEq((s1, e1@BoolIf(c1, t1, b1)), (_, Infer(e2))) :-
-	{c2 t2 b2}
 	e2 == BoolIf(Infer(c2), Infer(t2), Infer(b2)),
 	expectBetaEq((s1, e1), (sEmpty(), e2)).
 	\end{lstlisting}
-	\verb|FnType| and \verb|FnConstruct| work similarly, 
+	\verb|FnType| and \verb|FnConstruct| work similarly, but we don't only have sub-expressions but also a name to consider. Sadly, this is the first case where we have to approximate. 
+	\begin{lstlisting}
+expectBetaEq((s1, e1@FnConstruct(arg_name1, arg_type1, body1)), 
+	(_, Infer(e2))) :-
+	e2 == FnConstruct(arg_name1, Infer(arg_type2), Infer(body2)),
+	expectBetaEq_((s1, e1), (sEmpty(), e2)).
+	\end{lstlisting}
+	\label{inf-case2}
+	Ideally, we would generate a new name iff \verb|e2| is a free variable, otherwise using the already generated name. We can't query whether \verb|e2| is free, so as a best-attempt we always assume that \verb|e2| is free and generate a new name, this will fail in some cases. We will discuss this in the next section.
 	
 	\item An infer expression on the left, any expression on the right. We should not duplicate the previous two rules, instead, we can just swap the two expressions and re-use the rules above.
 \begin{lstlisting}
@@ -90,7 +97,7 @@ expectBetaEq((_, Infer(e1)), (s2, e2)) :-
 	expectBetaEq((s2, e2), (_, Infer(e1))).
 \end{lstlisting}
 
-	\item \label{inf-case4} An infer expression on both sides. This is where the approximation comes in. In normal first-order unification, we would see if either side is known, and possible apply one of the rules above depending on the result. This is not possible, so we're going to do something that approximates first-order unification: just set both sides to be equal. This is an approximation because this might fail if both sides are equal under beta equality but not identical. This approximation is analyzed in section \ref{analysing-inference}.
+	\item \label{inf-case4} An infer expression on both sides. Here, more approximation is required. In normal first-order unification, we would see if either side is known, and possible apply one of the rules above depending on the result. This is not possible, so we're going to do something that approximates first-order unification: just set both sides to be equal. This is an approximation because this might fail if both sides are equal under beta equality but not identical. This approximation is analyzed in section \ref{analysing-inference}.
 \begin{lstlisting}
 expectBetaEq((_, Infer(e1)), (_, Infer(e2))) :-
 	e1 == e2.
@@ -101,9 +108,13 @@ expectBetaEq((_, Infer(e1)), (_, Infer(e2))) :-
 \section{Analysis of the approximation}
 \label{analysing-inference}
 
-The only difference between AFOU and FOU is case \ref{inf-case4}. Instead of asserting that both sides are equal under beta equality, we assert that both sides are identical. Both sides being identical implies that they are beta-equal, so this approximation is sound, meaning there is no program that AFOU can infer but FOU cannot. 
+The only difference between AFOU and FOU is case \ref{inf-case2} (for functions) and \ref{inf-case4}. 
 
-The approximation is not complete: There are situations where AFOU fails to infer a program that FOU can infer. However, these programs are rare. This happens when a program contains multiple infer points, two of these are asserted to be beta-equal, and they are not identical but they are beta-equal. \todo{Find program where this fails.}
+In case \ref{inf-case2}, this will only infer the value if it has not been inferred yet. This means that if the same value is inferred from two different places, this will infer two different values and fail.
+
+In case \ref{inf-case4}, instead of asserting that both sides are equal under beta equality, we assert that both sides are identical. Both sides being identical implies that they are beta-equal, so this approximation is sound, meaning there is no program that AFOU can infer but FOU cannot. 
+
+The approximations are not complete: There are situations where AFOU fails to infer a program that FOU can infer. However, these programs are surprisingly uncommon considering how rough the approximations are. They mostly fail when we attempt to infer function values, and two functions are inferred that are beta-equal, and they are beta-equal but not identical. An example of a program where these approximation fails is:
 
 \begin{lstlisting}
 postulate f : (A : Type -> _: A -> _: A -> A);

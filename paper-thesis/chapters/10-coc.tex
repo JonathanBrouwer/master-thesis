@@ -35,7 +35,7 @@ f (T: Type -> Type) (\y: Type. y)
 
 To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), which are names created by function arguments and dependent function types, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
 
-In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}. It is a graph consisting of nodes for scopes, labeled edges for visibility relations, scoped declarations for a relation, and queries for references. We only use a single type of edge, called \verb|P| (parent) edges. It also only has a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below:
+In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}, as explained in chapter \ref{chap:bg-spoofax}. We only use a single type of edge, called \verb|P| (parent) edges. We also only have a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below:
 \begin{lstlisting}
 constructors
     NameType : Expr -> NameEntry
@@ -52,7 +52,7 @@ sPutSubst : scope * ID * (scope * Expr) -> scope
 sGetName  : scope * ID -> NameEntry
 sEmpty    : -> scope
 \end{lstlisting}
-The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph use \verb|sGetName|, which will return a \verb|NameEntry| that the query found. Finally, \verb|sEmpty| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching same. Finally, \verb|sEmpty| returns a fresh empty scope.
 
 We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression.
 
@@ -61,7 +61,7 @@ We will define a \emph{scoped expression}, as a pair of a scope and an expressio
 
 A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare. Beta reduction is the process of reduction a term to its beta normal form, which is the state where no further beta reductions are possible~\cite{tapl}. It works by matching a term of the form \verb|(\x. b) e|. and substituting \verb|x| in \verb|b| with \verb|e|. Beta reduction applies this rule anywhere in the term, whereas beta head-reduction only applies this rule at the head (outermost expression) of the term, and produces a term in beta-head normal form.
 
-We implemented beta reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation. We originally tried to implement the latter, which works fine for the base language. However, it runs into trouble when implementing inductive data types. An additional benefit is that abstract machines are usually more efficient than substitution-based approaches.
+We implemented beta reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation, which is an alternative we will discuss in section \ref{sec:coc-subst}.
 
 In conventional dependently typed languages, evaluation is often done using De Bruijn indices. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition), such as renaming.
 
@@ -173,7 +173,7 @@ Additionally, we define \verb|betaReduce| which fully beta reduces a term. It wo
 \section{Beta equality}
 \label{sec:coc-betaeq}
 
-Finally, we define \verb|expectBetaEq|. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with a unique placeholder.
+We need to define \verb|expectBetaEq|, which asserts that two scoped expressions are equal under beta reduction. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with a unique placeholder.
 
 This substitution is called \verb|AlphaEqVars : ID * ID -> Expr|. The combination of the ID on the left and right hand side of the equality guarantees that the substitution is unique. In figure \ref{fig:beta-eq-rules} we show how \verb|AlphaEqVars| is used to determine equality of functions.
 
@@ -331,4 +331,52 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 \end{figure}
 
 \section{Discussion of a substitution-based approach}
-\todo{Do this}
+\label{sec:coc-subst}
+
+An alternative for a Krivine machine, which keeps a stack of arguments it has encountered, is a substitution-based relation. This beta-reduces a \verb|FnDestruct| by doing a nested beta-reduction of the function, and substituting into that, as is shown in figure \ref{fig:subst-approach}.
+
+Although these rules look cleaner, they are more complicated to implement, requiring a separate relation to check if \verb|f| is a \verb|FnConstruct| or something else. For the pure calculus of constructions, this still works quite well but when adding inductive datatypes (chapter \ref{ch:datatypes}) this quickly becomes a mess. 
+
+An additional benefit of Krivine machines is that the run-time performance of them tends to be a bit higher, though this is only a constant factor and not a time-complexity improvement.
+
+\begin{figure}[h]
+	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{}{\scope{s_2}{e_2}}$}]{A substitution-based approach for beta reduction}
+	\begin{mathpar}
+		\mprset{vskip=0.7ex}
+		
+		\inferrule{
+			\bhr
+			{\scope{s}{f}}{}
+			{\scope{s_{f'}}{\co{FnConstruct}(x, \_, b)}}
+			\\ \bhr
+			{\scope{\co{sPutSubst}(s_{f'}, x, (s, a))}{b}}{}
+			{\scope{s_{b'}}{b'}}
+		} {
+			\bhr
+			{\scope{s}{\co{FnDestruct}(f, a)}}{}
+			{\scope{s_{b'}}{b'}}
+		}
+	
+		\inferrule{
+			\bhr
+			{\scope{s}{f}}{}
+			{\scope{s_{f'}}{f'}}
+			\\ \nexists x e_1 e_2. f' = \co{FnConstruct}(x, e_1, e_2)
+		} {
+			\bhr
+			{\scope{s}{\co{FnDestruct}(f, a)}}{}
+			{\scope{s}{\co{FnDestruct}(f, a)}}{}
+		}
+	
+		\inferrule{
+		} {
+			\bhr
+			{\scope{s}{\co{FnConstruct}(x, a, b)}}{}
+			{\scope{s}{\co{FnConstruct}(x, a, b)}}{}
+		}
+		
+		\mprset{vskip=0ex}
+	\end{mathpar}
+	\caption{A substitution-based approach for beta reduction}
+	\label{fig:subst-approach}
+\end{figure}

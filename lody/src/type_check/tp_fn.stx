@@ -12,20 +12,20 @@ rules
   	
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type(ua))),
+  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type(ua))) | error $[Expected [arg_type] to be a type, found [arg_type_type]],
   	// Reduce arg_type
   	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the type of the body with the arg in scope
   	sPutType(s, arg_name', arg_type_reduced) == s',
   	typeOfExpr(s', rtrn) == (rtrn', rtrn_type),
-  	expectBetaEq((sEmpty(), rtrn_type), (sEmpty(), Type(ur))).
+  	expectBetaEq((sEmpty(), rtrn_type), (sEmpty(), Type(ur))) | error $[Expected [rtrn] to be a type, found [rtrn_type]].
   
   typeOfExpr_(s, FnConstruct(arg_name, arg_type, body)) = (FnConstruct(arg_name', arg_type', body'), FnType(arg_name', arg_type_reduced, body_type)) :- {arg_type_type ns s'}
 	scopeName(s', arg_name) == arg_name',
 	
 	// The arg type must be a type
 	typeOfExpr(s, arg_type) == (arg_type', arg_type_type),
-  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type(_))),
+  	expectBetaEq((sEmpty(), arg_type_type), (sEmpty(), Type(_))) | error $[Expected [arg_type] to be a type, found [arg_type_type]],
   	// Reduce arg_type
   	betaReduce((s, arg_type')) == arg_type_reduced,
   	// Now typecheck the body with the arg in scope
@@ -38,7 +38,7 @@ rules
   	betaReduceHeadFull((sEmpty(), fn_type)) == (sf, FnType(fn_arg_name, fn_arg_type, fn_body_type)),
   	// And the type of arg must be beta eq to the declared arg type
   	typeOfExpr(s, arg) == (arg', arg_type),
-  	expectBetaEq((sEmpty(), arg_type), (sf, fn_arg_type)),
+  	expectBetaEq((sEmpty(), arg_type), (sf, fn_arg_type)) | error $[Applied a function of type [fn_arg_type] -> [fn_body_type] to an argument with type [arg_type]],
   	// Find body type with substitution needed
   	sPutSubst(sf, fn_arg_name, (s, arg')) == s',
   	betaReduce((s', fn_body_type)) == fn_body_type'.

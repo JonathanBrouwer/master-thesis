@@ -68,7 +68,7 @@ brh_ :: SExpr -> [SExpr] -> Maybe SExpr
 
 \section{Comparison}
 
-The base implementations of the language are quite similar. One difference is the way the definitions are clustered\todo{not right word?}. In Statix, one could put each language construct in a separate file, keeping the definitions for that construct together. In the Haskell implementation this is not easily possible\footnote{We could still define a function that then calls the actual implementation in the separate files, but this is still inferior to the Statix implementation.}, since function definitions can not be split over a file. 
+The base implementations of the language are quite similar. One difference is the way the definitions are spread. In Statix, one could put each language construct in a separate file, keeping the definitions for that construct together. In the Haskell implementation this is not easily possible\footnote{We could still define a function that then calls the actual implementation in the separate files, but this is still inferior to the Statix implementation.}, since function definitions can not be split over a file. 
 
 Another advantage that Statix has is that it has first-order inference built-in, which makes implementing a basic form of inference as described in chapter \ref{ch:inference} way easier. However, if we want a more complex form of inference then an implementation in Haskell would be better, since it is a more expressive language and it has more libraries available. 
 

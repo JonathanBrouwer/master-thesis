@@ -10,9 +10,9 @@ rules
   typeOfExpr_(s, TypeAssert(e, t)) = (TypeAssert(e', t'), e_type) :- {t_type}
     // t must be a type
     typeOfExpr(s, t) == (t', t_type),
-    expectBetaEq((sEmpty(), t_type), (sEmpty(), Type(_))),
+    expectBetaEq((sEmpty(), t_type), (sEmpty(), Type(_))) | error $[Expected [t] to be a type, found [t_type]],
     // and the type of e must be t
     typeOfExpr(s, e) == (e', e_type),
-    expectBetaEq((sEmpty(), e_type), (s, t')).
+    expectBetaEq((sEmpty(), e_type), (s, t')) | error $[Expected [e] to be of type [t], found [e_type]].
     
   betaReduceHead((s, TypeAssert(e, _)), args) = betaReduceHead((s, e), args).

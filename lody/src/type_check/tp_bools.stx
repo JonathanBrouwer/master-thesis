@@ -12,10 +12,10 @@ rules
   typeOfExpr_(s, q@BoolType()) = (q, Type(0)).
   typeOfExpr_(s, BoolIf(cond, then, else)) = (BoolIf(cond', then', else'), then_type) :- {else_type cond_type}
   	typeOfExpr(s, cond) == (cond', cond_type),
-  	expectBetaEq((s, cond_type), (sEmpty(), BoolType())),
+  	expectBetaEq((s, cond_type), (sEmpty(), BoolType())) | error $[Expected [cond] to be a boolean, found [cond_type]],
   	typeOfExpr(s, then) == (then', then_type),
   	typeOfExpr(s, else) == (else', else_type),
-  	expectBetaEq((s, then_type), (s, else_type)).
+  	expectBetaEq((s, then_type), (s, else_type)) | error $[Expected branches of if to have equal types, found [then_type] and [else_type]].
   	
   betaReduceHead((s, e@BoolTrue()), []) = (s, e).
   betaReduceHead((s, e@BoolFalse()), []) = (s, e).

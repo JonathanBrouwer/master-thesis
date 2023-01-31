@@ -58,10 +58,10 @@ We define reduction rules to reduce the symbols we defined in the previous secti
 
 \begin{figure}[ht]
 	\begin{lstlisting}
-rule TmType Type `↪` TmSort;
-rule TmType (FnType $A $B) `↪` `Π` (x : TmType $A), TmType ($B x);
-rule FnConstruct _ _ $f `↪` $f;
-rule FnDestruct _ _ $f $a `↪` $f $a;
+rule TmType Type `$\hookrightarrow$` TmSort;
+rule TmType (FnType $A $B) `$\hookrightarrow$` `Π` (x : TmType $A), TmType ($B x);
+rule FnConstruct _ _ $f `$\hookrightarrow$` $f;
+rule FnDestruct _ _ $f $a `$\hookrightarrow$` $f $a;
 	\end{lstlisting}
 	\caption{Reduction Rules for the Calculus of Constructions}
 	\label{fig:lp-rules}
@@ -71,7 +71,6 @@ rule FnDestruct _ _ $f $a `↪` $f $a;
 
 Let bindings require substitution, which is not possible to encode in lambdapi. We can encode a less powerful version of let bindings, which are not substituted but evaluated via functions. The definition of this is given in figure \ref{fig:lp-let}. The body of the let binding is allowed to depend on a value of type \verb|A|, but it is not aware of the exact value \verb|v| of the let binding. 
 
-	\todo{invisible chars}
 \begin{figure}[ht]
 	\begin{lstlisting}
 symbol Let : 
@@ -80,7 +79,7 @@ symbol Let :
 	`Π` (v : TmType A),
 	`Π` (b : TmType A → TmType (B v)),
 	TmType (B v);
-rule Let _ _ $v $b `↪` $b $v;
+rule Let _ _ $v $b `$\hookrightarrow$` $b $v;
 	\end{lstlisting}
 	\caption{Definition of less powerful Let in lampdapi}
 	\label{fig:lp-let}

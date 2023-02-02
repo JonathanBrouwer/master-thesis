@@ -6,15 +6,26 @@ context-free start-symbols
 
 context-free sorts
 
-  Start
+  Start CExpr
 
 context-free syntax
 
-  Start.Empty = <>
+  Start.CProgram = CExpr*
+  
+  CExpr.PrintLn = "(" "println" CExpr ")"
+  CExpr.String = STRING
 
+lexical sorts STRING STRING_CHAR
+  
 lexical syntax
 
   LAYOUT = [\ \n\t\v\f\r]
+
+lexical syntax
+  STRING           = "\"" STRING_CHAR* "\""
+  STRING_CHAR      = [\32-\126] / [\\\"]
+  STRING_CHAR      = "\\n" | "\\\\" | "\\\"" | "\\t"
+  
 
 context-free restrictions
 

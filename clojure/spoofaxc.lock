@@ -1,0 +1,6 @@
+shared.defaultArtifactId=clojure
+shared.defaultClassPrefix=Clojure
+shared.defaultGroupId=org.metaborg
+shared.defaultPackageId=mb.clojure
+shared.defaultVersion=0.1.0
+stratego.source.files.languageStrategyAffix=clojure

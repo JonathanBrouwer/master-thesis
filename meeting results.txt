@@ -1,12 +1,6 @@
-Written:
-- Comparison chapters
-- Universes
-- Work on main CoC chapter
-
-Inference:
-- Alpha equality fix from last time? -> Make statix' unification more powerful?
 equational unification
+scheme/clojure backend
 
-
-
-Latex bug? -> Use backticks
+1. New command
+2. Linken aan nieuwe task (juiste deps)
+3. Task called clojure 

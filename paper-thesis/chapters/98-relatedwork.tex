@@ -1,2 +1,12 @@
 \chapter{Related Work}
 \label{ch:relatedwork}
+
+\paragraph{Scopes as Types}
+
+The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types} present an implementation of System F that does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can be arbitrary terms. 
+
+\paragraph{Bidirectional Typing}
+
+In chapter \ref{ch:comp-haskell} we compared the implementation in Statix with an implementation in Haskell. The pi-forall language~\cite{pi_forall} is a language with a similar complexity to the language presented in this paper. In principle, the implementations are very similar. For example, the inference rules of pi-forall are similar to the inference rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system~\cite{bidirectional}, whereas this paper uses Statix' unification.
+
+\paragraph{}

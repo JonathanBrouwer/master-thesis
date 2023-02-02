@@ -51,11 +51,13 @@ public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
 
     private final LodyClassLoaderResources classloaderResources;
     private final LodyParse parse;
+    private final CompileTransform transformer;
 
     @Inject
-    public Compile(LodyClassLoaderResources classloaderResources, LodyParse parse) {
+    public Compile(LodyClassLoaderResources classloaderResources, LodyParse parse, CompileTransform transformer) {
         this.classloaderResources = classloaderResources;
         this.parse = parse;
+        this.transformer = transformer;
     }
 
 
@@ -63,7 +65,10 @@ public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
     public CommandFeedback exec(ExecContext context, Args args) throws Exception {
         context.require(classloaderResources.tryGetAsNativeResource(getClass()), ResourceStampers.hashFile());
         final ResourceKey file = args.file;
-        return CommandFeedback.of(ShowFeedback.showText("A", "B"));
+        return context.require(transformer, parse.inputBuilder().withFile(file).buildAstSupplier()).mapOrElse(
+            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "Title")),
+            e -> CommandFeedback.ofTryExtractMessagesFrom(e, file)
+        );
     }
 
     @Override

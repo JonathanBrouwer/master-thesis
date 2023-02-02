@@ -91,7 +91,8 @@ rules // Analysis
   with <conc-strings> (s, "'") => s'
   
   
-
+  compile-program : p -> p
+  with <debug(!"Compile: ")> p
 
 
   

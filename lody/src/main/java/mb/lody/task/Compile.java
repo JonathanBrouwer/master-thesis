@@ -1,4 +1,4 @@
-package mb.helloworld.task;
+package mb.lody.task;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -19,7 +19,7 @@ import mb.spoofax.core.language.command.ShowFeedback;
 import mb.aterm.common.TermToString;
 
 @LodyScope
-public class HelloWorldShowReplaceWorlds implements TaskDef<HelloWorldShowReplaceWorlds.Args, CommandFeedback> {
+public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
     public static class Args implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -53,7 +53,7 @@ public class HelloWorldShowReplaceWorlds implements TaskDef<HelloWorldShowReplac
     private final LodyParse parse;
 
     @Inject
-    public HelloWorldShowReplaceWorlds(LodyClassLoaderResources classloaderResources, LodyParse parse) {
+    public Compile(LodyClassLoaderResources classloaderResources, LodyParse parse) {
         this.classloaderResources = classloaderResources;
         this.parse = parse;
     }

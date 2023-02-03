@@ -1,25 +1,23 @@
 % !TEX root = document.tex
 \chapter{\label{chap:bg-spoofax}Background: Spoofax}
 
-This chapter will explain the concepts behind the Spoofax Language Workbench. If you are already familiar with Spoofax, you can skip this chapter. 
-
-\section{Spoofax}
+This chapter will explain the concepts behind the Spoofax Language Workbench. Readers already familiar with Spoofax are recommended to only skim through this chapter.
 
 The Spoofax Language Workbench~\cite{spoofax} is a platform to develop domain-specific and
-general-purpose programming languages. Each aspect of the language is defined in one of three metalanguages, each with their own purpose. From these languages Spoofax generates a parser, type checker and other useful tools. 
+general-purpose programming languages. Each aspect of the language is defined in one the meta-languages, each with their own purpose. From these specifications Spoofax generates a parser, type checker and other useful tools. The meta-languages that are used in this thesis are discussed in the sections below:
 
-The metalanguage SDF3 is used to define the syntax of the language~\cite{sdf3}, which is then parsed using Spoofax's SGLR parser~\cite{sdf3_parser}. The parser produces a abstract syntax tree in the ATerm format~\cite{aterm}. A pretty printer is also generated based on this syntax definition. 
+\section{SDF3}
 
-Next, the metalanguage Statix~\cite{scopes_as_types} is used to define the static semantics of the language. It uses scope graphs to represent binding and typing information of the language. How this works is discussed in section \ref{sec:statix}.
+The meta-language SDF3 is used to define the syntax of the language~\cite{sdf3}, which is then parsed using Spoofax's SGLR parser~\cite{sdf3_parser}. The parser produces a abstract syntax tree in the ATerm format~\cite{aterm}. A pretty printer is also generated based on this syntax definition. 
 
-Finally, Stratego~\cite{stratego} is used to define program transformations, using rewrite rules. This can be used for modifications to the AST, but also to build transformations to a different language (such as compiling to assembly). 
+\paragraph{Syntax definitions}
+The syntax of 
 
-\section{\label{sec:statix}Statix and Scope graphs}
+\paragraph{ATerm format}
 
-\textit{Note: This section is adapted from "Composable Type System Specification
-	using Heterogeneous Scope Graphs".~\cite[sect. 4.1.2]{Zwaan21}}
+\section[Statix and Scope graphs]{\label{sec:statix}Statix and Scope graphs\protect\footnote{Note: This section is adapted from "Composable Type System Specification using Heterogeneous Scope Graphs".~\cite[sect. 4.1.2]{Zwaan21}}}
 
-In Statix, scope graphs are used to represent a programs name and type information~\cite{scopes_as_types}. A scope graph is a graph that consists of the following components:
+In Statix, scope graphs are used to represent a programs name and type information~\cite{scopes_as_types}~\cite{nameres}. A scope graph is a graph that consists of the following components:
 
 \begin{itemize}
 	\item \textit{Scopes} represent "a region in a program that behaves uniformly with respect to name resolution". These scopes are modeled as nodes in the graph. Its graph representation is shown in \autoref{fig:graph-notation-scope}.
@@ -66,10 +64,4 @@ Information can be retrieved from scope graphs using \textit{queries}. A query f
 	\item The relation to query. Only datums declared under this relation will be returned by the query.
 	\item Path well-formedness condition: a regular expression of labels that specifies which paths are well-formed. Only datums that are reached through a path whose edge labels are in the language described by the regular expression are included in the query result.
 	\item A match predicate, taking a single datum as input. Only datums that satisfy this predicate will be included in the query result. Its default value is \verb|true|, meaning that all datums under the specified relation that satisfy the path well-formedness condition are returned.
-	\item Result comparison parameters:
-	\begin{itemize}
-		\item A strict partial order on paths, described by less-than relations on labels. This relation defines a prefix-order on paths.
-		\item A `shadow' predicate, which takes two datums as input. Its default value is \verb|false|, meaning that no shadowing is performed.
-	\end{itemize}
-	When the result set contains multiple datums, and it holds for a datum $d$ that there exists another datum $d'$ which path is strictly smaller that $d$, and the shadow predicate holds, then $d$ is removed from the result set.
 \end{itemize}

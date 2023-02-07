@@ -3,26 +3,21 @@
 
 This chapter will explain the concepts behind dependent types. Readers already familiar with Dependent Types are recommended to only skim through this chapter.
 
-\section{What are dependent types?}
+\section{What are Dependent Types?}
 
 A dependent type system is a type system in which types may depend on values. This means it is possible to have a type such as \verb|Vec n|, which is a vector of exactly length \verb|n|. Note that the value of \verb|n| does not have to be known at compile time, it is more powerful than that. 
 
-The biggest advantage of dependent types is that they increase the expressiveness of a type system a lot, for example it is now possible to express a function that adds two vectors of the same length and returns a new vector of that length. 
+The biggest advantage of dependent types is that they increase the expressiveness of a type system a lot, for example:
 \begin{lstlisting}
-add_vec : (n : Nat) -> Vec n -> Vec n -> Vec n
+append : (A: Set) -> (n : Nat) -> Vec A n -> Vec A n -> Vec A (n + n)
 \end{lstlisting}
+A \verb|Vec A n| is a list with elements of type \verb|A| that is exactly length \verb|n| (an integer, which is a value!). This append function appends two \verb|Vecs| of equal length, returning a \verb|Vec| of length \verb|n + n|. This is an example of a type-level computation.
 
-\section{The Curry-Howard Isomorphism}
+Dependent types are useful because dependent type systems allow for the Curry-Howard Correspondence~\cite{chc}. Using this correspondence, types correspond to propositions and a term of a type correspond to a proof of a proposition. Thus if our type system is sound\footnote{The type system we will define in chapter \ref{chap:baselang} is not sound, we will fix this in chapter \ref{ch:universes}.}, that is, we cannot create a term of an empty type, then we can use our type systems to prove things.
 
-The Curry-Howard correspondence is a relationship that can be used to interpret typed programs as mathematical proofs~\cite{chc}. This is done by representing false statements as empty types, and true statements as non-empty (inhabited) types. 
+\section{The Calculus of Constructions}
 
-For example, it is possible to define a type \verb|IsEven n|, that represent the statement "\verb|n| is even", and declare it in such a way that it is only inhabited if \verb|n| is even.
-
-In order to use a type system to prove things it is important that the type system is sound, that is, it is impossible to prove a false statement. Using the Curry-Howard correspondence, that means it should be impossible to obtain an element of the empty type. We will explore this further in chapter \ref{ch:universes}.
-
-\section{The Lambda Cube}
-
-The lambda cube is a framework to categorize programming languages based on whether terms and types can depend on each other~\cite{lambda_cube}. Specifically, it categorizes languages on three axis: \footnote{Note that the "Terms can depend on terms" axis is missing, this is because a language where terms cannot depend on terms cannot compute anything and is thus pretty useless.}
+The lambda cube is a framework to categorize programming languages based on whether terms and types can depend on each other~\cite{lambda_cube}. Specifically, it categorizes languages on three axes: \footnote{Note that the "Terms can depend on terms" axis is missing, this is because a language where terms cannot depend on terms cannot compute anything and is thus pretty useless.}
 
 \begin{enumerate}
 	\item Terms can depend on types. This corresponds to type-polymorphic (generic) functions. For example, it allows us to define the polymorphic identity function:
@@ -34,4 +29,4 @@ id : (T : Type) -> T -> T
 	\item Types can depend on terms. This corresponds to dependent types.
 \end{enumerate}
 
-The \textit{Calculus of Constructions} is the language that has all three of these features, and it is what we will implement in this paper. If you want to learn more, I recommend playing around with the \textit{\href{https://agda.readthedocs.io/en/latest/}{Agda}} language, which is a real-world language that satisfies all three axis.
+The \textit{Calculus of Constructions} is the language that has all three of these features, it will be implemented in chapter \ref{chap:baselang}.

@@ -8,4 +8,6 @@ scheme/clojure backend
 nieuw project
 build dependency
 
-
+TODO:
+- Flow of text
+- Intro of each chapter, section transitions

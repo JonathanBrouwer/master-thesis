@@ -1,4 +1,4 @@
-module start
+module clojure/start
 
 context-free start-symbols
 

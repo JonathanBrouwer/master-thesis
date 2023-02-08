@@ -29,7 +29,7 @@ data Eq : (e1: Bool) (e2 : Bool) -> Type where
 data Eq (T : Type) : (e1 : T) (e2 : T) -> Type where
     refl : e : T -> Eq e e;
 \end{lstlisting}
-\item Data types must be strictly positive. This ensures that we cannot make non-terminating programs\footnote{After we add support for universes in chapter \ref{ch:universes}}. For example, the following data type is forbidden, because it refers to itself in a negative position. We will explain exactly how this check works in section \ref{ch:datatypes:positivity}.
+\item Data types must be strictly positive. This ensures that we cannot make non-terminating programs\footnote{After we add support for universes in chapter~\ref{ch:universes}}. For example, the following data type is forbidden, because it refers to itself in a negative position. We will explain exactly how this check works in section \ref{ch:datatypes:positivity}.
 \begin{lstlisting}
 data Bad : -> Type where
 	bad : (Bad -> Bool) -> Bad;

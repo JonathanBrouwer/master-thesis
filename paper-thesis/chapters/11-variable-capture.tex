@@ -2,7 +2,7 @@
 
 \chapter{\label{chap:namecolls}Avoiding Variable Capturing}
 
-The implementation of the base language shown in chapter \ref{chap:baselang} has one big problem, that is variable capture. Variable capture is the phenomenon of free variables in a term becoming bound when a naive substitution happens~\cite{tapl}. This chapter will explore several ways of solving this. 
+The implementation of the base language shown in chapter~\ref{chap:baselang} has one big problem, that is variable capture. Variable capture is the phenomenon of free variables in a term becoming bound when a naive substitution happens~\cite{tapl}. This chapter will explore several ways of solving this. 
 
 An example term where this problem occurs is the following: What is the type of this expression (a polymorphic identity function)?
 \begin{lstlisting}

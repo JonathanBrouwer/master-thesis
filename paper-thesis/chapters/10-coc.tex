@@ -45,7 +45,7 @@ The type that the function is generic over needs to be explicitly specified. In 
 
 To type check the base language, we need an environment to store information about the names that are in scope at each point in the program. There are two different types of names that we may want to store, names that do not have a known value (only a type), which are names created by function arguments and dependent function types, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
 
-In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}, as explained in chapter \ref{chap:bg-spoofax}. We only use a single type of edge, called \verb|P| (parent) edges. We also only have a single relation, called \verb|name|. The relation associates a \verb|NameEntry| with each name in the scope graph. The \verb|NameEntry| can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below:
+In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}, as explained in chapter~\ref{chap:bg-spoofax}. We only use a single type of edge, called \verb|P| (parent) edges. We also only have a single relation, called \verb|name|. The relation associates a \verb|NameEntry| with each name in the scope graph. The \verb|NameEntry| can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below:
 \begin{lstlisting}
 constructors
     NType : Expr -> NameEntry
@@ -345,7 +345,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 
 An alternative for a Krivine machine, which keeps a stack of arguments it has encountered, is a substitution-based relation. This beta-reduces a \verb|FnDestruct| by doing a nested beta-reduction of the function, and substituting into that, as is shown in figure \ref{fig:subst-approach}.
 
-Although these rules look cleaner, they are more complicated to implement, requiring a separate relation to check if \verb|f| is a \verb|FnConstruct| or something else. For the pure calculus of constructions this still works quite well, but when adding inductive datatypes (chapter \ref{ch:datatypes}) the rules required become a lot more complex than those for a Krivine machine.
+Although these rules look cleaner, they are more complicated to implement, requiring a separate relation to check if \verb|f| is a \verb|FnConstruct| or something else. For the pure calculus of constructions this still works quite well, but when adding inductive datatypes (chapter~\ref{ch:datatypes}) the rules required become a lot more complex than those for a Krivine machine.
 
 An additional benefit of Krivine machines is that the run-time performance of them tends to be a bit higher, though this is only a constant factor and not a time-complexity improvement.
 

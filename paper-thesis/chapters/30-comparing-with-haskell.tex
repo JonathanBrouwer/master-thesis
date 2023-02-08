@@ -1,7 +1,7 @@
 \chapter{A comparison with conventional implementations}
 \label{ch:comp-haskell}
 
-In this chapter, we implement the language defined in chapter \ref{chap:baselang} in Haskell, and then compare the implementation with the implementation in Statix. We want the design of the implementation in Haskell to be similar to conventional implementations of dependently typed languages, so we can compare the Statix implementation with them.
+In this chapter, we implement the language defined in chapter~\ref{chap:baselang} in Haskell, and then compare the implementation with the implementation in Statix. We want the design of the implementation in Haskell to be similar to conventional implementations of dependently typed languages, so we can compare the Statix implementation with them.
 
 \section{Defining the AST}
 To implement the calculus of constructions in Haskell, we first define the \verb|Expr| datatype. We chose to define the language using De Bruijn indices, since this is the convention when implementing dependently typed languages, and the goal of this implementation in Haskell is to compare the Statix implementation with conventional ones. 
@@ -17,7 +17,7 @@ data Expr =
 
 \section{Defining Environments}
 
-Next, we need to decide how we want to store the environment. We still need to store both function arguments and substitutions, which we called \verb|NType| and \verb|NSubst| in chapter \ref{chap:baselang}. We will use the same names, and store the environment as a list, with the head of the list representing De Bruijn index 0. Finally, we define the type of a scoped expression \verb|SExpr|, as a tuple of an environment and an expression.
+Next, we need to decide how we want to store the environment. We still need to store both function arguments and substitutions, which we called \verb|NType| and \verb|NSubst| in chapter~\ref{chap:baselang}. We will use the same names, and store the environment as a list, with the head of the list representing De Bruijn index 0. Finally, we define the type of a scoped expression \verb|SExpr|, as a tuple of an environment and an expression.
 \begin{lstlisting}
 data EnvEntry = NType Expr | NSubst SExpr
 type Env = [EnvEntry]
@@ -70,6 +70,6 @@ brh_ :: SExpr -> [SExpr] -> Maybe SExpr
 
 The base implementations of the language are quite similar. One difference is the way the definitions are spread. In Statix, one could put each language construct in a separate file, keeping the definitions for that construct together. In the Haskell implementation this is not easily possible\footnote{We could still define a function that then calls the actual implementation in the separate files, but this is still inferior to the Statix implementation.}, since function definitions can not be split over a file. 
 
-Another advantage that Statix has is that it has first-order inference built-in, which makes implementing a basic form of inference as described in chapter \ref{ch:inference} way easier. However, if we want a more complex form of inference then an implementation in Haskell would be better, since it is a more expressive language and it has more libraries available. 
+Another advantage that Statix has is that it has first-order inference built-in, which makes implementing a basic form of inference as described in chapter~\ref{ch:inference} way easier. However, if we want a more complex form of inference then an implementation in Haskell would be better, since it is a more expressive language and it has more libraries available. 
 
-Finally, creating the language in Spoofax automatically gives us editor services such as code highlighting and semantic autocompletion, as dicusssed in chapter \ref{chap:editor-services}. Implementing these in Haskell would require some work.
+Finally, creating the language in Spoofax automatically gives us editor services such as code highlighting and semantic autocompletion, as dicusssed in chapter~\ref{chap:editor-services}. Implementing these in Haskell would require some work.

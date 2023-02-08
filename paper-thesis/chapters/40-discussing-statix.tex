@@ -33,7 +33,7 @@ Next we will describe our experience with Spoofax as a whole.
 		\item Incremental build changing only one Statix file takes 5 seconds
 		\item Running all 171 tests takes 18 seconds
 	\end{itemize}
-	While these numbers are not unworkably high, they are still magnitudes higher than the implementation in Haskell (chapter \ref{ch:comp-haskell}) and other general-purpose languages. Improving these numbers would make the experience better.
+	While these numbers are not unworkably high, they are still magnitudes higher than the implementation in Haskell (chapter~\ref{ch:comp-haskell}) and other general-purpose languages. Improving these numbers would make the experience better.
 	
 	\item The SPT testing DSL works very well, it makes writing integration tests very easy. However, support for unit tests is still lacking. The to create unit tests is using Statix tests, allowing assertions on specific relations. But these tests are not integrated with SPT tests (they don't even reside in the test folder) and there is no way to run all Statix tests, to ensure no regressions happened. Ideally there would be one button that runs all SPT and Statix tests.
 	

@@ -13,7 +13,7 @@ append : (A: Set) -> (n : Nat) -> Vec A n -> Vec A n -> Vec A (n + n)
 \end{lstlisting}
 A \verb|Vec A n| is a list with elements of type \verb|A| that is exactly length \verb|n| (an integer, which is a value!). This append function appends two \verb|Vecs| of equal length, returning a \verb|Vec| of length \verb|n + n|. This is an example of a type-level computation.
 
-Dependent types are useful because dependent type systems allow for the Curry-Howard Correspondence~\cite{chc}. Using this correspondence, types correspond to propositions and a term of a type correspond to a proof of a proposition. Thus if our type system is sound\footnote{The type system we will define in chapter \ref{chap:baselang} is not sound, we will fix this in chapter \ref{ch:universes}.}, that is, we cannot create a term of an empty type, then we can use our type systems to prove things.
+Dependent types are useful because dependent type systems allow for the Curry-Howard Correspondence~\cite{chc}. Using this correspondence, types correspond to propositions and a term of a type correspond to a proof of a proposition. Thus if our type system is sound\footnote{The type system we will define in chapter~\ref{chap:baselang} is not sound, we will fix this in chapter~\ref{ch:universes}.}, that is, we cannot create a term of an empty type, then we can use our type systems to prove things.
 
 \section{The Calculus of Constructions}
 
@@ -29,4 +29,4 @@ id : (T : Type) -> T -> T
 	\item Types can depend on terms. This corresponds to dependent types.
 \end{enumerate}
 
-The \textit{Calculus of Constructions} is the language that has all three of these features, it will be implemented in chapter \ref{chap:baselang}.
+The \textit{Calculus of Constructions} is the language that has all three of these features, it will be implemented in chapter~\ref{chap:baselang}.

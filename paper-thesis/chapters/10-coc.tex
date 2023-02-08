@@ -62,9 +62,9 @@ sPutSubst : scope * ID * (scope * Expr) -> scope
 sGetName  : scope * ID -> NameEntry
 sEmpty    : -> scope
 \end{lstlisting}
-The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. These return a scope that represent an environment that has been extended with the new name. To query the scope graph we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching name. Finally, \verb|sEmpty| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. These return a scope that represent an environment that has been extended with the new name. To query the scope graph, we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching name. Finally, \verb|sEmpty| returns a fresh empty scope.
 
-We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression.
+We define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression.
 
 \section{Beta Reductions}
 \label{sec:coc-dynsyms}
@@ -75,7 +75,7 @@ We implemented beta-head reduction using a Krivine abstract machine~\cite{krivin
 
 In conventional dependently typed languages, evaluation is often done using De Bruijn indices, which use numbers to identify variables. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition).
 
-We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from~\cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ to express \verb|betaReduceHead((s1, e1), ps) == (s2, e2)|. The $\overline{p}$ in this definition is the argument stack of the Krivine machine. The argument stack is a stack of scoped expressions, which are the arguments that are not yet paired with a matching function. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and the stack of arguments (of the Krivine machine state) and converts it to an expression by adding \verb|FnDestruct|s. Its signature is:
+We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from~\cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ to express \textit{betaReduceHead((s1, e1), ps) == (s2, e2)}. The $\overline{p}$ in this definition is the argument stack of the Krivine machine. The argument stack is a stack of scoped expressions, which are the arguments that are not yet paired with a matching function. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and the stack of arguments (of the Krivine machine state) and converts it to an expression by adding \verb|FnDestruct|s. Its signature is:
 \begin{lstlisting}
 rebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
 \end{lstlisting}
@@ -244,10 +244,10 @@ typeOfExpr : scope * Expr -> Expr
 We can then start defining type checking rules for the language. We introduce a number of judgements for typing and equality together with their counterparts in Statix.
 \begin{enumerate}
 	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|
-	\item $\beq{\scope{s1}{e1}}{\scope{s2}{e2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
-	\item $\bhr{\scope{s1}{e1}}{\overline{p}}{\scope{s2}{e2}}$ is the same as \verb|betaReduceHead((s1, e1), ps) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
-	\item $\bred{s1}{e1}{e2}$ is the same as \verb|betaReduce((s1, e1)) == e2|
-	\item $\scope{sEmpty}{e}$ is the same as $e$ (empty scopes can be left out)
+	\item $\beq{\scope{s_1}{e_1}}{\scope{s_2}{e_2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
+	\item $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ is the same as \verb|betaReduceHead((s1, e1), ps) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
+	\item $\bred{s_1}{e_1}{e_2}$ is the same as \verb|betaReduce((s1, e1)) == e2|
+	\item $\scope{\co{sEmpty}}{e}$ is the same as $e$ (empty scopes can be left out)
 \end{enumerate}
 
 One thing to note is that some rules use \verb|betaReduce|. The goal of this beta reduce is to make the term into a term that does not need an environment (by substituting all let bindings). A full beta reduce is not necessary, but this is merely a performance optimization.

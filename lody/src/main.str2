@@ -91,7 +91,7 @@ rules // Analysis
   with <conc-strings> (s, "'") => s'
   
   
-  compile-program : p -> CProgram([])
+  compile-program : p -> <id> CProgram([])
   with <debug(!"Compile: ")> p
 
   

@@ -6,5 +6,5 @@ imports
 
 rules
 
-  programOk : Start
+  programOk : CStart
   programOk(_).

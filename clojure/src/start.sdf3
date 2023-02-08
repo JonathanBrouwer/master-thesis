@@ -2,20 +2,24 @@ module start
 
 context-free start-symbols
 
-  Start
+  CStart
 
 context-free sorts
 
-  Start CExpr
+  CStart CExpr
 
 context-free syntax
 
-  Start.CProgram = CExpr*
+  CStart.CProgram = CExpr*
   
-  CExpr.PrintLn = "(" "println" CExpr ")"
-  CExpr.String = STRING
+  CExpr.CFn = "(" "fn" "[" CID "]" CExpr ")"
+  CExpr.CFnCall = "(" CExpr CExpr ")"
+  CExpr.CLet = "(" "let" "[" CID "]" CExpr ")"
+  CExpr.CVar = CID
+  CExpr.CPrintLn = "(" "println" CExpr ")"
+  CExpr.CString = STRING
 
-lexical sorts STRING STRING_CHAR
+lexical sorts STRING STRING_CHAR CID
   
 lexical syntax
 
@@ -26,6 +30,10 @@ lexical syntax
   STRING_CHAR      = [\32-\126] / [\\\"]
   STRING_CHAR      = "\\n" | "\\\\" | "\\\"" | "\\t"
   
+  CID = [a-zA-Z\_] [a-zA-Z0-9\_]*
+  CID = "fn" {reject}
+  CID = "let" {reject}
+  CID = "println" {reject}
 
 context-free restrictions
 

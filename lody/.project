@@ -3,6 +3,7 @@
 	<name>lody</name>
 	<comment></comment>
 	<projects>
+		<project>clojure</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

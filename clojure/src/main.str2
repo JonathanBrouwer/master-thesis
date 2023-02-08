@@ -11,8 +11,8 @@ imports
 
 rules // Analysis
 
-  pre-analyze  = explicate-injections-clojure-Start
-  post-analyze = implicate-injections-clojure-Start
+  pre-analyze  = explicate-injections-clojure-CStart
+  post-analyze = implicate-injections-clojure-CStart
 
   editor-analyze = stx-editor-analyze(pre-analyze, post-analyze|"main", "programOk")
   editor-resolve = stx-editor-resolve

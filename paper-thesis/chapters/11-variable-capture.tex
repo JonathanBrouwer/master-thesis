@@ -66,7 +66,7 @@ The first solution that was attempted was having a pre-analysis transformation t
 
 Anytime that we introduce a new name in a type, we could check if the name already exists in the environment, and if it does, choose a different unique name. This approach is possible but tedious to implement in Statix. It requires a new relation to traverse through the type and rename. It also increases the time complexity, as many traversals of the type are needed. This was successfully implemented, but we chose against using it in favor of the solution presented in the next section.
 
-\section{Using scopes to distinguish names}
+\section{Using Scopes to Distinguish Names}
 
 The solution we found to work best in the end is to change the definition of \verb|ID|. To be precise, at the grammar level we have two sorts, \verb|RID| is a "Raw ID", being just a string. \verb|ID| will have two constructors, one being \verb|Syn|, a syntactical \verb|ID|, referring to the lexically closest match. The second one is \verb|ScopedName|, which is defined below.
 
@@ -129,7 +129,7 @@ FnType(ScopedName(s1, T), Type(),
 		Var(ScopedName(s1, T))))
 \end{lstlisting}
 
-\section{Improving the readability of types}
+\section{Improving the Readability of Types}
 
 Because the expression above, with \verb|ScopedName|s, is not particularly readable, we add a new post-analysis Stratego pass that converts the \verb|ScopedName|s to ticked names. For example, the above would be transformed to:
 

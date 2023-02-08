@@ -5,7 +5,7 @@ There exist several \emph{logical frameworks}, tools designed specifically for i
 
 In this chapter we will be implementing the language defined in chapter \ref{chap:baselang} in lambdapi, a proof assistant based on the $\lambda \Pi$-calculus modulo rewriting~\cite{BoespflugCH12}. 
 
-\section{Defining symbols}
+\section{Defining Symbols}
 
 We will define a symbol in the meta language (lambdapi) for each construct in the object language. The result is visible in figure \ref{fig:lp-symbols}. We will leave \verb|Let| out of the language for now, it will be discussed separately in section \ref{ch:comp-lambdapi:let}.
 
@@ -52,7 +52,7 @@ Note that these types can only represent type-correct terms, \emph{intrinsically
 
 It seems like it should be possible to infer these, but lambdapi fails to infer even the simplest ones. \todo{not sure why}.
 
-\section{Reduction rules}
+\section{Reduction Rules}
 
 We define reduction rules to reduce the symbols we defined in the previous section into lambdapi. Lambdapi can then evaluate the rules using its own semantics, not requiring any additional rules similar to the ones in figure \ref{fig:beta-head-reduce-rules}. The reduction rules are given in figure \ref{fig:lp-rules}. Each of the constructs is reduced to the corresponding construct in the meta language.
 
@@ -67,7 +67,7 @@ rule FnDestruct _ _ $f $a `$\hookrightarrow$` $f $a;
 	\label{fig:lp-rules}
 \end{figure}
 
-\section{\label{ch:comp-lambdapi:let}Defining let bindings}
+\section{\label{ch:comp-lambdapi:let}Defining Let Bindings}
 
 Let bindings require substitution, which is not possible to encode in lambdapi. We can encode a less powerful version of let bindings, which are not substituted but evaluated via functions. The definition of this is given in figure \ref{fig:lp-let}. The body of the let binding is allowed to depend on a value of type \verb|A|, but it is not aware of the exact value \verb|v| of the let binding. 
 

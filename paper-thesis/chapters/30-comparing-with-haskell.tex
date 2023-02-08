@@ -15,7 +15,7 @@ data Expr =
 	| FnDestruct Expr Expr
 \end{lstlisting}
 
-\section{Defining environments}
+\section{Defining Environments}
 
 Next, we need to decide how we want to store the environment. We still need to store both function arguments and substitutions, which we called \verb|NType| and \verb|NSubst| in chapter \ref{chap:baselang}. We will use the same names, and store the environment as a list, with the head of the list representing De Bruijn index 0. Finally, we define the type of a scoped expression \verb|SExpr|, as a tuple of an environment and an expression.
 \begin{lstlisting}
@@ -51,7 +51,7 @@ sPutType :: Env -> Expr -> Env
 sPutType env v = NType v : env
 \end{lstlisting}
 
-\section{Defining beta reduction}
+\section{Defining Beta Reduction}
 
 Now we want to define beta head reduction. Remember that in Statix, beta head reduction is a relation with the signature
 \begin{lstlisting}

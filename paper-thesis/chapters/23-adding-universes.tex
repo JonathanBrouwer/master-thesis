@@ -12,7 +12,7 @@ true : Bool : Type 0 : Type 1 : Type 2 : ...
 
 In the rest of this chapter we will show how universes have been implemented. It turns out to be relatively easy to add this feature to the language, only requiring a few changes.
 
-\section{Implementing universes in the CoC}
+\section{Implementing Universes in the CoC}
 
 The constructor of Type has been changed to \verb|Type : int -> Expr|. We need to update all occurrences of \verb|Type| in figure \ref{fig:type-check-rules}. Figure \ref{fig:type-check-rules-universes} contains all the rules that require a change.
 
@@ -61,7 +61,7 @@ The three rules that were changed are:
 \end{figure}
 
 \newpage
-\section{Implementing universes with inductive data types}
+\section{Implementing Universes with Inductive Data Types}
 
 We change data type declarations such that the universe the datatype lives in is now explicit. For example, the \verb|Nat| type now looks like this, explicitly stating that the type of \verb|Nat| is \verb|Type 0|.
 \begin{lstlisting}

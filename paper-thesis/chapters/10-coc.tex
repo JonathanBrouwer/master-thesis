@@ -1,27 +1,35 @@
-\chapter{Calculus of Constructions}
+\chapter{Calculus of Constructions in Statix}
 \label{chap:baselang}
 
-In this section, we will describe how to implement a dependently typed language in Statix. In section \ref{sec:coc-syntax} we will describe the syntax of the language, then in section \ref{sec:coc-scopes} we will describe how scope graphs are used to type check the language. Section \ref{sec:coc-dynsyms} describes the dynamic semantics of the language, and finally \ref{sec:coc-typecheck} how to type check the language.
+In this section, we will describe how to implement a dependently typed language in Statix. In section \ref{sec:coc-syntax} we will describe the syntax of the language, then in section \ref{sec:coc-scopes} we will describe how scope graphs are used to type check the language. Section \ref{sec:coc-dynsyms} describes the dynamic semantics of the language, and finally \ref{sec:coc-typecheck} how to type check the language. This chapter is the main contribution of this thesis.
 
-\section{The language}
+\section{The Language}
 \label{sec:coc-syntax}
 
 The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax (written in SDF3~\cite{sdf3}) of the language is available in figure \ref{fig:syntax}.
 
 \begin{figure}[h]
 \begin{lstlisting}
-Expr.Let = "let" ID "=" Expr ";" Expr
 Expr.Type = "Type"
 Expr.Var = ID
 Expr.FnType = ID ":" Expr "->" Expr {right}
 Expr.FnConstruct = "\\" ID ":" Expr "." Expr
 Expr.FnDestruct = Expr Expr {left}
+Expr.Let = "let" ID "=" Expr ";" Expr
 \end{lstlisting}
 \caption{The concrete syntax for the base language. $\co{FnConstruct}$ is a lambda function, $\co{FnDestruct}$ is application of a lambda function.}
 \label{fig:syntax}
 \end{figure}
 
-Please observe that the syntax definition does not have a separate sort for types, as types may be arbitrary expressions in a dependently typed language. Furthermore, \verb|FnType| assigns a name to its first argument to allow the return type of the function to depend on the argument type.
+There is only one sort: Expr. The syntax definition does not have a separate sort for types, as types may be arbitrary expressions in a dependently typed language. The following constructors exist:
+\begin{itemize}
+	\item \verb|Type| is the Type of Types.
+	\item \verb|Var| is a variable, it uses the lexical sort \verb|ID|, which is defined as \verb|[a-zA-Z\_][a-zA-Z0-9\_]*|.
+	\item \verb|FnType| is the type of a function. It assigns a name to its first argument to allow the return type of the function to depend on the argument type. It is right associative, meaning \verb|A -> B -> C| is interpreted as \verb|A -> (B -> C)|. 
+	\item \verb|FnConstruct| creates an anonymous function (lambda function).
+	\item \verb|FnDestruct| applies a function to an argument. It is left associative, meaning \verb|a b c| is interpreted as \verb|(a b) c|.
+	\item \verb|Let| is a let binding. It introduces a substitutable variable.
+\end{itemize}
 
 An example program is the following, which defines a polymorphic identity function and applies it to a function:
 
@@ -33,7 +41,7 @@ f (T: Type -> Type) (\y: Type. y)
 \section{Scope Graphs}
 \label{sec:coc-scopes}
 
-To type check the base language, we need to store information about the names that are in scope at each point in the program. There are two different cases, names that do not have a known value (only a type), which are names created by function arguments and dependent function types, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
+To type check the base language, we need an environment to store information about the names that are in scope at each point in the program. There are two different types of names that we may want to store, names that do not have a known value (only a type), which are names created by function arguments and dependent function types, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
 
 In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}, as explained in chapter \ref{chap:bg-spoofax}. We only use a single type of edge, called \verb|P| (parent) edges. We also only have a single relation, called \verb|name|. This name stores a \verb|NameEntry|, which can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below:
 \begin{lstlisting}
@@ -52,7 +60,7 @@ sPutSubst : scope * ID * (scope * Expr) -> scope
 sGetName  : scope * ID -> NameEntry
 sEmpty    : -> scope
 \end{lstlisting}
-The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. To query the scope graph we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching name. Finally, \verb|sEmpty| returns a fresh empty scope.
+The \verb|sPutType| and \verb|sPutSubst| predicates generate a new scope given a parent scope and a type or a substitution respectively. These return a scope that represent an environment that has been extended with the new name. To query the scope graph we use \verb|sGetName|, which will return the closest \verb|NameEntry| with a matching name. Finally, \verb|sEmpty| returns a fresh empty scope.
 
 We will define a \emph{scoped expression}, as a pair of a scope and an expression. The scope acts as the environment of the expression, containing all of the context needed to evaluate the expression.
 
@@ -170,7 +178,7 @@ Additionally, we define \verb|betaReduce| which fully beta reduces a term. It wo
 	\label{fig:beta-head-reduce-rules}
 \end{figure}
 
-\section{Beta equality}
+\section{Beta Equality}
 \label{sec:coc-betaeq}
 
 We need to define \verb|expectBetaEq|, which asserts that two scoped expressions are equal under beta reduction. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with a unique placeholder.
@@ -223,7 +231,7 @@ This substitution is called \verb|AlphaEqVars : ID * ID -> Expr|. The combinatio
 	\label{fig:beta-eq-rules}
 \end{figure}
 
-\section{Type checking the Calculus of Constructions}
+\section{Type Checking}
 \label{sec:coc-typecheck}
 
 We will define a Statix predicate \verb|typeOfExpr| that takes a scope and an expression and type checks the expression in the scope. It returns the type of the expression.
@@ -330,7 +338,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 	\label{fig:type-check-rules}
 \end{figure}
 
-\section{Discussion of a substitution-based approach}
+\section{Discussion of a Substitution-Based Approach}
 \label{sec:coc-subst}
 
 An alternative for a Krivine machine, which keeps a stack of arguments it has encountered, is a substitution-based relation. This beta-reduces a \verb|FnDestruct| by doing a nested beta-reduction of the function, and substituting into that, as is shown in figure \ref{fig:subst-approach}.

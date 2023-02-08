@@ -14,7 +14,7 @@ postulate g: f true -> Type;
 \x: f _. g x
 \end{lstlisting}
 
-\section{Different algorithms for inference}
+\section{Different Algorithms for Inference}
 \label{strength-inference}
 
 There are a lot of different algorithms for inference\cite{typeinference}, some algorithms can solve more inferences than others. One algorithm for unification is \emph{first-order unification} (FOU), where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free variable, we set the the value free variable to be equal to the value of the non-free variable. There are some situations in which this approach fails, but in most real-world scenarios it works perfectly. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
@@ -105,7 +105,7 @@ expectBetaEq((_, Infer(e1)), (_, Infer(e2))) :-
 	
 \end{enumerate}
 
-\section{Analysis of the approximation}
+\section{Analysis of the Approximation}
 \label{analysing-inference}
 
 The only difference between AFOU and FOU is case \ref{inf-case2} (for functions) and \ref{inf-case4}. 

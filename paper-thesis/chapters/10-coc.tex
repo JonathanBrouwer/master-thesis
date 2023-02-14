@@ -9,6 +9,7 @@ In this section, we will describe how to implement a dependently typed language 
 The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax (written in SDF3~\cite{sdf3}) of the language is available in figure \ref{fig:syntax}.
 
 \begin{figure}[h]
+\lstset{language=SDF3}
 \begin{lstlisting}
 Expr.Type = "Type"
 Expr.Var = ID
@@ -17,6 +18,7 @@ Expr.FnConstruct = "\\" ID ":" Expr "." Expr
 Expr.FnDestruct = Expr Expr {left}
 Expr.Let = "let" ID "=" Expr ";" Expr
 \end{lstlisting}
+\lstset{language=base}
 \caption{The concrete syntax for the base language. $\co{FnConstruct}$ is a lambda function, $\co{FnDestruct}$ is application of a lambda function.}
 \label{fig:syntax}
 \end{figure}

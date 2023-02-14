@@ -12,6 +12,8 @@ The meta-language SDF3 is used to define the syntax of the language~\cite{sdf3},
 
 \paragraph{Syntax definitions}
 The syntax of a language is defined through rules of the form \verb|A.C = a| with \verb|A| being a \emph{Non-Terminal}, \verb|C| being the name of a constructor and \verb|a| a list of symbols. To remove ambiguity, one can specify a relative priority for each constructor. For example, below is the syntax of a simple language:
+
+\lstset{language=SDF3}
 \begin{lstlisting}
 context-free sorts
 	Expr
@@ -22,6 +24,7 @@ context-free syntax
 context-free priorities
 	Expr.X > Expr.Mul > Expr.Add
 \end{lstlisting}
+\lstset{language=base}
 
 \paragraph{ATerm format}
 Using the Syntax, Spoofax will generate a parser. This parser takes in a program in textual format, and outputs ATerms. ATerms are a way of encoding an abstract syntax tree~\cite{aterm}. For example, for the program \verb|x + x * x| the following ATerm is produced:

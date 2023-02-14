@@ -20,6 +20,21 @@
 \definecolor[named]{oasicsLightGray}{rgb}{0.85,0.85,0.86}
 \definecolor[named]{oasicsYellow}{rgb}{0.99,0.78,0.07}
 
+\lstdefinelanguage{base}{
+	stringstyle=\color{blue}\ttfamily,
+	morestring=[b]"
+}
+
+\lstdefinelanguage{SDF3}{
+	alsoletter=-,
+	keywords={context-free, free, sorts, syntax, priorities, left, right},
+	keywordstyle=\color[HTML]{71295b}\bfseries,
+	identifierstyle=\color{black},
+	stringstyle=\color{blue}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
 \lstset{basicstyle=\small\ttfamily,%
 	backgroundcolor=\color{oasicsLightGray},%
 	frame=single,framerule=0pt,xleftmargin=\fboxsep,xrightmargin=\fboxsep,

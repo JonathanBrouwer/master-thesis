@@ -349,7 +349,7 @@ An alternative for a Krivine machine, which keeps a stack of arguments it has en
 
 Although these rules look cleaner, they are more complicated to implement, requiring a separate relation to check if \verb|f| is a \verb|FnConstruct| or something else. For the pure calculus of constructions this still works quite well, but when adding inductive datatypes (chapter~\ref{ch:datatypes}) the rules required become a lot more complex than those for a Krivine machine.
 
-An additional benefit of Krivine machines is that the run-time performance of them tends to be a bit higher, though this is only a constant factor and not a time-complexity improvement.
+An additional benefit of Krivine machines is that the run-time performance of them tends to be a bit better, though this is only a constant factor and not a time-complexity improvement.
 
 \begin{figure}[h]
 	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{}{\scope{s_2}{e_2}}$}]{A substitution-based approach for beta reduction}
@@ -393,3 +393,4 @@ An additional benefit of Krivine machines is that the run-time performance of th
 	\label{fig:subst-approach}
 \end{figure}
 
+We now have an implementation of the Calculus of Constructions in Spoofax. This implementation still has the issue of variable capture, which we will discuss and solve on chapter \ref{chap:namecolls}. Next, from chapter \ref{chap:bools} onward we will show how to extend the language.

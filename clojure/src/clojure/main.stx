@@ -2,7 +2,7 @@ module clojure/main
 
 imports
 
-  signatures/start-sig
+  signatures/clojure/start-sig
 
 rules
 

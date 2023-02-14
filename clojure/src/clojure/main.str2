@@ -4,8 +4,8 @@ imports
 
   statixruntime
   statix/api
-  injections/-
-  signatures/start-sig
+  injections/clojure/-
+  signatures/clojure/start-sig
   pp
   completion
 

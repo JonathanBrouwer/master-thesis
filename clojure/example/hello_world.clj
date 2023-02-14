@@ -1,1 +1,1 @@
-(println ((fn [x] x) "hey"))
+(println "hey")

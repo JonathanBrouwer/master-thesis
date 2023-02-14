@@ -2,7 +2,7 @@
 
 \chapter{\label{chap:namecolls}Avoiding Variable Capturing}
 
-The implementation of the base language shown in chapter~\ref{chap:baselang} has one big problem, that is variable capture. Variable capture is the phenomenon of free variables in a term becoming bound when a naive substitution happens~\cite{tapl}. This chapter will explore several ways of solving this. 
+We have now implemented the Calculus of Constructions in Statix. The implementation has one big problem, that is variable capture. Variable capture is the phenomenon of free variables in a term becoming bound when a naive substitution happens~\cite{tapl}. This chapter will explore several ways of solving this. 
 
 An example term where this problem occurs is the following: What is the type of this expression (a polymorphic identity function)?
 \begin{lstlisting}
@@ -50,9 +50,11 @@ typeOfExpr(s2, Var("T"))
 	\draw (s2) edge[] (s1);
 \end{tikzpicture}
 
-Finally, we need to find the type of \verb|Var("T")|. This finds the lexically closest definition of \verb|T| (the one in s2), which is correct. But the type of \verb|T| is \verb|T|, which does NOT refer to the lexically closest \verb|T|, but instead to the \verb|T| in s1. This situation, in which a type can contain a reference to a variable that is shadowed, is the problem. We need to find a way to make sure that shadowing like this can never happen.
+Finally, we need to find the type of \verb|Var("T")| in \verb|s2|. This finds the lexically closest definition of \verb|T| (the one in s2), which is correct. But the type of \verb|T| is \verb|T|, which does NOT refer to the lexically closest \verb|T|, but instead to the \verb|T| in s1. This situation, in which a type can contain a reference to a variable that is shadowed, is the problem. We need to find a way to make sure that shadowing like this can never happen.
 
 \section{Alternative Solutions}
+
+Now that the problem is clear, we will explore several attempts at a solution that failed, before settling on the final solution in section \ref{scopes_for_names}.
 
 \subsection{De Bruijn Indices}
 
@@ -60,13 +62,14 @@ Almost all compilers that typecheck dependently typed languages use de Bruijn re
 
 \subsection{Uniquifying names}
 
-The first solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. First of all, it doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, this changes the names in the AST, so it breaks editor services such as renaming.
+Another solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. First of all, it doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, this changes the names in the AST, so it breaks editor services such as renaming.
 
 \subsection{Renaming terms dynamically}
 
-Anytime that we introduce a new name in a type, we could check if the name already exists in the environment, and if it does, choose a different unique name. This approach is possible but tedious to implement in Statix. It requires a new relation to traverse through the type and rename. It also increases the time complexity, as many traversals of the type are needed. This was successfully implemented, but we chose against using it in favor of the solution presented in the next section.
+Anytime that we introduce a new name in a type, we could check if the name already exists in the environment, and if it does, choose a different unique name. This approach is possible but tedious to implement in Statix. It requires a new relation to traverse through the type and rename. This is also an inefficient solution, as many traversals of the type are needed. This was successfully implemented, but we chose against using it in favor of the solution presented in the next section.
 
 \section{Using Scopes to Distinguish Names}
+\label{scopes_for_names}
 
 The solution we found to work best in the end is to change the definition of \verb|ID|. To be precise, at the grammar level we have two sorts, \verb|RID| is a "Raw ID", being just a string. \verb|ID| will have two constructors, one being \verb|Syn|, a syntactical \verb|ID|, referring to the lexically closest match. The second one is \verb|ScopedName|, which is defined below.
 
@@ -79,7 +82,7 @@ signature constructors
   ScopedName : scope * RID -> ID
 \end{lstlisting}
 
-The \verb|ScopedName| constructor has a scope and a raw ID. The scope is used to uniquely identify the name. The main idea is that whenever we encounter a syntactical name during type checking, we replace it with a scoped name, so it unambiguous. The scope graph will never have a syntactical name in it. However, when querying the scope graph for a syntactical name, we return the lexically closest name.
+The \verb|ScopedName| constructor takes a scope and a raw ID. The scope is used to uniquely identify the name. The main idea is that whenever we encounter a syntactical name during type checking, we replace it with a scoped name, so it unambiguous. The scope graph will never have a syntactical name in it. However, when querying the scope graph for a syntactical name, we return the lexically closest name.
 
 \subsection{The example revisited}
 

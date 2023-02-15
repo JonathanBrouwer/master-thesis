@@ -1,7 +1,7 @@
 \chapter{Ergonomics of Spoofax}
 \label{ch:ergonomics}
 
-Now that we've implemented a feature-rich dependently typed language in Statix, this chapter discusses the experience, and recommends some features which might improve the experience. 
+Now that we've implemented a feature-rich dependently typed language in Statix, this chapter discusses the experience, and recommends some changes to Statix and Spoofax which might improve the experience. 
 
 \section{Statix}
 
@@ -15,7 +15,7 @@ typeOfExpr_(s, DataTypeDecl(n, ps, is, ue, cs, b)) = ... :-
 	isStrictlyPositive : (scope * Expr)
 	isStrictlyPositive(s, FnType(...)) = ...
 	\end{lstlisting}
-	The definition of \verb|isStrictlyPositive| can then use all the metavariables of \verb|DataTypeDecl| without having to explicitly pass them.
+	The definition of \texttt{isStrictlyPositive} can then use all the metavariables of \\ \texttt{DataTypeDecl} without having to explicitly pass them.
 	
 	\item In order to implement more powerful inference algorithms, it would be useful to have a mechanism to check if metavariables have been instantiated or not. Since the order in which Statix evaluates constraints is so dynamic, we're not entirely sure how this mechanism would be implemented. More research is needed on this.
 	

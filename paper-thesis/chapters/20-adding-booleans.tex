@@ -220,18 +220,18 @@ Implementing this feature is also straight-forward, we add the following two rul
 
 \section{Extensibility of the Approach}
 
-Now that a few features have been implemented, we can discuss how easy the language is to extend. The conclusion so far is that it is doable in a clean way. Specifically, the approach for each of the features above was:
+Now that a few features have been implemented, we can discuss how easy the language is to extend. From the three examples above and the following chapters we can conclude that extending the language in a clean way is possible. To extend the language, we used the following approach:
 
 \begin{enumerate}
 	\item Define the parsing rules for the new feature
-	\item Create a new file, \verb|tp_bools.stx| and import this file in the main \verb|type_check.stx| file.
-	\item In the new file, define a case for the \verb|betaReduceHead| rule for the constructors that were added. Also define cases for \verb|expectBetaEq| and \verb|betaReduce| if necessary. It is necessary iff the new constructors are not always eliminated by \verb|betaReduceHead|.
+	\item Create a new file, \verb|tp_[feature].stx| and import this file in the main \verb|type_check.stx| file.
+	\item In the new file, define a case for the \verb|betaReduceHead| rule for the constructors that were added. Also define cases for \verb|expectBetaEq| and \verb|betaReduce| if necessary. This is only necessary iff the new constructors are not always eliminated by \verb|betaReduceHead|.
 	\item In the new file, define a case for the \verb|typeOfExpr| rule for the constructors that were added.
 \end{enumerate}
 
-This allows each feature to be isolated to its own file. If we decide that we don't like a feature after all, we can remove it simply by unimporting the file. This problem is similar to the expression problem\cite{expression_problem}, which Statix solves very well.
+This allows each feature to be isolated to its own file. If we decide that we don't like a feature after all, we can remove it simply by unimporting the file. This problem is similar to the expression problem\cite{expression_problem}, where we want to extend datatypes and their associated behaviour, which Statix solves very well.
 
-In the following chapters, we're going to be extending the language further with these more interesting features using this approach:
+In the following chapters, we're going to be extending the language further with these more interesting features using the approach defined above:
 \begin{itemize}
 	\item Inference (chapter~\ref{ch:inference})
 	\item Inductive Datatypes (chapter~\ref{ch:datatypes})

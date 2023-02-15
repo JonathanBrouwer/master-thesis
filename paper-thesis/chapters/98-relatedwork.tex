@@ -1,6 +1,8 @@
 \chapter{Related Work}
 \label{ch:relatedwork}
 
+In chapter \ref{ch:comp-haskell} and \ref{ch:comp-lambdapi} we already compared our implementation with two different implementations. 
+
 \paragraph{Scopes as Types}
 
 The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types} present an implementation of System F that does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can be arbitrary terms. 

@@ -1,13 +1,1 @@
-equational unification
-scheme/clojure backend
-
-1. New command
-2. Linken aan nieuwe task (juiste deps)
-3. Task called clojure 
-
-nieuw project
-build dependency
-
-TODO:
-- Flow of text
-- Intro of each chapter, section transitions
+- Related work recommendations?

@@ -26,7 +26,7 @@ Expr.Let = "let" ID "=" Expr ";" Expr
 There is only one sort: Expr. The syntax definition does not have a separate sort for types, as types may be arbitrary expressions in a dependently typed language. The following constructors exist:
 \begin{itemize}
 	\item \verb|Type| is the Type of Types.
-	\item \verb|Var| is a variable, it uses the lexical sort \verb|ID|, which is defined as \verb|[a-zA-Z\_][a-zA-Z0-9\_]*|.
+	\item \verb|Var| is a variable, it uses the lexical sort \verb|ID|, which is defined as \\ \verb|[a-zA-Z\_][a-zA-Z0-9\_]*|.
 	\item \verb|FnType| is the type of a function. It assigns a name to its first argument to allow the return type of the function to depend on the argument type. It is right associative, meaning \verb|A -> B -> C| is interpreted as \verb|A -> (B -> C)|. 
 	\item \verb|FnConstruct| creates an anonymous function (lambda function).
 	\item \verb|FnDestruct| applies a function to an argument. It is left associative, meaning \verb|a b c| is interpreted as \verb|(a b) c|.

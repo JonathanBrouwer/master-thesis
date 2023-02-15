@@ -76,3 +76,5 @@ We need to make the following changes to the type-checking algorithm:
 	\item For all constructors, we need to check that the universe of the constructor arguments is smaller than or equal to \verb|u|. This ensures that the datatype does actually live in the universe \verb|u|.
 \end{enumerate}
 
+We have now finished the implementation of the language. Next, we will discuss how well semantic code completion works with this implementation in chapter~\ref{chap:editor-services}. Then we will compare the implementation with one in Haskell (chapter~\ref{ch:comp-haskell}) and LambdaPi (chapter~\ref{ch:comp-lambdapi}). 
+

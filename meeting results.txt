@@ -1,1 +1,29 @@
 - Related work recommendations?
+
+Make one related work chapter
+- Scopes as Types:
+    - Initial scope graphs paper
+    - Arjen Rouvoet paper
+    - Other implementations in Statix
+- rust internal typing rules
+- Other implementations of dependently typed languages
+    - most languages are general purpose
+    - Agda in haskell, coq in ..., lean, ..
+    - metacoq: Focus on a declarative semantics
+    - elpi
+
+- Presentation
+    - Send draft to Arie: Read introduction+conclusion
+    - Finish conclusion chapter: Evaluation of research questions
+    
+    - Defense in week Q3W9
+
+- Spoofax bug
+    - Ask Jeff -> SoonTM
+    
+
+- Review of thesis
+    - Aron 1-4
+    - I'll fix the rest first
+
+

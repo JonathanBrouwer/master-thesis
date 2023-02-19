@@ -346,7 +346,7 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 \todo{Example}
 
 \begin{figure}[h]
-	\figuresection{Type checking let}
+	\figuresection[\fbox{$b_0 = \co{FnDestruct}(b_1, \co{Var}("T")))$}]{Type checking let}
 	\begin{mathpar}
 	\mprset{vskip=0.3ex}
 		\inferrule{
@@ -354,24 +354,24 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 			}{
 			\toe{s_0}{\co{Type}()}{\co{Type}()}
 			}
-			\\ \toe{s_1}{b}{\co{Type}()}
+			\\ \toe{s_1}{b_0}{\co{Type}()}
 		}{
-			\toe{s_0}{\co{Let}("T", \co{Type}(), b)}{\co{Type}()}
+			\toe{s_0}{\co{Let}("T", \co{Type}(), b_0)}{\co{Type}()}
 		}
 	\mprset{vskip=0ex}
 	\end{mathpar}
 
-	\figuresection{Type checking let body}
+	\figuresection[\fbox{$b_1 = \co{FnConstruct}("v", \co{Type}(), \co{Var}("v"))$}]{Type checking let body}
 	\begin{mathpar}
 		\mprset{vskip=0.7ex}
 		\inferrule{
-			\toe{s_1}{\co{FnConstruct}("v", \co{Type}(), \co{Var}("v"))}{\co{FnType}("v", \co{Type}(), \co{Type}())}
+			\toe{s_1}{b_1}{\co{FnType}("v", \co{Type}(), \co{Type}())}
 			\\\\ \bhr{\scope{s_1}{\co{FnType}("v", \co{Type}(), \co{Type}())}}{[]}{\scope{s_1}{\co{FnType}("v", \co{Type}(), \co{Type}())}}
 			\\\\ \toe{s_1}{\co{Var}("T")}{\co{Type}()}
 			\\ \beq{\co{Type}()}{\co{Type}()}
 			\\ \bred{s_2}{\co{Type}()}{\co{Type}()}
 		}{
-			\toe{s_1}{\co{FnDestruct}(\co{FnConstruct}("v", \co{Type}(), \co{Var}("v")), \co{Var}("T")))}{\co{Type}()}
+			\toe{s_1}{\co{FnDestruct}(b_1, \co{Var}("T")))}{\co{Type}()}
 		}
 		\mprset{vskip=0ex}
 	\end{mathpar}

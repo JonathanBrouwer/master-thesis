@@ -342,6 +342,77 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 	\label{fig:type-check-rules}
 \end{figure}
 
+\section{An example}
+\todo{Example}
+
+\begin{figure}[h]
+	\figuresection{Type checking let}
+	\begin{mathpar}
+	\mprset{vskip=0.3ex}
+		\inferrule{
+			\inferrule{
+			}{
+			\toe{s_0}{\co{Type}()}{\co{Type}()}
+			}
+			\\ \toe{s_1}{b}{\co{Type}()}
+		}{
+			\toe{s_0}{\co{Let}("T", \co{Type}(), b)}{\co{Type}()}
+		}
+	\mprset{vskip=0ex}
+	\end{mathpar}
+
+	\figuresection{Type checking let body}
+	\begin{mathpar}
+		\mprset{vskip=0.7ex}
+		\inferrule{
+			\toe{s_1}{\co{FnConstruct}("v", \co{Type}(), \co{Var}("v"))}{\co{FnType}("v", \co{Type}(), \co{Type}())}
+			\\\\ \bhr{\scope{s_1}{\co{FnType}("v", \co{Type}(), \co{Type}())}}{[]}{\scope{s_1}{\co{FnType}("v", \co{Type}(), \co{Type}())}}
+			\\\\ \toe{s_1}{\co{Var}("T")}{\co{Type}()}
+			\\ \beq{\co{Type}()}{\co{Type}()}
+			\\ \bred{s_2}{\co{Type}()}{\co{Type}()}
+		}{
+			\toe{s_1}{\co{FnDestruct}(\co{FnConstruct}("v", \co{Type}(), \co{Var}("v")), \co{Var}("T")))}{\co{Type}()}
+		}
+		\mprset{vskip=0ex}
+	\end{mathpar}
+
+	\figuresection{Type checking function}
+	\begin{mathpar}
+		\mprset{vskip=0.7ex}
+		\inferrule{
+			\toe{s_1}{\co{Type}()}{\co{Type}()}
+			\\ \beq{\co{Type}()}{\co{Type}()}
+			\\\\ \bred{s_1}{\co{Type}()}{\co{Type}()}
+			\\ \toe{s_3}{\co{Var}("v")}{\co{Type}()}
+		}{
+			\toe{s_1}{\co{FnConstruct}("v", \co{Type}(), \co{Var}("v"))}{\co{FnType}("v", \co{Type}(), \co{Type}())}
+		}
+		\mprset{vskip=0ex}
+	\end{mathpar}
+
+	\figuresection{Corresponding Scope Graph} \\
+	\begin{tikzpicture}[scopegraph, node distance = 2.5em and 2.5em]
+		\node[scope] (s0) {$s0$};
+		
+		\node[scope, right of = s0, xshift=5em] (s1) {$s1$};
+		\draw (s1) edge[] (s0);
+		\node[type, above of = s1] (s1l) {$\texttt{T = Type()}$};
+		\draw (s1) edge[type] (s1l);
+		
+		\node[scope, right of = s1, xshift=6em] (s2) {$s2$};
+		\draw (s2) edge[] (s1);
+		\node[type, above of = s2] (s2l) {$\texttt{v = Type()}$};
+		\draw (s2) edge[type] (s2l);
+		
+		\node[scope, below right of = s1, xshift=7em, yshift=-3em] (s3) {$s3$};
+		\draw (s3) edge[] (s1);
+		\node[type, above of = s3] (s3l) {$\texttt{v : Type()}$};
+		\draw (s3) edge[type] (s3l);
+	\end{tikzpicture}
+	\caption{Type checking example}
+	\label{fig:type-check-example}
+\end{figure}
+
 \section{Discussion of a Substitution-Based Approach}
 \label{sec:coc-subst}
 

@@ -101,3 +101,35 @@ Information can be retrieved from scope graphs using \textit{queries}. A query f
 	\item Path well-formedness condition: a regular expression of labels that specifies which paths are well-formed. Only datums that are reached through a path whose edge labels are in the language described by the regular expression are included in the query result.
 	\item A match predicate, taking a single datum as input. Only datums that satisfy this predicate will be included in the query result. Its default value is \verb|true|, meaning that all datums under the specified relation that satisfy the path well-formedness condition are returned.
 \end{itemize}
+
+\subsection*{Example}
+To get a better understanding of scope graphs, we consider an example in a non-dependent language. 
+\lstset{language=java}
+\begin{lstlisting}
+	int x = 5;
+	int y = x + 3;
+	return x + y;
+\end{lstlisting}
+Remember that you can think of scopes as a type-checking environment. During type checking, the following steps happen:
+\begin{enumerate}
+	\item \verb|5| is type-checked in the root scope \verb|s0|. 
+	\item The definition of \verb|x| creates a new scope \verb|s1| that contains the type of \verb|x|, which is used to type-check the rest of the program.
+	\item \verb|x + 3| is type-checked in the new scope \verb|s1|, the \verb|x| is resolved to the declaration in \verb|s1|.
+	\item The definition of \verb|y| creates a new scope \verb|s2| that contains the type of \verb|y|, which is used to type-check the rest of the program.
+	\item \verb|x + y| is type-checked in the new scope \verb|s2|, to resolve \verb|x| we need to follow a \verb|P| edge.
+\end{enumerate}
+
+\lstset{language=}
+\begin{tikzpicture}[scopegraph, node distance = 2.5em and 2.5em]
+	\node[scope] (s0) {$s0$};
+	
+	\node[scope, right of = s0, xshift=5em] (s1) {$s1$};
+	\draw (s1) edge[lbl={P}] (s0);
+	\node[type, above of = s1] (s1l) {$\texttt{x : Int()}$};
+	\draw (s1) edge[type] (s1l);
+	
+	\node[scope, right of = s1, xshift=6em] (s2) {$s2$};
+	\draw (s2) edge[lbl={P}] (s1);
+	\node[type, above of = s2] (s2l) {$\texttt{y : Int()}$};
+	\draw (s2) edge[type] (s2l);
+\end{tikzpicture}

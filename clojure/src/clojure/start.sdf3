@@ -10,13 +10,13 @@ context-free sorts
 
 context-free syntax
 
-  CStart.CProgram = CExpr*
+  CStart.CProgram = es:CExpr* {layout(align-list es)}
   
-  CExpr.CFn = "(" "fn" "[" CID "]" CExpr ")"
-  CExpr.CFnCall = "(" CExpr CExpr ")"
-  CExpr.CLet = "(" "let" "[" CID "]" CExpr ")"
+  CExpr.CFn = <(fn [<CID>] <CExpr>)>
+  CExpr.CFnCall = <(<CExpr> <CExpr>)>
+  CExpr.CLet = <(let [<CID>] <CExpr>)>
   CExpr.CVar = CID
-  CExpr.CPrintLn = "(" "println" CExpr ")"
+  CExpr.CPrintLn = <(println <CExpr>)>
   CExpr.CString = STRING
 
 lexical sorts STRING STRING_CHAR CID

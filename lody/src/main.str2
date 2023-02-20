@@ -91,7 +91,7 @@ rules // Analysis
   with <conc-strings> (s, "'") => s'
   
   
-  compile-program : p -> <id> CProgram([])
+  compile-program : p -> <pp-clojure-string> CProgram([CPrintLn(CString("hey")), CPrintLn(CString("Bye"))])
   with <debug(!"Compile: ")> p
 
   

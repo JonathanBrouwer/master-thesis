@@ -1,21 +1,18 @@
-- Other implementations of dependently typed languages
-    - most languages are general purpose
-    - Agda in haskell, coq in ..., lean, ..
-    - metacoq: Focus on a declarative semantics
-    - elpi
+- cum laude?
+- the form we forgot?
+- defense date?
 
-- Presentation
-    - Send draft to Arie: Read introduction+conclusion
-    - Finish conclusion chapter: Evaluation of research questions
-    
-    - Defense in week Q3W9
+- value to dependent types community?
+- question in introduction, statement in conclusion
+- why is coc the right language?
+- CAN statix do this?
 
-- Spoofax bug
-    - Ask Jeff -> SoonTM
-    
+- why is system F harder?
+- future work: *match* in statix
 
-- Review of thesis
-    - Aron 1-4
-    - I'll fix the rest first
+- wat is de betekenis van mijn thesis?
 
-
+Forms:
+- GLE: Submitted
+- Thesis Committee form -> Sent to jesper
+- 

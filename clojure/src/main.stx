@@ -1,0 +1,10 @@
+module main
+
+imports
+
+  signatures/clojure/start-sig
+
+rules
+
+  programOk : CStart
+  programOk(_).

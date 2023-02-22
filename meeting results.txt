@@ -1,7 +1,3 @@
-- cum laude?
-- the form we forgot?
-- defense date?
-
 - value to dependent types community?
 - question in introduction, statement in conclusion
 - why is coc the right language?

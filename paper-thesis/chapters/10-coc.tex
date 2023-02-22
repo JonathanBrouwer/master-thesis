@@ -345,7 +345,20 @@ typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
 \end{figure}
 
 \section{An example}
-\todo{Example}
+In this section we will give an example of how to type check a program. The program we will type check is:
+\begin{lstlisting}
+let T = Type;
+(\v: Type. v) T
+\end{lstlisting}
+
+The process that happens during type-checking is shown in figure \ref{fig:type-check-example}.
+\begin{enumerate}
+	\item First, we type-check the outermost expression \verb|Let| in an empty scope $s_0$. That rule states we have to type-check the let-bound value using the same scope, then it creates a \verb|NSubst| declaration in a new scope $s_1$, with which it type checks the body (which is here abbreviated as $b_0$).
+	
+	\item \todo{tododododood}
+\end{enumerate}
+
+ 
 
 \begin{figure}[h]
 	\figuresection[\fbox{$b_0 = \co{FnDestruct}(b_1, \co{Var}("T")))$}]{Type checking let}

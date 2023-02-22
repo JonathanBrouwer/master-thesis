@@ -6,7 +6,9 @@ In this section, we will describe how to implement a dependently typed language 
 \section{The Language}
 \label{sec:coc-syntax}
 
-The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. One extra feature was added that is not present in the Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax (written in SDF3~\cite{sdf3}) of the language is available in figure \ref{fig:syntax}.
+The base language that has been implemented is the Calculus of Constructions~\cite{Coquand_Huet_1988}. We chose this language as it is the core language of many dependently typed languages~\cite{core_coq}\cite{lean}, so it is representative of dependently typed languages as a whole.
+
+One extra feature has been added that is not present in the pure Calculus of Constructions: let bindings. Let bindings could be desugared by substituting, but this may grow the program size exponentially, so having them in the language is useful. The concrete syntax (written in SDF3~\cite{sdf3}) of the language is available in figure \ref{fig:syntax}.
 
 \begin{figure}[h]
 \lstset{language=SDF3}

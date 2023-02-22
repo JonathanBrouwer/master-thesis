@@ -4,7 +4,7 @@
 - CAN statix do this?
 
 - why is system F harder?
-- future work: *match* in statix
+- future work: pattern matching in statix
 
 - wat is de betekenis van mijn thesis?
 

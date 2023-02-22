@@ -14,7 +14,7 @@ context-free syntax
   
   CExpr.CFn = <(fn [<CID>] <CExpr>)>
   CExpr.CFnCall = <(<CExpr> <CExpr>)>
-  CExpr.CLet = <(let [<CID>] <CExpr>)>
+  CExpr.CLet = <(let [<CID> <CExpr>] <CExpr>)>
   CExpr.CVar = CID
   CExpr.CPrintLn = <(println <CExpr>)>
   CExpr.CString = STRING

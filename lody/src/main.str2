@@ -91,8 +91,30 @@ rules // Analysis
   with <conc-strings> (s, "'") => s'
   
   
-  compile-program : p -> <pp-clojure-string> CProgram([CPrintLn(CString("hey")), CPrintLn(CString("Bye"))])
-  with <debug(!"Compile: ")> p
-
+  compile-program : Program(e) -> <pp-clojure-string> CProgram([CPrintLn(<compile-expr> e)])
+  
+  compile-id :: ID -> string
+  compile-id : Syn(s) -> s
+  compile-id : ScopedName(_, s) -> s
+  
+  compile-expr :: Expr -> CExpr
+  compile-expr : Let(x, v, b) -> CLet(<compile-id> x, <compile-expr> v, <compile-expr> b)
+  compile-expr : FnConstruct(x, _, b) -> CFn(<compile-id> x, <compile-expr> b)
+  compile-expr : FnDestruct(f, a) -> CFnCall(<compile-expr> f, <compile-expr> a)
+  compile-expr : Var(x) -> CVar(<compile-id> x)
+  
+  compile-expr : Postulate(_, _, b) -> <compile-expr> b
+  compile-expr : TypeAssert(b, _) -> <compile-expr> b
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   

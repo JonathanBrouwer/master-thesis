@@ -66,7 +66,7 @@ public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
         context.require(classloaderResources.tryGetAsNativeResource(getClass()), ResourceStampers.hashFile());
         final ResourceKey file = args.file;
         return context.require(transformer, parse.inputBuilder().withFile(file).buildAstSupplier()).mapOrElse(
-            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "Title")),
+            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "test.clj")),
             e -> CommandFeedback.ofTryExtractMessagesFrom(e, file)
         );
     }

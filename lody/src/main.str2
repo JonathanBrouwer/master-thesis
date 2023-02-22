@@ -105,6 +105,9 @@ rules // Analysis
   
   compile-expr : Postulate(_, _, b) -> <compile-expr> b
   compile-expr : TypeAssert(b, _) -> <compile-expr> b
+  compile-expr : BoolTrue() -> CTrue()
+  compile-expr : BoolFalse() -> CFalse()
+  compile-expr : BoolIf(c, e1, e2) -> CIf(<compile-expr> c, <compile-expr> e1, <compile-expr> e2)
   
   
   

@@ -18,6 +18,11 @@ context-free syntax
   CExpr.CVar = CID
   CExpr.CPrintLn = <(println <CExpr>)>
   CExpr.CString = STRING
+  
+  CExpr.CTrue = "true"
+  CExpr.CFalse = "false"
+  CExpr.CIf = <(if <CExpr> <CExpr> <CExpr>)>
+  
 
 lexical sorts STRING STRING_CHAR CID
   
@@ -34,6 +39,19 @@ lexical syntax
   CID = "fn" {reject}
   CID = "let" {reject}
   CID = "println" {reject}
+  CID = "true" {reject}
+  CID = "false" {reject}
+  CID = "if" {reject}
+  
+lexical restrictions
+  CID -/- [a-zA-Z0-9\_]
+  "fn" -/- [a-zA-Z0-9\_]
+  "let" -/- [a-zA-Z0-9\_]
+  "println" -/- [a-zA-Z0-9\_]
+  "true" -/- [a-zA-Z0-9\_]
+  "false" -/- [a-zA-Z0-9\_]
+  "if" -/- [a-zA-Z0-9\_]
+  
 
 context-free restrictions
 

@@ -1,0 +1,13 @@
+module compiler
+
+test bool [[
+[[
+true
+]]
+]] 0 errors run compile-expr on #1 to CTrue()
+
+test bool [[
+[[
+false
+]]
+]] 0 errors run compile-expr on #1 to CFalse()

@@ -1,1 +1,4 @@
-if true then (\b: Bool. b) true else false end
+data Nat : -> Type 0 where
+	Z : Nat,
+	S : x: Nat -> Nat;
+Z

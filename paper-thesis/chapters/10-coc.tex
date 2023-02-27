@@ -350,15 +350,12 @@ In this section we will give an example of how to type check a program. The prog
 let T = Type;
 (\v: Type. v) T
 \end{lstlisting}
-
 The process that happens during type-checking is shown in figure \ref{fig:type-check-example}.
 \begin{enumerate}
 	\item First, we type-check the outermost expression \verb|Let| in an empty scope $s_0$. That rule states we have to type-check the let-bound value using the same scope, then it creates a \verb|NSubst| declaration in a new scope $s_1$, with which it type checks the body (which is here abbreviated as $b_0$).
-	
-	\item \todo{tododododood}
+	\item To type-check the \verb|FnDestruct| in the let body, we apply the corresponding rule. This requires type checking the given function, checking if the argument type matches, then substituting the argument in the return type creating scope $s_2$ and returning this. The only non-trivial step is type-checking the function.
+	\item To type check the function, we type check the argument and assert that it is a type. Then we type check the body with the argument in scope, creating scope $s_3$, and finally we construct the type. 
 \end{enumerate}
-
- 
 
 \begin{figure}[h]
 	\figuresection[\fbox{$b_0 = \co{FnDestruct}(b_1, \co{Var}("T")))$}]{Type checking let}

@@ -9,6 +9,7 @@ It is valuable to define an interpreter for our language, because it is a way to
 However, this big advantage is also a disadvantage: Dynamic semantics would usually be defined in Stratego. We need to find a way to re-use the definition from Statix, since we don't want to repeat the definition. Luckily, Statego has a way to evaluate Statix relations on terms. 
 
 \todo{finish this after implementing}
+- discuss efficiency (reference "Optimizing first class pattern matching")
 
 \section{Compiler}
 The alternative to writing an interpreter is writing a compiler to another language. In order to explore this avenue, we wrote a compiler to Clojure, a dynamically typed dialect of Lisp that runs on the JVM~\cite{clojure}. The advantage of a compiling to such a high-level language is that the actual compilation steps are relatively straight-forward, but it still shows that we can write a compiler for a dependently typed language in Spoofax.
@@ -21,4 +22,12 @@ compile-expr : FnConstruct(x, _, b) ->
 
 Types require a bit more attention. Since our language has no way to match on types, types can actually be completely eliminated during type checking. The easiest way to do this is to compile all types to an arbitrary value (we chose the integer 0), since the value is irrelevant anyways. A more efficient solution could be to implement type erasure~\cite[Section 23.6]{tapl}, where type-level functions are completely removed. We decided against this as the goal of this section is to show that we can compile the language with ease, not to write an efficient compiler.
 
+-analysis is hard, agda doesn't do it
+- if compiled language doesn't matter
+- erasure annotations (idris/agda)
+
+
+
 Finally, inductive data types are a bit harder to compile, as Clojure does not have an equivalent to sum types on which we can match. \todo{finish this after implementing}
+- agda to scheme compiler
+- atoms voor constructors

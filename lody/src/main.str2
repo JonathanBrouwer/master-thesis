@@ -42,6 +42,9 @@ rules // Analysis
       
   fail-msg(|msg) = err-msg(|$[get-type: [msg]]); fail
   
+  
+  interpret : expr -> expr
+  
   // Defined for semantic code completion
   downgrade-placeholders = downgrade-placeholders-lody
   upgrade-placeholders   = upgrade-placeholders-lody

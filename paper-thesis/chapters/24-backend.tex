@@ -1,4 +1,24 @@
 \chapter{Back-end}
 \label{ch:backend}
 
-We have now fully built the front-end (parser and type checker) of our language. However, the language also needs a back-end to be usable. 
+We have now fully built the front-end (parser and type checker) of our language. However, the language also needs a back-end to be usable. A back-end can be either an interpreter or a compiler, we will explore both options in this chapter.
+
+\section{Interpreter}
+It is valuable to define an interpreter for our language, because it is a way to run a program without relying on the definition of the language you are compiling to. For a dependently typed language specifically it is easy to add on, as we already needed to define the dynamic semantics of our language for type checking anyways. 
+
+However, this big advantage is also a disadvantage: Dynamic semantics would usually be defined in Stratego. We need to find a way to re-use the definition from Statix, since we don't want to repeat the definition. Luckily, Statego has a way to evaluate Statix relations on terms. 
+
+\todo{finish this after implementing}
+
+\section{Compiler}
+The alternative to writing an interpreter is writing a compiler to another language. In order to explore this avenue, we wrote a compiler to Clojure, a dynamically typed dialect of Lisp that runs on the JVM~\cite{clojure}. The advantage of a compiling to such a high-level language is that the actual compilation steps are relatively straight-forward, but it still shows that we can write a compiler for a dependently typed language in Spoofax.
+
+Both languages support first-class functions, so we can map most constructs of our language directly onto constructs of Clojure. Therefore, most of our compiler has rules that look like the example below, where the constructors are compiled recursively using the \verb|compile-expr| strategy, ignoring the specified types. The constructors starting with \verb|C| are constructors from Clojure. 
+\begin{lstlisting}
+compile-expr : FnConstruct(x, _, b) -> 
+  CFn(<compile-id> x, <compile-expr> b)
+\end{lstlisting}
+
+Types require a bit more attention. Since our language has no way to match on types, types can actually be completely eliminated during type checking. The easiest way to do this is to compile all types to an arbitrary value (we chose the integer 0), since the value is irrelevant anyways. A more efficient solution could be to implement type erasure~\cite[Section 23.6]{tapl}, where type-level functions are completely removed. We decided against this as the goal of this section is to show that we can compile the language with ease, not to write an efficient compiler.
+
+Finally, inductive data types are a bit harder to compile, as Clojure does not have an equivalent to sum types on which we can match. \todo{finish this after implementing}

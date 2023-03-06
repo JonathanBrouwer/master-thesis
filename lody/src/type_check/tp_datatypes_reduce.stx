@@ -15,7 +15,8 @@ rules
   // CONSTRUCTORS: args+inductions -> P indices (C pars args)
 
   // -- Beta reduction rules  
-
+  betaReduceHead((s, DataTypeDecl(n, ps, is, ue, cs, b)), as) = betaReduceHead((s4, b), as) :-
+  	genDataTypeScope(s, DataTypeDecl(n, ps, is, ue, cs, b)) == (s4, _).
   
   betaReduceHead((s, e@DataElim(n, _)), as) = betaReduceHeadChoose((s, e), as, j) :- {ps is cs V i}
   	sGetDataTypeDecl(s, n) == DataType(n, _, ps, is, cs),

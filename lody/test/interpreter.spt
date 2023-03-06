@@ -1,0 +1,15 @@
+module interpreter
+
+test bool [[
+[[
+if true then true else false end
+]]
+]] 0 errors run interpret-expr on #1 to BoolTrue()
+
+test data type [[
+[[
+data Nat : -> Type 0 where
+  Zero : Nat;
+Nat
+]]
+]] 0 errors run interpret-expr on #1 to DataTypeDecl(Syn("Nat"), [], [], Type(0), [Constructor(Syn("Zero"), Var(Syn("Nat")))], Var(Syn("Nat")))

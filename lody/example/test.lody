@@ -1,3 +1,1 @@
-data Nat : -> Type 0 where
-  Zero : Nat;
-true
+if true then true else false end

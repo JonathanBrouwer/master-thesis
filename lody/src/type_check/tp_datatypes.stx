@@ -19,6 +19,13 @@ rules
   
   // If we find a declaration
   typeOfExpr_(s, DataTypeDecl(n, ps, is, ue, cs, b)) = (DataTypeDecl(n', ps', is', ue, cs', b'), b_type) :- {s1 s2 s3a s3 s4 u}
+	genDataTypeScope(s, DataTypeDecl(n, ps, is, ue, cs, b)) == (s4, DataTypeDecl(n', ps', is', ue, cs', b)),
+  	
+  	// Type check body in s4
+  	typeOfExpr(s4, b) == (b', b_type).
+  	
+  genDataTypeScope : scope * Expr -> (scope * Expr)
+  genDataTypeScope(s, DataTypeDecl(n, ps, is, ue, cs, b)) = (s4, DataTypeDecl(n', ps', is', ue, cs', b)) :- {s1 s2 s3a s3 u}
   	scopeName(s2, n) == n',
   	
   	//Find universe
@@ -33,10 +40,7 @@ rules
   	dataTypeParams(s3, is) == (_, is'),
   	
   	// Add all constructors to s2 to create s4. Type check them in the context of s3.
-  	dataTypeConstrs(n', u, s3, s2, cs, ps', is') == (s4, cs'),
-  	
-  	// Type check body in s4
-  	typeOfExpr(s4, b) == (b', b_type).
+  	dataTypeConstrs(n', u, s3, s2, cs, ps', is') == (s4, cs').
   	
   // Creates the Expression `T -> e`, given params and indices
   createCoreType : Expr * list(DataParam) * list(DataParam) -> Expr

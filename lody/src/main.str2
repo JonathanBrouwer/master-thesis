@@ -93,6 +93,7 @@ rules // Analysis
   where <RenameTaken> s
   with <conc-strings> (s, "'") => s'
   
+  interpret-program : Program(e) -> <stx-evaluate(|"main", "main!interpret")> [e]
   
   compile-program : Program(e) -> <pp-clojure-string> CProgram([CPrintLn(<compile-expr> e)])
   

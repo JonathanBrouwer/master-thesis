@@ -5,6 +5,7 @@ imports
   signatures/start-sig
   type_check/type_check
   type_check/scopes
+  type_check/beta_eq
 
 rules
 
@@ -17,6 +18,9 @@ rules
   
   // Semantic code completion
   programOk(Start-Plhdr()).
+  
+  interpret : Expr -> Expr
+  interpret(e) = betaReduce((sEmpty, e)).
   	
 
   

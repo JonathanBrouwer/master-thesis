@@ -18,7 +18,7 @@ import mb.spoofax.core.language.command.ShowFeedback;
 import mb.aterm.common.TermToString;
 
 @LodyScope
-public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
+public class Interpret implements TaskDef<Interpret.Args, CommandFeedback> {
     public static class Args implements Serializable {
         private static final long serialVersionUID = 1L;
 
@@ -50,10 +50,10 @@ public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
 
     private final LodyClassLoaderResources classloaderResources;
     private final LodyParse parse;
-    private final CompileTransform transformer;
+    private final InterpretTransform transformer;
 
     @Inject
-    public Compile(LodyClassLoaderResources classloaderResources, LodyParse parse, CompileTransform transformer) {
+    public Interpret(LodyClassLoaderResources classloaderResources, LodyParse parse, InterpretTransform transformer) {
         this.classloaderResources = classloaderResources;
         this.parse = parse;
         this.transformer = transformer;
@@ -65,7 +65,7 @@ public class Compile implements TaskDef<Compile.Args, CommandFeedback> {
         context.require(classloaderResources.tryGetAsNativeResource(getClass()), ResourceStampers.hashFile());
         final ResourceKey file = args.file;
         return context.require(transformer, parse.inputBuilder().withFile(file).buildAstSupplier()).mapOrElse(
-            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "test.clj")),
+            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "output.aterm")),
             e -> CommandFeedback.ofTryExtractMessagesFrom(e, file)
         );
     }

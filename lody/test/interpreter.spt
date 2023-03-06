@@ -8,8 +8,14 @@ if true then true else false end
 
 test data type [[
 [[
-data Nat : -> Type 0 where
-  Zero : Nat;
+data Nat : -> Type 0 where;
+true
+]]
+]] 0 errors run interpret-expr on #1 to DataTypeDecl(Syn("Nat"), [], [], Type(0), [], BoolTrue())
+
+test data type 2 [[
+[[
+data Nat : -> Type 0 where;
 Nat
 ]]
-]] 0 errors run interpret-expr on #1 to DataTypeDecl(Syn("Nat"), [], [], Type(0), [Constructor(Syn("Zero"), Var(Syn("Nat")))], Var(Syn("Nat")))
+]] 0 errors run interpret-expr on #1 to DataTypeDecl(Syn("Nat"), [], [], Type(0), [], Var(Syn("Nat")))

@@ -90,11 +90,11 @@ rules // Analysis
   where <RenameTaken> s
   with <conc-strings> (s, "'") => s'
   
-  interpret-program : Program(e) -> <interpret-expr> e
+  interpret-program : Program(e) -> <strip-annos> <interpret-expr> e
   
-  interpret-expr : e -> <stx-evaluate(|"main", "main!interpret")> [e]
+  interpret-expr : e -> <stx-evaluate(|"main", "main!interpret")> [<desugar> e]
   
-  compile-program : Program(e) -> <pp-clojure-string> CProgram([CPrintLn(<compile-expr> e)])
+  compile-program : Program(e) -> <pp-clojure-string> CProgram([CPrintLn(<compile-expr> <desugar> e)])
   
   compile-id :: ID -> string
   compile-id : Syn(s) -> s

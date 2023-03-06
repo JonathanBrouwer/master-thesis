@@ -20,7 +20,7 @@ rules
   programOk(Start-Plhdr()).
   
   interpret : Expr -> Expr
-  interpret(e) = betaReduce((sEmpty, e)).
+  interpret(e) = betaReduce((sEmpty(), e)).
   	
 
   

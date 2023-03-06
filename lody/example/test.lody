@@ -1,1 +1,4 @@
-if true then true else false end
+data Maybe (T : Type) : -> Type 0 where
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+elim Maybe Bool (\_: Maybe Bool. Bool) 

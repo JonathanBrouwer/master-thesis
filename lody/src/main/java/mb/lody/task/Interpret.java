@@ -65,7 +65,7 @@ public class Interpret implements TaskDef<Interpret.Args, CommandFeedback> {
         context.require(classloaderResources.tryGetAsNativeResource(getClass()), ResourceStampers.hashFile());
         final ResourceKey file = args.file;
         return context.require(transformer, parse.inputBuilder().withFile(file).buildAstSupplier()).mapOrElse(
-            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "output.aterm")),
+            ast -> CommandFeedback.of(ShowFeedback.showText(TermToString.toString(ast), "output.lody")),
             e -> CommandFeedback.ofTryExtractMessagesFrom(e, file)
         );
     }

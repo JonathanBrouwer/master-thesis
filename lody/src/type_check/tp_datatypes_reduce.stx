@@ -15,7 +15,9 @@ rules
   // CONSTRUCTORS: args+inductions -> P indices (C pars args)
 
   // -- Beta reduction rules  
-  betaReduceHead((s, DataTypeDecl(n, ps, is, ue, cs, b)), as) = betaReduceHead((s4, b), as) :-
+  betaReduceHead((s, e@DataTypeDecl(n, ps, is, ue, cs, b)), as) = kRebuild((s, e), as).
+  	
+  betaReduce((s, DataTypeDecl(n, ps, is, ue, cs, b))) = DataTypeDecl(n, ps, is, ue, cs, betaReduce((s4, b))) :-
   	genDataTypeScope(s, DataTypeDecl(n, ps, is, ue, cs, b)) == (s4, _).
   
   betaReduceHead((s, e@DataElim(n, _)), as) = betaReduceHeadChoose((s, e), as, j) :- {ps is cs V i}

@@ -6,10 +6,29 @@ We have now fully built the front-end (parser and type checker) of our language.
 \section{Interpreter}
 It is valuable to define an interpreter for our language, because it is a way to run a program without relying on the definition of the language you are compiling to. For a dependently typed language specifically it is easy to add on, as we already needed to define the dynamic semantics of our language for type checking anyways. 
 
-However, this big advantage is also a disadvantage: Dynamic semantics would usually be defined in Stratego. We need to find a way to re-use the definition from Statix, since we don't want to repeat the definition. Luckily, Statego has a way to evaluate Statix relations on terms. 
+However, this big advantage is also a disadvantage: Dynamic semantics would usually be defined in Stratego. We need to find a way to re-use the definition from Statix, since we don't want to repeat the definition of the dynamic semantics.
 
-\todo{finish this after implementing}
-- discuss efficiency (reference "Optimizing first class pattern matching")
+\subsection{Implementation}
+
+Luckily, Stratego has a strategy built in that runs a Statix predicate on a term: \verb|stx-evaluate|. Using this strategy, the actual implementation of our interpreter in Stratego is just one line: Match an expression \verb|e| and run the functional predicate \verb|interpret| from the \verb|main.stx| file on it.
+
+\begin{lstlisting}
+interpret : e -> <stx-evaluate(|"main", "main!interpret")> [e]
+\end{lstlisting}
+
+Then, in the \verb|main.stx| file we define \verb|interpret| to be beta reducing the expression in an empty scope. 
+
+\begin{lstlisting}
+interpret(e) = betaReduce((sEmpty(), e)).
+\end{lstlisting}
+
+These two lines are the only required changes to implement an interpreter\footnote{Other than changing the project config to define a button in the Spoofax UI that when pressed runs the interpret strategy on a given term}. This shows that it is very straight-forward to implement an interpreter. 
+
+\subsection{Discussion of defining in Statix versus Stratego}
+
+An advantage of implementing the dynamic semantics in Statix instead of Stratego is that we can use scope graphs as a part of our dynamic semantics rules. 
+
+A disadvantage is that Stratego is specifically optimized for these transformations~\cite{fcpmc}. Therefore, the resulting interpreter will be slower when implemented in Statix. \todo{comparison}
 
 \section{Compiler}
 The alternative to writing an interpreter is writing a compiler to another language. In order to explore this avenue, we wrote a compiler to Clojure, a dynamically typed dialect of Lisp that runs on the JVM~\cite{clojure}. The advantage of a compiling to such a high-level language is that the actual compilation steps are relatively straight-forward, but it still shows that we can write a compiler for a dependently typed language in Spoofax.

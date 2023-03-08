@@ -58,15 +58,15 @@ Now that the problem is clear, we will explore several attempts at a solution th
 
 \subsection{De Bruijn Indices}
 
-Almost all compilers that typecheck dependently typed languages use de Bruijn representation for variables. Using de Bruijn indices in statix is possible, but sacrifices a lot. Many editor services (renaming, go to definition) require \verb|.ref| annotations to be set on names, and this is not possible if the names are no longer a part of the AST.
+Almost all compilers that typecheck dependently typed languages use de Bruijn representation for variables~\cite{lean}. Using de Bruijn indices in statix is possible, but sacrifices a lot. Many editor services (renaming, go to definition) require \verb|.ref| annotations (which specify which other name a certain name refers to) to be set on names, and this is not possible if the names are no longer a part of the AST and the scope graph.
 
 \subsection{Uniquifying names}
 
-Another solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. First of all, it doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, this changes the names in the AST, so it breaks editor services such as renaming.
+Another solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. First of all, it doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, this changes the names in the AST, so it breaks editor services in the same was as De Bruijn Indices did.
 
-\subsection{Renaming terms dynamically}
+\subsection{Capture-avoiding substitution}
 
-Anytime that we introduce a new name in a type, we could check if the name already exists in the environment, and if it does, choose a different unique name. This approach is possible but tedious to implement in Statix. It requires a new relation to traverse through the type and rename. This is also an inefficient solution, as many traversals of the type are needed. This was successfully implemented, but we chose against using it in favor of the solution presented in the next section.
+Anytime that we introduce a new name in a type, we could check if the name already exists in the environment, and if it does, choose a different unique name. This approach is called capture-avoiding substitution by renaming~\cite{capture_avoiding_sub}. This is possible but tedious to implement in Statix. It requires a new relation to traverse through the type and rename. This is also an inefficient solution, as many traversals of the type are needed. This was successfully implemented, but we chose against using it since we found a better solution.
 
 \section{Using Scopes to Distinguish Names}
 \label{scopes_for_names}
@@ -134,7 +134,7 @@ FnType(ScopedName(s1, T), Type(),
 
 \section{Improving the Readability of Types}
 
-Because the expression above, with \verb|ScopedName|s, is not particularly readable, we add a new post-analysis Stratego pass that converts the \verb|ScopedName|s to ticked names. For example, the above would be transformed to:
+Because the expression above, with \verb|ScopedName|s, is not particularly readable, we add a new post-analysis Stratego pass (an AST transformation that runs directly after type-checking) that converts the \verb|ScopedName|s to ticked names. For example, the above would be transformed to:
 
 \begin{lstlisting}
 FnType(T, Type(), FnType(T', Var(T)), Var(T)))

@@ -1,0 +1,114 @@
+% !TeX document-id = {2870843d-1baa-4f6a-bd0a-a5c796104a32}
+% !TeX encoding = UTF-8
+% TU Delft beamer template
+
+\documentclass[aspectratio=43]{beamer}
+\usepackage{csquotes}
+\usepackage{calc}
+\usepackage[absolute,overlay]{textpos}
+\usepackage{graphicx}
+\usepackage{subfig}
+\usepackage{mathtools}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{comment}
+\usepackage{siunitx}
+\usepackage{MnSymbol,wasysym}
+\usepackage{array}
+\usepackage{qrcode}
+
+\setbeamertemplate{navigation symbols}{} % remove navigation symbols
+\mode<presentation>{\usetheme[verticalbar=false]{tud}}
+
+\newcommand{\absimage}[4][0.5,0.5]{%
+	\begin{textblock}{#3}%width
+		[#1]% alignment anchor within image (centered by default)
+		(#2)% position on the page (origin is top left)
+		\includegraphics[width=#3\paperwidth]{#4}%
+\end{textblock}}
+
+\newcommand{\mininomen}[2][1]{{\let\thefootnote\relax%
+	\footnotetext{\begin{tabular}{*{#1}{@{\!}>{\centering\arraybackslash}p{1em}@{\;}p{\textwidth/#1-2em}}}%
+	#2\end{tabular}}}}
+
+\title[]{Dependently Typed Languages in Statix}
+\institute[]{Delft University of Technology, The Netherlands}
+\author{Jonathan Brouwer \and Jesper Cockx \and Aron Zwaan}
+
+\begin{document}
+\section{Introduction}
+{
+\setbeamertemplate{footline}{\usebeamertemplate*{minimal footline}}
+\frame{\titlepage}
+}
+
+\begin{frame}[fragile]{Background: What are Dependent Types?}
+\begin{itemize}
+	\item Types may depend on values!
+	\begin{exampleblock}{Example}
+		\texttt{concat : (A: Set) -> (n : Nat) -> Vec A n -> Vec A n
+			\\ \hspace*{48pt} -> Vec A (n + n)}
+	\end{exampleblock}
+% - n is a RUNTIME value, it does not have to be known at compile time
+% - n occurs insie a type `Vec`!
+% - The type system enforces these lengths are always correct
+% - Challenge: Type checking may require evaluating arbitrary terms to decide equality
+	\item Curry-Howard correspondence
+% Can be used to write proofs about code
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}[fragile]{Research Question}
+How well Statix is fit for the task of defining a dependently-typed language.
+% Statix is turing complete, so it's going to be possible
+% But is it going to be easier or harder than a general purpose language like haskell?
+\end{frame}
+
+\begin{frame}[fragile]{Why is this important?}
+	\begin{block}{From the perspective of Spoofax research}
+		Developing a language with a complex type system tests the boundaries of what Spoofax can do.
+	\end{block}
+	% - What can we improve about Statix?
+	
+	\begin{block}{From the perspective of Dependent Types research}
+		A rapid prototyping platform.
+	\end{block}
+	% - Try a new feature without having to implement in general purpose
+	% - Spoofax provides an easy way to get a parser, type checker, etc
+\end{frame}
+
+\begin{frame}[fragile]{Calculus of Constructions}
+	A lambda calculus with dependent types.
+	
+	\begin{exampleblock}{Example 1}
+		\texttt{($\backslash$v: Type. v) T}
+	\end{exampleblock}
+
+	\begin{exampleblock}{Example 2}
+		\texttt{let f = $\backslash$T: Type. $\backslash$x: T. x; \\
+f (T: Type -> Type) ($\backslash$y: Type. y)
+		}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Extra contributions}
+\begin{enumerate}
+	\item Implemented Inference
+	\item Implemented Inductive Data Types
+	\item Implemented Universes
+	\item Interpreter
+	\item Compiler to Clojure
+	\item Comparison with implementation in Haskell
+	\item Comparison with implementation in LambdaPi
+	\item Evaluation of Spoofax
+\end{enumerate}
+\end{frame}
+
+% block
+% exampleblock
+% alertblock
+
+\end{document}
+

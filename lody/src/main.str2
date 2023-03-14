@@ -106,6 +106,10 @@ rules // Analysis
   compile-expr : FnDestruct(f, a) -> CFnCall(<compile-expr> f, <compile-expr> a)
   compile-expr : Var(x) -> CVar(<compile-id> x)
   
+  compile-expr : Type(_) -> CString("\"TYPE\"")
+  compile-expr : FnType(_, _, _) -> CString("\"TYPE\"")
+  compile-expr : BoolType() -> CString("\"TYPE\"")
+  
   compile-expr : Postulate(_, _, b) -> <compile-expr> b
   compile-expr : TypeAssert(b, _) -> <compile-expr> b
   compile-expr : BoolTrue() -> CTrue()

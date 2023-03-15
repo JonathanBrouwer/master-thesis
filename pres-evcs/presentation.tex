@@ -46,14 +46,15 @@
 \begin{itemize}
 	\item Types may depend on values!
 	\begin{exampleblock}{Example}
-		\texttt{concat : (A: Set) -> (n : Nat) -> Vec A n -> Vec A n
-			\\ \hspace*{48pt} -> Vec A (n + n)}
+		\texttt{concat : (A: Set) -> (n m : Nat) -> Vec A n -> Vec A m
+			\\ \hspace*{48pt} -> Vec A (n + m)}
 	\end{exampleblock}
 % - n is a RUNTIME value, it does not have to be known at compile time
 % - n occurs insie a type `Vec`!
 % - The type system enforces these lengths are always correct
 % - Challenge: Type checking may require evaluating arbitrary terms to decide equality
-	\item Curry-Howard correspondence
+	\item Proof assistants
+	\item For example: Agda, Coq, Lean, ...
 % Can be used to write proofs about code
 \end{itemize}
 
@@ -61,22 +62,26 @@
 \end{frame}
 
 \begin{frame}[fragile]{Research Question}
-How well Statix is fit for the task of defining a dependently-typed language.
+\large{How suitable is Statix for defining a dependently-typed language?}
 % Statix is turing complete, so it's going to be possible
 % But is it going to be easier or harder than a general purpose language like haskell?
 \end{frame}
 
 \begin{frame}[fragile]{Why is this important?}
-	\begin{block}{From the perspective of Spoofax research}
+	\begin{block}{Spoofax perspective}
 		Developing a language with a complex type system tests the boundaries of what Spoofax can do.
 	\end{block}
 	% - What can we improve about Statix?
 	
-	\begin{block}{From the perspective of Dependent Types research}
-		A rapid prototyping platform.
+	\begin{block}{Dependent Types perspective}
+		Using a language workbench helps with rapid prototyping.
 	\end{block}
 	% - Try a new feature without having to implement in general purpose
 	% - Spoofax provides an easy way to get a parser, type checker, etc
+\end{frame}
+
+\begin{frame}{Primary Contribution}
+	todododododo
 \end{frame}
 
 \begin{frame}[fragile]{Calculus of Constructions}
@@ -100,17 +105,18 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	% Returns an Expr, not a Type
 	% Scope -> Two different types of nodes
 	\begin{block}{How do we use scopes?}
+		A scope is used as a combination of an environment and a context.\\
 		One relation \texttt{name $\rightarrow$ NameEntry}, NameEntry is either:
 		\begin{itemize}
-			\item NType: Stores a type
-			\item NSubst: Stores a substitution
+			\item NType: Stores a type -> Corresponds with context
+			\item NSubst: Stores a substitution -> Corresponds with environment
 		\end{itemize}
 	\end{block}
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking: Requires Evaluation}
 	\begin{exampleblock}{Example 1}
-		\texttt{let T = Bool;\\let b: T = true;}
+		\texttt{let T = if false then Int else Bool end;\\let b: T = true;}
 	\end{exampleblock}
 	\begin{block}{Evaluation relation} 
 		\texttt{betaHeadReduce : scope * Expr -> scope * Expr} \\
@@ -119,7 +125,9 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	\end{block}
 \end{frame}
 
-\begin{frame}[fragile]{Type Checking: Rules}
+\begin{frame}[fragile]{Type Checking: From inference rules to Statix code}
+	todododododod From inference rules to Statix code
+	
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.5\linewidth]{img/screenshot001}
@@ -134,12 +142,17 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 \end{frame}
 
 \begin{frame}[fragile]{Extra contributions}
+	% Refer to thesis for this
+Features
 \begin{enumerate}
 	\item Implemented Inference
 	\item Implemented Inductive Data Types
 	\item Implemented Universes
 	\item Interpreter
 	\item Compiler to Clojure
+\end{enumerate}
+Evaluation
+\begin{enumerate}
 	\item Comparison with implementation in Haskell
 	\item Comparison with implementation in LambdaPi
 	\item Evaluation of Spoofax
@@ -148,6 +161,11 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 
 \begin{frame}[fragile]{Conclusions}
 	Spoofax is a great tool for developing dependently typed languages!\footnote{But there is still room for improvement}
+	
+	- using scopes as env+context 
+	todo beperkingen noemen 
+	- statix enforces syntactic uniqueness of metavariable solutions but dependently typed languages use a weaker notion of equality 
+	- full thesis coming soonTM
 \end{frame}
 
 % block

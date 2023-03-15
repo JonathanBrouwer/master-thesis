@@ -100,8 +100,37 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	% Returns an Expr, not a Type
 	% Scope -> Two different types of nodes
 	\begin{block}{How do we use scopes?}
-		content...
+		One relation \texttt{name $\rightarrow$ NameEntry}, NameEntry is either:
+		\begin{itemize}
+			\item NType: Stores a type
+			\item NSubst: Stores a substitution
+		\end{itemize}
 	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking: Requires Evaluation}
+	\begin{exampleblock}{Example 1}
+		\texttt{let T = Bool;\\let b: T = true;}
+	\end{exampleblock}
+	\begin{block}{Evaluation relation} 
+		\texttt{betaHeadReduce : scope * Expr -> scope * Expr} \\
+		\texttt{betaReduce : scope * Expr -> Expr} \\
+		\texttt{exectBetaEq : (scope * Expr) * (scope * Expr)}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking: Rules}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.5\linewidth]{img/screenshot001}
+		\label{fig:screenshot001}
+	\end{figure}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.5\linewidth]{img/screenshot002}
+		\label{fig:screenshot002}
+	\end{figure}
+	
 \end{frame}
 
 \begin{frame}[fragile]{Extra contributions}
@@ -115,6 +144,10 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	\item Comparison with implementation in LambdaPi
 	\item Evaluation of Spoofax
 \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]{Conclusions}
+	Spoofax is a great tool for developing dependently typed languages!\footnote{But there is still room for improvement}
 \end{frame}
 
 % block

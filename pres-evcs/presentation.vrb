@@ -1,11 +1,2 @@
-\frametitle{Extra contributions}
-\begin{enumerate}
-^^I\item Implemented Inference
-^^I\item Implemented Inductive Data Types
-^^I\item Implemented Universes
-^^I\item Interpreter
-^^I\item Compiler to Clojure
-^^I\item Comparison with implementation in Haskell
-^^I\item Comparison with implementation in LambdaPi
-^^I\item Evaluation of Spoofax
-\end{enumerate}
+\frametitle{Conclusions}
+Spoofax is a great tool for developing dependently typed languages!\footnote{But there is still room for improvement}

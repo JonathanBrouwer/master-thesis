@@ -261,6 +261,7 @@ The inference rules in figures \ref{fig:beta-head-reduce-rules}, \ref{fig:beta-e
 typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
     typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
 \end{lstlisting}
+\todo{make this match slides}
 
 \begin{figure}[h]
 	\figuresection[\fbox{$\toe{s}{e}{t}$}]{Type checking rules}

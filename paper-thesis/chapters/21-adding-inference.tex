@@ -1,13 +1,15 @@
 \chapter{Term Inference}
 \label{ch:inference}
 
-Inference is an important feature of dependent programming languages, that allows redundant parts of programs to be left out. For example, it allows you to infer the arguments of a function, if they can be inferred by the arguments that follow, like here where the type of the argument can be inferred, since we pass it \verb|true| which is a boolean:
+Inference is an important feature of dependent programming languages, that allows redundant parts of programs to be left out. For example, it allows you to infer the argument type of a function, if it can be inferred by the usage of the function, like in this example where the type of the argument of the polymorphic identity function can be inferred, since we pass it \verb|true| which is a boolean:
 \begin{lstlisting}
 let id = (\T : Type. \x: T. x);
 id _ true
 \end{lstlisting}
 
-We call it \emph{term inference} rather than \emph{type inference}, because we can infer values other than types. For example, it can infer that the \verb|_| in this example must be \verb|true|:
+The syntax we chose is that if we want a value to be inferred, we replace it with an underscore. Other languages such as Agda allow for \emph{implicit arguments}, which are arguments that can be left out, which will then be inferred~\cite{agda}~\cite{coq}. This is just syntactic sugar over the \emph{placeholders} we implement.
+
+Furthermore, we call the inference algorithm \emph{term inference} rather than \emph{type inference}, because it can infer values other than types. For example, it can infer that the placeholder in this example must be \verb|true|:
 \begin{lstlisting}
 postulate f: Bool -> Type;
 postulate g: f true -> Type;

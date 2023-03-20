@@ -146,7 +146,7 @@ Next, the rules for type-checking booleans are in figure \ref{fig:bool-rules-typ
 
 \section{Postulate}
 
-Next we will add \verb|Postulate| to the language. A postulate declares that there is a variable with a certain type, without specifying a value. Through the view of the Curry-Howard correspondence, this is equivalent to an axiom. At the current stage, this is useful for testing the language. For example, this is a test with a postulate:
+Next we will add \verb|Postulate| to the language. A postulate declares that there is a variable with a certain type, without specifying a value. Through the view of the Curry-Howard correspondence, this is equivalent to an axiom. At the current stage, this is useful for testing the language. For an example of a test with postulates, we assert that this program evaluate to Bool:
 \begin{lstlisting}
 postulate T : Type;
 if true then Bool else T end

@@ -258,10 +258,12 @@ One thing to note is that some rules use \verb|betaReduce|. The goal of this bet
 
 The inference rules in figures \ref{fig:beta-head-reduce-rules}, \ref{fig:beta-eq-rules}, and \ref{fig:type-check-rules} can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings in figure \ref{fig:type-check-rules} is expressed like this in Statix:
 \begin{lstlisting}
-typeOfExpr(s, Let(n, v, b)) = typeOfExpr(s', b) :-
-    typeOfExpr(s, v) == vt, sPutSubst(s, n, (s, v)) == s'.
+typeOfExpr (s, Let(x, e, b)) = bt :-
+	typeOfExpr (s, e) == et, 
+	typeOfExpr (sPutSubst (s, x, (s, e)), b) == bt.
 \end{lstlisting}
-\todo{make this match slides}
+
+Each premise in the inference rule is a premise in the Statix code, and the conclusion of the inference rule is the declaration of the Statix rule. 
 
 \begin{figure}[h]
 	\figuresection[\fbox{$\toe{s}{e}{t}$}]{Type checking rules}

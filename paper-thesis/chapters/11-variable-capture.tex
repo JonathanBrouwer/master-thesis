@@ -8,7 +8,7 @@ An example term where this problem occurs is the following: What is the type of 
 \begin{lstlisting}
 \T : Type. \T : T. T
 \end{lstlisting}
-The implementation so far would tell you it is \verb|T : Type -> T : T -> T| \todo{why is this wrong}. Given the scoping rules of the language, that is equivalent to \verb|T : Type -> x : T -> x|. However, the correct answer would be \verb|T : Type -> x : T -> T|. There is no way of expressing this type without renaming a variable.
+The implementation so far would tell you it is \verb|T : Type -> T : T -> T|. Given the scoping rules of the language, that is equivalent to \verb|T : Type -> x : T -> x|. Note that \verb|x| is not a type, so this does not even type check. The correct answer would be \verb|T : Type -> x : T -> T|. There is no way of expressing this type without renaming a variable.
 
 \section{In depth: Why does this happen?}
 

@@ -1,10 +1,12 @@
 % !TEX root = document.tex
 \chapter{\label{chap:editor-services}Semantic Code Completion}
- 
-We explored how semantic code completion presented by Pelsmaeker et al.~\cite{codecompletion} applies to dependently typed languages. Code completion is an editor service in IDEs that proposes code fragments for the user to insert at the caret position in their code.
+
+When a language is implemented in Spoofax, we give a declarative definition of the language. Spoofax then generates the parser, type checker and compiler for us. An additional benefit of these declarative definitions is that Spoofax can use them to generate editor services, such as \verb|go to definition|, \verb|renaming| and \verb|semantic code completion|. 
+
+We explored how semantic code completion presented by Pelsmaeker et al.~\cite{codecompletion} applies to dependently typed languages. Code completion is an editor service in IDEs that proposes code fragments for the user to insert at the caret position in their code. We chose to explore code completion specifically because deciding if a fragment is relevant to propose requires reasoning about the types of the fragments, which may be more difficult in the case of dependent types. We will show that Spoofax can use the declarative definition correctly and that it has no problem with semantic code completion for dependently typed languages.
 
 \section{Setup required}
-To set up editor services, we followed the steps in the Spoofax documentation \cite{semcomplet}. To be precise, we followed the following steps:
+To set up editor services, we followed the steps of the "How to Enable Semantic Code Completion" guide of the Spoofax documentation \cite{semcomplet}. To be precise, we followed the following steps:
 \begin{enumerate}
 	\item Add \verb|tego-runtime {}| and \verb|code-completion {}| to the \verb|spoofax.cfg| file, to enable code completion.
 	\item Add the following rules to the \verb|main.str2| file, to pre-process and post-process the AST for code completion.
@@ -37,7 +39,7 @@ It works well, only showing completions that are semantically relevant. For exam
 let f = \b: Bool. b;
 f [[Expr]]
 \end{lstlisting}
-This would return the following suggestions: (Note that \verb|f| and \verb|Type| are not suggested, since they cannot have type \verb|Bool|)
+Requesting suggestions from spoofax for this placeholder gives the following suggestions:
  \begin{itemize}
  	\item \verb|[[Expr]] [[Expr]]|
  	\item \verb|let [[ID]] = [[Expr]]; [[Expr]]|
@@ -45,5 +47,7 @@ This would return the following suggestions: (Note that \verb|f| and \verb|Type|
  	\item \verb|false|
  	\item \verb|if [[Expr]] then [[Expr]] else [[Expr]] end|
  \end{itemize}
+
+Note that \verb|f| and \verb|Type| are not suggested, since they cannot have type \verb|Bool|. Function application (the \verb|[[Expr]] [[Expr]]| suggestion) is suggested since functions can return booleans, similar to let bindings. We have tried quite a few cases and we conclude that semantic code completion works well for dependently typed languages.
 
 We have now discussed semantic code completion. Next, we will compare the implementation with one in Haskell (chapter~\ref{ch:comp-haskell}) and LambdaPi (chapter~\ref{ch:comp-lambdapi}). 

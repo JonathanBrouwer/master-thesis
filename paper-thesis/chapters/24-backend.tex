@@ -50,5 +50,8 @@ Types require a bit more attention. Since our language has no way to match on ty
 
 \subsection{Inductive Data Types}
 
-Finally, inductive data types are a bit harder to compile, as Clojure does not have an equivalent to sum types on which we can match. \todo{finish this after implementing}
+Finally, inductive data types are a bit harder to compile, as Clojure does not have an equivalent to sum types on which we can match. Instead, we compile inductive datatypes to a pair (constructor, list of constructor arguments). 
+
+
+\todo{finish this after implementing}
 - atoms voor constructors

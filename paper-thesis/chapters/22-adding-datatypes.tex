@@ -149,7 +149,7 @@ This is all that needs to happen to define inductive data types. Next, we will a
 \section{Positivity Checking}
 \label{ch:datatypes:positivity}
 	
-When defining a recursive data type, we would like our datatype to be \emph{strictly positive}, meaning that it can only be recursive on positive positions. If this rule would not exist, we would be able to create non-terminating functions using the datatype. Since under the curry-howard correspondence this allows to prove false, this is undesirable.
+When defining a recursive data type, we would like our datatype to be \emph{strictly positive}, meaning that it can only be recursive on positive positions. If this check would not exist, we would be able to create non-terminating functions using the datatype. Since under the curry-howard correspondence this allows to prove false, this is undesirable.
 
 To show how this is can go wrong, consider the following example:
 \begin{lstlisting}

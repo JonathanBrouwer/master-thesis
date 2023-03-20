@@ -1,26 +1,26 @@
 \chapter{Universes}
 \label{ch:universes}
 
-Our language so far has the property that the type of \verb|Type| is \verb|Type|, this is called \emph{type in type}. This allows for \emph{Girard's paradox}, which means that the logic created by this language is inconsistent: we can prove false. 
+Our language so far has the property that the type of \verb|Type| is \verb|Type|, this is called \emph{type in type}. This allows for \emph{Girard's paradox}, which means that the logic created by this language is inconsistent: we can prove false~\cite{girard}. 
 
 \section{Universes}
 
-The solution to this problem is introducing universes into the language. We now have the following hierarchy of types:
+The solution to this problem is to introduce universes into the language. We now have the following hierarchy of types:
 \begin{lstlisting}
 true : Bool : Type 0 : Type 1 : Type 2 : ...
 \end{lstlisting}
 
 In the rest of this chapter we will show how universes have been implemented. It turns out to be relatively easy to add this feature to the language, only requiring a few changes.
 
-\section{Implementing Universes in the CoC}
+\section{Implementing Universes in the Calculus of Constructions}
 
-The constructor of Type has been changed to \verb|Type : int -> Expr|. We need to update all occurrences of \verb|Type| in figure \ref{fig:type-check-rules}. Figure \ref{fig:type-check-rules-universes} contains all the rules that require a change.
+The \verb|Type| constructor has to be changed to \verb|Type : int -> Expr|, taking the universe of the type as an argument. We then need to update all occurrences of \verb|Type| in figure \ref{fig:type-check-rules}. Figure \ref{fig:type-check-rules-universes} contains all the rules that require a change.
 
 The three rules that were changed are:
 \begin{enumerate}
-	\item The rule for type-checking a \verb|Type| expression, which now is explicit about the universes of each \verb|Type|.
-	\item The rule for type-checking \verb|FnType|, which takes the maximum of the two arguments.
-	\item The rule for type-checking \verb|FnConstruct|, which ignores the universe of its argument type, and only verifies that it is a type.
+	\item The rule for type-checking a \verb|Type| expression. The universe of \verb|Type u| is \verb|u + 1|. 
+	\item The rule for type-checking \verb|FnType|. The universe of \verb|FnType| is the maximum of the universe of the argument and return type.
+	\item A trivial change to the rule for type-checking \verb|FnConstruct|, which ignores the universe of its argument type.
 \end{enumerate}
 
 \begin{figure}[ht]
@@ -41,7 +41,7 @@ The three rules that were changed are:
 			\\\\ \toe{\co{sPutType}(s, x, a')}{b}{t_b}
 			\\ \beq{t_b}{\co{Type}(u_b)}
 		} {
-			\toe{s}{\co{FnType}(x, a, b)}{\co{Type}(max(u_a, u_b))}
+			\toe{s}{\co{FnType}(x, a, b)}{\co{Type}(\co{max}(u_a, u_b))}
 		}
 		
 		% FnConstruct rule
@@ -76,5 +76,4 @@ We need to make the following changes to the type-checking algorithm:
 	\item For all constructors, we need to check that the universe of the constructor arguments is smaller than or equal to \verb|u|. This ensures that the datatype does actually live in the universe \verb|u|.
 \end{enumerate}
 
-We have now finished the implementation of the language. Next, we will discuss how well semantic code completion works with this implementation in chapter~\ref{chap:editor-services}. Then we will compare the implementation with one in Haskell (chapter~\ref{ch:comp-haskell}) and LambdaPi (chapter~\ref{ch:comp-lambdapi}). 
-
+We have now finished the type checker of the language. Next, we will discuss how to implement the back end of the language.

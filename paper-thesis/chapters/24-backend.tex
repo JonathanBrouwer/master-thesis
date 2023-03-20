@@ -4,7 +4,7 @@
 We have now fully built the front-end (parser and type checker) of our language. However, the language also needs a back-end to be usable. A back-end can be either an interpreter or a compiler, we will explore both options in this chapter.
 
 \section{Interpreter}
-It is valuable to define an interpreter for our language, because it is a way to run a program without relying on the definition of the language you are compiling to. For a dependently typed language specifically it is easy to add on, as we already needed to define the dynamic semantics of our language for type checking anyways. 
+It is valuable to define an interpreter for our language, because it is a way to run a program without relying on another language to compile to. For a dependently typed language specifically, it is easy to develop an interpreter, as we already needed to define the dynamic semantics of our language for type checking anyways. 
 
 However, this big advantage is also a disadvantage: Dynamic semantics would usually be defined in Stratego. We need to find a way to re-use the definition from Statix, since we don't want to repeat the definition of the dynamic semantics.
 
@@ -26,27 +26,29 @@ These two lines are the only required changes to implement an interpreter\footno
 
 \subsection{Discussion of defining in Statix versus Stratego}
 
-An advantage of implementing the dynamic semantics in Statix instead of Stratego is that we can use scope graphs as a part of our dynamic semantics rules. 
+We defined the dynamic semantics in Statix, which comes with some advantages and disadvantages over defining it in Stratego. 
 
-A disadvantage is that Stratego is specifically optimized for these transformations~\cite{fcpmc}. Therefore, the resulting interpreter will be slower when implemented in Statix. \todo{comparison}
+An advantage of implementing the dynamic semantics in Statix instead of Stratego is that we can use scope graphs as a part of our dynamic semantics rules. As discussed in chapter~\ref{chap:baselang}, scope graphs are a natural way to store the environment of the language during evaluation. When dynamic semantics is defined in Stratego, a different representation of the environment would be needed.
+
+A disadvantage is that Stratego is a domain specific language for transformations, and it has some features that would make the definitions of beta reductions shorter. For example, to define \verb|betaReduce| in terms of \verb|betaReduceHead| we need to match the constructor and apply \verb|betaReduceHead| recursively. Stratego has the \verb|topdown| traversal strategy that does the same thing without needing to be explicitly defined on all constructors.
+
+Another disadvantage is that Stratego is specifically optimized for these transformations, for example as discussed in "Optimising First-Class Pattern Match Compilation"~\cite{fcpmc}. Therefore, the resulting interpreter will be slower when implemented in Statix. This is however just a constant factor overhead, it does not affect the time complexity of the algorithm.
 
 \section{Compiler}
-The alternative to writing an interpreter is writing a compiler to another language. In order to explore this avenue, we wrote a compiler to Clojure, a dynamically typed dialect of Lisp that runs on the JVM~\cite{clojure}. The advantage of a compiling to such a high-level language is that the actual compilation steps are relatively straight-forward, but it still shows that we can write a compiler for a dependently typed language in Spoofax.
+An alternative to writing an interpreter is writing a compiler to another language. In order to explore this avenue, we wrote a compiler to Clojure, a dynamically typed dialect of Lisp that runs on the JVM~\cite{clojure}. The advantage of a compiling to such a high-level language is that the actual compilation steps are relatively straight-forward, but it still shows that we can write a compiler for a dependently typed language in Spoofax.
 
-Both languages support first-class functions, so we can map most constructs of our language directly onto constructs of Clojure. Therefore, most of our compiler has rules that look like the example below, where the constructors are compiled recursively using the \verb|compile-expr| strategy, ignoring the specified types. The constructors starting with \verb|C| are constructors from Clojure. 
+The compiler is created while keeping in mind the Agda to Scheme compiler, available at \url{https://github.com/jespercockx/agda2scheme}. This is also a compiler from a dependently typed language (Agda) to a LISP (Scheme). We make some of the same choices as this compiler, as these choices have been proven to work.
+
+\subsection{Calculus of Constructions}
+Both languages support first-class functions, so we can map most constructs of our language directly onto constructs of Clojure. Therefore, most of our compiler rules look like the example below, where the constructors are compiled recursively using the \verb|compile-expr| strategy, ignoring the specified types. The constructors starting with \verb|C| are constructors from Clojure. 
 \begin{lstlisting}
 compile-expr : FnConstruct(x, _, b) -> 
   CFn(<compile-id> x, <compile-expr> b)
 \end{lstlisting}
 
-Types require a bit more attention. Since our language has no way to match on types, types can actually be completely eliminated during type checking. The easiest way to do this is to compile all types to an arbitrary value (we chose the integer 0), since the value is irrelevant anyways. A more efficient solution could be to implement type erasure~\cite[Section 23.6]{tapl}, where type-level functions are completely removed. We decided against this as the goal of this section is to show that we can compile the language with ease, not to write an efficient compiler.
+Types require a bit more attention. Since our language has no way to match on types, types can actually be completely eliminated during type checking. The easiest way to do this is to compile all types to an arbitrary value (we chose the string "TYPE"), since the value is irrelevant anyways. A more efficient solution could be to implement type erasure~\cite[Section 23.6]{tapl}, where type-level functions are completely removed. We decided against this as the goal of this section is to show that we can compile the language with ease, not to write an efficient compiler. This optimization was also not implemented in the Agda to Scheme compiler.
 
--analysis is hard, agda doesn't do it
-- if compiled language doesn't matter
-- erasure annotations (idris/agda)
-
-
+\subsection{Inductive Data Types}
 
 Finally, inductive data types are a bit harder to compile, as Clojure does not have an equivalent to sum types on which we can match. \todo{finish this after implementing}
-- agda to scheme compiler
 - atoms voor constructors

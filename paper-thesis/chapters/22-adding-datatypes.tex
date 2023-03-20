@@ -4,27 +4,30 @@
 \section{Introduction to Inductive Data Types}
 \label{ch:datatypes:intro}
 
-Another useful feature is support for inductive data types. An example of a simple inductive datatype is the \verb|Nat| type:
+Another useful feature is support for inductive data types. Inductive data types declare types that are defined by a list of constructors that produce the type. An example of a simple inductive datatype is the \verb|Nat| type:
 \begin{lstlisting}
 data Nat : -> Type where
     zero : Nat,
     suc : Nat -> Nat;
 \end{lstlisting}
+The data type has two constructors: \verb|zero| represents the natural number zero, \verb|suc| takes a natural number and represents the successor of that number. For example, \verb|suc (suc zero)| represents 2.
+
+
 We will design data types to have the same features as in Agda:
 \begin{enumerate}
 \item Data types may be recursive, that is the data type may take itself as one of the constructor arguments. This can be seen in the definition of \verb|Nat| above.
-\item Parameters, which are datatypes that are polymorphic, and are required to be the same for all constructors, such as
+\item Data types may have \emph{parameters}, which are datatypes that are polymorphic over a certain value, that is required to be the same for all constructors, such as:
 \begin{lstlisting}
 data Maybe (T : Type) : -> Type where
     None : Maybe T,
     Some : T -> Maybe T;
 \end{lstlisting}
-\item Indices, which are datatypes that are polymorphic, that may vary from constructor to constructor
+\item Data types may have \emph{indices}, which are datatypes that are polymorphic over a certain value, that may vary from constructor to constructor, such as:
 \begin{lstlisting}
 data Eq : (e1: Bool) (e2 : Bool) -> Type where
     refl : e : Bool -> Eq e e;
 \end{lstlisting}
-\item We can also combine parameters and indices, for example to create the generic \verb|Eq| type. Note that parameters and indices may also depend on earlier parameters and indices.
+\item We can also combine parameters and indices, for example to create the polymorphic \verb|Eq| type, which represents a proof that two values are equal. Note that the type of parameters and indices may depend on the value earlier parameters and indices. For example, \verb|e1| and \verb|e2| have type \verb|T|.
 \begin{lstlisting}
 data Eq (T : Type) : (e1 : T) (e2 : T) -> Type where
     refl : e : T -> Eq e e;
@@ -36,7 +39,7 @@ data Bad : -> Type where
 \end{lstlisting}
 \end{enumerate}
 
-A difference between Agda and our implementation is that Agda has case matching as a native construct, whereas we chose to use eliminators~\cite{eliminators}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
+A difference between Agda and our implementation is that Agda has case matching as a native construct, whereas we chose to use eliminators as described in Inductive families~\cite{eliminators}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
 \begin{lstlisting}
 elim Nat : P: (v: Nat -> Type) -> P Z 
 	-> (x: Nat -> P x -> P (S x)) -> n: Nat -> P n
@@ -45,7 +48,7 @@ elim Nat : P: (v: Nat -> Type) -> P Z
 The general type of an eliminator for a data type \verb|N| is:
 \begin{lstlisting}
 parameters 
--> P: (indices -> N params indices -> Type) 
+-> P: (indices -> v: N params indices -> Type) 
 -> constructors
 -> indices
 -> v: N params indices
@@ -53,7 +56,7 @@ parameters
 \end{lstlisting}
 The meaning of all the arguments is:
 \begin{itemize}
-	\item \verb|parameters| are the parameters of the data type we want to eliminate, since these are constant among all constructors those can be at the start.
+	\item \verb|parameters| are the parameters of the data type we want to eliminate, since these are constant among all constructors those should be specified at the start.
 	\item \verb|P| is the type that this eliminator will return. It may depend on the value \verb|v| that is eliminated.
 	\item \verb|constructors| is a function that eliminates each of the constructors of the datatype. To eliminate a constructor of the form \verb|C : args -> N params indices| it generates a function \verb|args -> P indices (C pars args)|. For recursive datatypes, a previous case is generated, such as the \verb|P x| in the eliminator of \verb|Nat| above.
 	\item \verb|indices| are the indices of the value that is to be eliminated.
@@ -63,7 +66,7 @@ The meaning of all the arguments is:
 
 \section{Type-checking Data Type Declarations}
 \label{ch:datatypes:typechecking}
-
+In this section we will explain how to type check data type declarations using Statix.
 The definition of \verb|type_check| for an inductive data type \verb|N| is, conceptually:
 \begin{enumerate}
 	\item Create a new scope \verb|s1| whose parent is the scope the declaration was in \verb|s0|.
@@ -72,19 +75,17 @@ The definition of \verb|type_check| for an inductive data type \verb|N| is, conc
 	
 	\item Create a chain of scopes starting in \verb|s1| that will contain a scope for each parameter. We will type-check each next parameter using the previous parameters scope, so that parameters can depend on previous parameters. Call the end of this chain \verb|s2|.
 	
-	\item Create a chain of scopes starting in \verb|s2| that will contain a scope for each index. We will type-check each next index using the previous index' scope, so that one index can depend on parameters and previous indices. Call the end of this chain \verb|s3|.
+	\item Create a chain of scopes starting in \verb|s2| that will contain a scope for each index. We will type-check each next index using the previous index' scope, so that one index can depend on parameters and previous indices. Call the end of this chain \verb|s3|. The scope \verb|s3| is not used in the rest of this process, but creating this chain is required to check the types of the indices.
 	
 	\item Create a new scope \verb|s4| with \verb|s1| as the parent. Then type-check each constructor with \verb|s2| as scope (so that the constructors can depend on parameters, but cannot depend on indices), and declare the type of that constructor in \verb|s4|. The parameters are automatically added to the type of the constructor.
 	
 	\item Type-check the rest of the program with scope \verb|s4|.
 \end{enumerate}
-For example, for the following inductive datatype:
+For example, figure \ref{scope-graph-eq} shows the scopes that were created during the type checking of the following inductive datatype:
 \begin{lstlisting}
 data Eq (T : Type) : (e1 : T) (e2 : T) -> Type where
 	refl : e : T -> Eq e e;
-...
 \end{lstlisting}
-Figure \ref{scope-graph-eq} shows the scope graph generated by this data type.
 \begin{figure}[!ht]
 	\begin{framed}
 		\centering
@@ -129,10 +130,10 @@ Figure \ref{scope-graph-eq} shows the scope graph generated by this data type.
 
 \section{Type-checking Eliminators}
 
-The type of an eliminator was discussed in section \ref{ch:datatypes:intro}. When we type check an \verb|elim N| expression, the following happens:
+This section discusses how to type check eliminators. The type of an eliminator was already discussed in section \ref{ch:datatypes:intro}. When we type check an \verb|elim N| expression, the following happens:
 \begin{enumerate}
 	\item Query the scope to find the data type declaration that we created in point \ref{datatype-decl} of section \ref{ch:datatypes:typechecking}. This gives us access to the parameters, indices and constructors of the data type that is being eliminated. 
-	\item Using some tedious logic, create the type discussed in section \ref{ch:datatypes:intro}. This ends up being around 100 lines of Statix code.
+	\item Using some tedious but conceptually simple Statix rules, create the type discussed in section \ref{ch:datatypes:intro}. This ends up being around 100 lines of Statix code.
 \end{enumerate}
 
 The second part that needs to be defined is beta reducing an eliminator. During this process, the following happens:
@@ -143,18 +144,37 @@ The second part that needs to be defined is beta reducing an eliminator. During 
 	\item Apply the relevant function that eliminates the constructor to the arguments of the datatype. Generate recursive calls to the eliminator for recursive datatypes.
 \end{enumerate}
 
+This is all that needs to happen to define inductive data types. Next, we will add positivity checking.
+
 \section{Positivity Checking}
 \label{ch:datatypes:positivity}
 	
 When defining a recursive data type, we would like our datatype to be \emph{strictly positive}, meaning that it can only be recursive on positive positions. If this rule would not exist, we would be able to create non-terminating functions using the datatype. Since under the curry-howard correspondence this allows to prove false, this is undesirable.
 
+To show how this is can go wrong, consider the following example:
+\begin{lstlisting}
+data False : Set where
+
+data Bad : Set where
+	bad : (Bad → False) → Bad;
+
+self-app : Bad → False
+self-app (bad f) = f (bad f)
+
+absurd : False
+absurd = self-app (bad self-app)
+\end{lstlisting}
+
+Under the curry-howard correspondence, \verb|Bad| states that \verb|Bad| is true if and only if \verb|Bad| implies false. Since such a statement is inconsistent, we can use it to prove \verb|False|. To prevent such statements, we don't allow inductive datatypes to refer to themselves negatively, checking this is called \emph{positivity checking}. This solution is not complete (it rejects valid data types), but it is the solution most often used in practice, such as in Agda~\cite{agda}, Lean~\cite{lean} and Coq~\cite{coq}.
+
+The exact condition that is checked is that if a constructor has a function as its argument, then the argument type (\verb|A| in the example below) can not refer to the declared data type.
+
 \begin{lstlisting}
 data Bad : Set where
 	bad : (Bad -> Bad) -> Bad
 	--     A       B       C
-	-- A is in a negative position, B and C are OK
 \end{lstlisting}
 
-The implementation is simply an extra check during the type checking of data type declarations. It checks that the datatype only refers to itself in positive positions.
+The implementation is simply an extra check during the type checking of data type declarations, which is straight-forward to implement in Statix.
 
-We have now shown how to add inductive datatypes to the implementation. Next, we will Universes (chapter~\ref{ch:universes}) to the implementation.
+We have now shown how to add inductive datatypes to the implementation. Next, we will add  Universes (chapter~\ref{ch:universes}) to the implementation.

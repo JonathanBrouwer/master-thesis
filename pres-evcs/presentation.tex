@@ -49,7 +49,6 @@
 		\texttt{concat : (A: Set) -> (n m : Nat) -> Vec A n -> Vec A m
 			\\ \hspace*{48pt} -> Vec A (n + m)}
 	\end{exampleblock}
-% - n is a RUNTIME value, it does not have to be known at compile time
 % - n occurs insie a type `Vec`!
 % - The type system enforces these lengths are always correct
 % - Challenge: Type checking may require evaluating arbitrary terms to decide equality
@@ -64,8 +63,8 @@
 \begin{frame}[fragile]{Research Question}
 \large{How suitable is Statix for defining a dependently-typed language?}
 \begin{itemize}
-	\item Defining system F was a challenge\footnote{Hendrik van Antwerpen et al. Scopes as types.}, will it even be possible?
 	\item Will it be easier than doing it in Haskell?
+	\item Defining system F was a challenge\footnote{Hendrik van Antwerpen et al. Scopes as types.}, will it even be possible?
 \end{itemize}
 
 % Mention system f (polymorphic lambda calculus) being hard (scopes as types)
@@ -90,7 +89,7 @@
 	A lambda calculus with dependent types.
 	
 	\begin{exampleblock}{Example 1}
-		\texttt{($\backslash$v: Type. v) T}
+		\texttt{($\backslash$v: Type. v) Type}
 	\end{exampleblock}
 
 	\begin{exampleblock}{Example 2}
@@ -98,6 +97,9 @@
 f (T: Type -> Type) ($\backslash$y: Type. y)
 		}
 	\end{exampleblock}
+
+	% most simple dependently typed language: lambda calculus
+	% what other languages use as a core
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking}
@@ -107,8 +109,8 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	% Returns an Expr, not a Type
 	% Scope -> Two different types of nodes
 	\begin{block}{How do we use scopes?}
-		A scope is used as a replacement for an environment and a context..\\
-		One relation \texttt{name $\rightarrow$ NameEntry}, NameEntry is either:
+		A scope is used as a replacement for an environment and a context.\\
+		One edge \verb|p|. One relation \texttt{name $\rightarrow$ NameEntry}, NameEntry is either:
 		\begin{itemize}
 			\item NType: Stores a type (Corresponds to a context)
 			\item NSubst: Stores a substitution (Corresponds to an environment)

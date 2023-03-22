@@ -1,2 +1,4 @@
-let t = \T:Type. \e:T. e;
-t Bool true
+data Maybe (T : Type) : -> Type 0 where
+	None : Maybe T,
+	Some : _: T -> Maybe T;
+Maybe

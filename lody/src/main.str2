@@ -116,11 +116,14 @@ rules // Analysis
   compile-expr : BoolFalse() -> CFalse()
   compile-expr : BoolIf(c, e1, e2) -> CIf(<compile-expr> c, <compile-expr> e1, <compile-expr> e2)
   
-  compile-expr : DataTypeDecl(_, _, _, _, cs, b) -> <compile-datatype-decl> (cs, <compile-expr> b)
+  compile-expr : DataTypeDecl(n, _, _, _, cs, b) -> b2
+  with <compile-datatype-decl> (cs, <compile-expr> b) => b1
+  with b2 := CLet(<compile-id> n, CString("\"TYPE\""), b1)
+  
   
   compile-datatype-decl :: List(DataConstructor) * CExpr -> CExpr
   compile-datatype-decl : ([], e) -> e
-  compile-datatype-decl : ([Constructor(x, _) | cs], e) -> CLet(<compile-id> x, CTrue(), e)
+  compile-datatype-decl : ([Constructor(x, _) | cs], e) -> CLet(<compile-id> x, CString("\"TYPE\""), <compile-datatype-decl> (cs, e))
   
   
   

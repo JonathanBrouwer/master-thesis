@@ -1,10 +1,10 @@
 \chapter{A comparison with conventional implementations}
 \label{ch:comp-haskell}
 
-In this chapter, we implement the language defined in chapter~\ref{chap:baselang} in Haskell, and then compare the implementation with the implementation in Statix. We want the design of the implementation in Haskell to be similar to conventional implementations of dependently typed languages, so we can compare the Statix implementation with them.
+In this chapter, we implement the language defined in chapter~\ref{chap:baselang} in Haskell, and then compare the implementation with the implementation in Statix. We want the design of the implementation in Haskell to be representative of conventional implementations of dependently typed languages, so we can use it to compare the Statix implementation with them.
 
 \section{Defining the AST}
-To implement the calculus of constructions in Haskell, we first define the \verb|Expr| datatype. We chose to define the language using De Bruijn indices, since this is the convention when implementing dependently typed languages, and the goal of this implementation in Haskell is to compare the Statix implementation with conventional ones. 
+To implement the calculus of constructions in Haskell, we first define the inductive datatype \verb|Expr|. We chose to define the language using De Bruijn indices, since this is the convention when implementing dependently typed languages, and the goal of this implementation in Haskell is to compare the Statix implementation with conventional ones. 
 \begin{lstlisting}
 data Expr =
 	Type
@@ -14,6 +14,7 @@ data Expr =
 	| FnConstruct Expr Expr
 	| FnDestruct Expr Expr
 \end{lstlisting}
+There is a constructor for each constructor in our language. The difference with the implementation in Spoofax is that the \verb|Let|, \verb|FnType|, and \verb|FnConstruct| no longer store an identifier, instead they introduce a new binding into their body, which are accessible by their De Bruijn indices. 
 
 \section{Defining Environments}
 
@@ -30,7 +31,9 @@ The way these environments are defined is isomorphic to the way we defined the w
 NType(Var(0)) :: NType(Type()) :: Nil
 \end{lstlisting}
 \begin{tikzpicture}[scopegraph, node distance = 2.5em and 2.5em]
-	\node[scope] (s1) {$s1$};
+	\node[scope] (s0) {$s0$};
+	
+	\node[scope, right of = s0, xshift=5em] (s1) {$s1$};
 	\node[type, above of = s1] (s1l) {$\texttt{T : Type()}$};
 	\draw (s1) edge[type] (s1l);
 	
@@ -38,6 +41,7 @@ NType(Var(0)) :: NType(Type()) :: Nil
 	\node[type, above of = s2] (s2l) {$\texttt{x : Var("T")}$};
 	\draw (s2) edge[type] (s2l);
 	
+	\draw (s1) edge[] (s0);
 	\draw (s2) edge[] (s1);
 \end{tikzpicture}
 
@@ -51,9 +55,36 @@ sPutType :: Env -> Expr -> Env
 sPutType env v = NType v : env
 \end{lstlisting}
 
+\section{Defining Type Checking}
+
+Next we need to define type checking. We define a function \verb|tc|:
+\begin{lstlisting}
+tc :: SExpr -> Either String Expr
+\end{lstlisting}
+
+The function returns a \verb|String| in case of an error, or a \verb|Expr| which is the type of the expression. This is different than in Statix, where errors are automatically created during type checking by Statix. We use the power of the \verb|Either String| monad to our advantage, so we can define our function using \emph{do blocks}. For example, compare the implementation of \verb|Let| in figure \ref{fig:type-check-rules} (repeated below for convenience) with the implementation in Haskell:
+
+\begin{lstlisting}
+tc (s, Let e b) = do
+	_ <- tc (s, e)
+	bt <- tc (sPutSubst s (s, e), b)
+	pure (shift (-1) 0 bt)
+\end{lstlisting}
+
+\begin{mathpar}
+		\inferrule{
+	\toe{s}{e}{t_e}
+	\\ \toe{\co{sPutSubst}(s, x, (s, e))}{b}{t_b}
+}{
+	\toe{s}{\co{Let}(x, e, b)}{t_b}
+}
+\end{mathpar}
+
+We are using do blocks to pass errors through the type checking function. The only significant difference with the inference rule is that we need to shift the resulting type by one, since the binding of the let-bound variable does not exist at the type level. This shifting is required for variables too, other than this the inference rules are converted directly to cases of the Haskell function.
+
 \section{Defining Beta Reduction}
 
-Now we want to define beta head reduction. Remember that in Statix, beta head reduction is a relation with the signature
+During type checking evaluation may be needed, so we need to define beta reduction. Remember that in Statix, beta head reduction is a relation with the signature:
 \begin{lstlisting}
 betaReduceHead : 
 	(scope * Expr) * list((scope * Expr)) -> (scope * Expr)
@@ -65,6 +96,8 @@ brh :: SExpr -> SExpr
 brh e = fromMaybe e (brh_ e [])
 brh_ :: SExpr -> [SExpr] -> Maybe SExpr
 \end{lstlisting}
+
+Now we can define beta head reduction as cases of \verb|brh_|, returning \verb|Nothing| if the expression cannot be reduced, in which case \verb|brh| will take the original expression. The cases correspond directly to the cases of figure \ref{fig:beta-head-reduce-rules}.
 
 \section{Comparison}
 

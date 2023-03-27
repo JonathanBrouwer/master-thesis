@@ -129,7 +129,7 @@ We could solve this problem in two ways:
 
 \begin{enumerate}
 	\item We could always beta-reduce terms completely to their normal form, then terms that are beta-equal are also identical up to alpha equality. This would solve the problem in case \ref{inf-case4}, but the problem of case \ref{inf-case2} would remain. Furthermore, doing all this beta reduction is terrible for the performance of the type checker: Beta-reducing terms may take an arbitrary amount of time, though it is guaranteed to terminate since the Calculus of Constructions is strongly normalizing~\cite{Coquand_Huet_1988}.
-	\item Ideally, we want a declarative definition of the problem. To do this, we need to be able to declare that two terms that are not identical are equal, which is possible under \emph{equational unification}~\cite[Section 2.1]{Siekmann86}. If this system was added to Statix, this would make implementing more powerful inference algorithms cleanly possible.
+	\item Ideally, we want a declarative definition of the problem. To do this, we need to be able to declare that two terms that are not identical are equal, which is possible under \emph{equational unification}~\cite[Section 2.1]{Siekmann86}. If this system was added to Statix, this would make implementing more powerful inference algorithms cleanly possible. This idea is explored further in chapter \ref{ch:comp-lambdapi}.
 \end{enumerate}
 
 We have now shown how to add inference to the implementation. Next, we will add Inductive Datatypes (chapter~\ref{ch:datatypes}) and Universes (chapter~\ref{ch:universes}) to the implementation.

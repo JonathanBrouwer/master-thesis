@@ -8,6 +8,8 @@ Now that we've implemented a feature-rich dependently typed language in Statix, 
 Statix is a simple language, not supporting too many complex features. This works well in some ways, but having some more features available could improve the experience drastically. Some features that would've helped this project create better code are:
 
 \begin{enumerate}
+	\item Allow specifying reduction rules, and then implement equality under reduction in Statix. This feature was discussed extensively in chapter \ref{ch:comp-lambdapi}.
+	
 	\item Nested constraints: Defining a constraint that can use the metavariables of a parent constraint. This works similar to nested function definitions. For example, for type checking datatypes:
 	\begin{lstlisting}
 typeOfExpr_(s, DataTypeDecl(n, ps, is, ue, cs, b)) = ... :-
@@ -16,8 +18,6 @@ typeOfExpr_(s, DataTypeDecl(n, ps, is, ue, cs, b)) = ... :-
 	isStrictlyPositive(s, FnType(...)) = ...
 	\end{lstlisting}
 	The definition of \texttt{isStrictlyPositive} can then use all the metavariables of \\ \texttt{DataTypeDecl} without having to explicitly pass them.
-	
-	\item In order to implement more powerful inference algorithms, it would be useful to have a mechanism to check if metavariables have been instantiated or not. Since the order in which Statix evaluates constraints is so dynamic, we're not entirely sure how this mechanism would be implemented. More research is needed on this.
 	
 	\item Generic constraints. For example, we created two separate relations for reversing lists of different types, making these one generic function would've been better. This was the only case where this feature would've been useful for this thesis, but it may be more useful for other work.
 \end{enumerate}

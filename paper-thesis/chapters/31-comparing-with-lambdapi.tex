@@ -54,7 +54,7 @@ Note that these constructors can only represent type-correct terms, \emph{intrin
 
 \section{Reduction Rules}
 
-We now define the \emph{reduction rules}, which define how to reduce the language. A rule $a \hookrightarrow b$ states that \verb|a| reduces to \verb|b|. We reduce the constructs in our language to constructors in lambdapi, this is called \emph{embedding} the language. Lambdapi can then evaluate the rules using its own semantics, not requiring any additional rules similar to the ones in figure \ref{fig:beta-head-reduce-rules}. The reduction rules are given in figure \ref{fig:lp-rules}. Each of the constructs is reduced to the corresponding construct in the meta language.
+We now define the \emph{reduction rules}, which define how to reduce the language. A rule $a \hookrightarrow b$ states that \verb|a| reduces to \verb|b|. We reduce the constructs in our language to constructors in lambdapi, this is called \emph{embedding} the language. Lambdapi can then evaluate the rules using its own semantics, not requiring any additional rules similar to the ones in figure \ref{fig:beta-head-reduce-rules}. It is also possible to define the rules in \ref{fig:beta-head-reduce-rules} using reduction rules, but this way of defining reduction rules is much simpler. The reduction rules are given in figure \ref{fig:lp-rules}. Each of the constructs is reduced to the corresponding construct in the meta language.
 
 \begin{figure}[ht]
 	\begin{lstlisting}
@@ -85,9 +85,13 @@ rule Let _ _ $v $b `$\hookrightarrow$` $b $v;
 	\label{fig:lp-let}
 \end{figure}
 
-One program which would not type-check with this approach is the following. It fails to compile since it cannot know that \verb|b| is a boolean, which is required by the definition of f. \footnote{Assuming we introduce booleans into the language, there are examples that don't require booleans but they are a bit more difficult to understand}.
+One program which would not type-check with this approach is the following. It fails to compile since it cannot know that \verb|b| is a boolean, which is required by the definition of f \footnote{Assuming we introduce booleans into the language, there are examples that don't require booleans but they are a bit more difficult to understand}.
 \begin{lstlisting}
 let T = Bool;
 \f: Bool -> Bool;
 \b: T. f b
 \end{lstlisting}
+
+We could solve this problem by not defining our program as an embedding, instead defining it using the reduction rules in figure \ref{fig:beta-head-reduce-rules}. This results in a definition very close to the one in Statix, except that instead of a beta reduction relation we use the reductions built-in to the language, which solves the problem. 
+
+We've now discussed equational unification using lambdapi, which is a feature that we suggest could improve Statix. Other possible improvements are discussed in chapter \ref{ch:ergonomics}.

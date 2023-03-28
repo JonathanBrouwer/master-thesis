@@ -1,8 +1,7 @@
 \chapter{Related Work}
 \label{ch:relatedwork}
 
-In chapter \ref{ch:comp-haskell} and \ref{ch:comp-lambdapi} we already compared our implementation with two different implementations. In this chapter we discuss remaining related work.
-TODO TODO TODO
+We now discuss some work that is related to the topics in this thesis. This thesis implements a dependently typed language in Statix. We compare this implementation with implementations of other languages in Statix, and with implementations of other dependently typed languages.
 
 \section{Other languages implemented in Statix}
 
@@ -10,20 +9,26 @@ In this thesis, we implemented a dependently typed language in Statix. In the fo
 
 \paragraph{Scopes as Types}
 
-The implementation in this paper requires performing substitutions in types immediately, as types don't have a scope. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types}~\cite{nameres} present an implementation of System F in Statix that does lazy substitutions, by using scopes as types. It would be interesting to see if this approach could also apply to the Calculus of Constructions, where types can be arbitrary terms. 
+The implementation in this paper requires performing substitutions in types immediately, as types don't have a corresponding scope to store substitutions. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types}~\cite{nameres} present an implementation of System F in Statix that does lazy substitutions, by using scopes as types. Each scope represents a type, and scopes have edges to other scopes in case of quantifications and substitutions. Further research is needed to see if this approach could also apply to dependently typed languages, where types can contain arbitrary terms. 
 
 \paragraph{Correct by Construction Language Implementations}
 
-Construction Language Implementations~\cite{Rouvoet21} describes how to create a declarative specification of a language in Statix, and then to use a dependently typed language to integrate the specification of well-typing in the representation of the program that is being interpreted or transformed. The work from this thesis and ours could be combined, by using our dependently typed languages to do this verification.
+Construction Language Implementations~\cite{Rouvoet21} describes how to create a declarative specification of a language in Statix, and then to use a dependently typed language to integrate the specification of well-typing in the representation of the program that is being interpreted or transformed. The work from this thesis and ours could be combined, by using our dependently typed language implemented in Statix, to do this verification, as another Statix DSL. This could make the presented approach integrate better with the ecosystem of Spoofax.
 
 \section{Other dependently typed languages}
 
 We already implemented the calculus of constructions in Haskell (chapter~\ref{ch:comp-haskell}) and LambdaPi (chapter~\ref{ch:comp-lambdapi}), and compared the implementation in Statix with these implementations. 
 
-Below are some dependently typed languages, we discuss what make these languages unique and if these languages could be implemented in Statix: 
+Below are some more implementations dependently typed languages, we discuss what make these languages unique and if these languages could be implemented in Statix: 
 
 \paragraph{Bidirectional Typing}
 
-In chapter~\ref{ch:comp-haskell} we compared the implementation in Statix with an implementation in Haskell. The pi-forall language~\cite{pi_forall} is a language with a similar complexity to the language presented in this paper. In principle, the implementations are very similar. For example, the inference rules of pi-forall are similar to the inference rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system~\cite{bidirectional}, whereas this paper uses Statix' unification.
+In chapter~\ref{ch:comp-haskell} we compared the implementation in Statix with an implementation in Haskell. The pi-forall language~\cite{pi_forall} is a language with a similar complexity to the language presented in this thesis. In principle, the implementations are very similar. For example, the type checking rules of pi-forall are similar to the type checking rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system~\cite{bidirectional} to do some inference, whereas this paper uses Statix' unification. 
 
-\paragraph{Other}
+\paragraph{Agda}
+
+Agda is one of the most used dependently typed languages~\cite{agda}. It is implemented in Haskell, with full editor support for Emacs, VS Code, Atom and Vim. Interacting with the language is often done by giving commands to a language server, for example one can press \verb|Ctrl+C Ctrl+A| to do automatic proof search. These commands give feedback in a separate view in the editor. 
+
+Other dependently typed languages such as Lean and Coq have similar views to interact with the language. In general, when working with dependently typed languages there is a lot of these kinds of interactions between the IDE and the developer. Spoofax currently does not have support for defining shortcuts or adding these views to Eclipse, but there are no fundamental issues that would prevent this from being implemented.  
+
+

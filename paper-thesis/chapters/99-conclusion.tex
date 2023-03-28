@@ -10,7 +10,7 @@ As we demonstrated in chapter~\ref{chap:baselang}, the Calculus of Constructions
 We showed in chapter~\ref{chap:bools} that the implementation is easily extendable, by extending it with booleans, postulate, and type assertions. We define a four step process that can be used to extend the language, which we also use to answer the remaining research questions.
 
 \paragraph{RQ3: Can we add inference to the implementation?}
-In chapter~\ref{ch:inference} we discuss how to add inference to the implementation. If we want to keep the implementation clean and concise, we need to compromise on how powerful the inference algorithm is, by defining an approximated version of first-order inference. We implemented this algorithm in a concise way.
+In chapter~\ref{ch:inference} we discuss how to add inference to the implementation. If we want to keep the implementation clean and concise, we need to compromise on how powerful the inference algorithm is, by defining an approximated version of first-order inference. We implemented this algorithm in a concise way. In chapter~\ref{ch:comp-lambdapi} we explore how we could define the language in a language supporting equational unification, adding this to Statix would allows for a more powerful inference algorithm to be cleanly implemented.
 
 \paragraph{RQ4: Can we add support for inductive data types to the implementation?}
 chapter~\ref{ch:datatypes} adds support for inductive data types with parameters and indices. We give steps for type-checking data type declarations. Additionally, we give each data type an eliminator and show how to type-check and beta reduce eliminators. Finally, we show that positivity checking can be implemented concisely.
@@ -21,3 +21,19 @@ In chapter~\ref{ch:universes} we showed that we can add universes to the languag
 
 \section{Future Work}
 While the language as implemented currently is fully usable, there are still some open questions. 
+
+\subsection*{Adding more features to the language}
+
+In this thesis we created a language that already has a lot of features: Inductive datatypes, universes, and a basic inference algorithm. In chapter~\ref{chap:bools} we also specified the general steps that are needed to extend the language with new constructs. However, in comparison with languages such as Agda a lot of features are still missing, among which are:
+
+\begin{itemize}
+	\item Support for universe polymorphism~\cite[Universe Levels]{agda}, which allow functions and inductive data types to be polymorphic over a certain universe level. For example, this allows to define a \verb|List| data type that can be both a list of values and a list of types without defining it twice. We see no reason why this couldn't be cleanly implemented. 
+	\item Another feature of Agda is implementing dependent pattern matching, as described in "Eliminating Pattern Matching without K"~\cite{patternmatching}. This is requires a desugaring stage, in which matches are desugared to eliminators, which should be implemented in Stratego before type checking. This should also be possible to implement, but it may be quite a bit of work.
+	\item Inference in our language is currently implemented by explicitly specifying a placeholder \verb|_| where inference is required. In Agda we can specify an implicit argument, which is automatically inferred unless explicitly provided. We see no reason why this couldn't be cleanly implemented. 
+	\item Instance Arguments are a special kind of implicit arguments, that are solved by the instance resolution algorithm of Agda~\cite[Instance Arguments]{agda}. They can be used similarly to type class constraints, in order to restrict the data types over which a term is polymorphic, for example requiring the terms to have an implementation of equality. The instance resolution algorithm should be possible to implementing by traversing the scope graph (since it is linear), and checking whether each let binding is a possible solution similar to the Agda implementation. 
+	\item Agda has holes, which allows the user of the language to build proofs interactively. One of these interactions is proof search, when triggered Agda will try to find a term that fits the expected type of a hole. The interactive part of this was discussed in chapter~\ref{ch:relatedwork}, this is not yet supported by Spoofax. After support for this is added, a proof search algorithm could be implemented in Stratego, such as the structurally recursive unification algorithm described by McBride~\cite{proofsearch}.
+	\item Agda allows function arguments to be marked as irrelevant, meaning that the value will be erased at runtime. An even stronger version of this feature is implementing a quantitive type system, such as in Idris~2~\cite{idris2}, which combines linear and dependent types. Implementing this in Spoofax should be possible, but it may be quite a bit of work as it is a complex type system.
+	\item Agda has mixfix operators, which allows to define custom operators such as \verb|a and b|. This requires parsing to happen in multiple stages, where the first stage finds the mixfix operator definitions and the second stage parses expressions using them. This results in quite a complex parser, implementing these multiple stages in Spoofax using SDF3 is not possible without fundamental changes to the way that Spoofax works. One solution would be using an \emph{adaptive parsing algorithm}, which allows modification of the grammar during parsing. More research is needed to explore the possibilities of solving this problem.
+	\item Modules
+	\item Recursion
+\end{itemize}

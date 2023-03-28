@@ -1,7 +1,7 @@
 \chapter{Term Inference}
 \label{ch:inference}
 
-Inference is an important feature of dependent programming languages, that allows redundant parts of programs to be left out. For example, it allows you to infer the argument type of a function, if it can be inferred by the usage of the function, like in this example where the type of the argument of the polymorphic identity function can be inferred, since we pass it \verb|true| which is a boolean:
+Inference is an important feature of dependent programming languages, that allows redundant parts of programs to be left out. This reduces the annotation burden in comparison with explicitly typed languages. For example, it allows you to infer the argument type of a function, if it can be inferred by the usage of the function, like in this example where the type of the argument of the polymorphic identity function can be inferred, since we pass it \verb|true| which is a boolean:
 \begin{lstlisting}
 let id = (\T : Type. \x: T. x);
 id _ true

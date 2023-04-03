@@ -46,7 +46,7 @@ compile-expr : FnConstruct(x, _, b) ->
   CFn(<compile-id> x, <compile-expr> b)
 \end{lstlisting}
 
-Types require a bit more attention. Since our language has no way to match on types, types can actually be completely eliminated during type checking. The easiest way to do this is to compile all types to an arbitrary value (we chose the string "TYPE"), since the value is irrelevant anyways. A more efficient solution could be to implement type erasure~\cite[Section 23.6]{tapl}, where type-level functions are completely removed. We decided against this as the goal of this section is to show that we can compile the language with ease, not to write an efficient compiler. This optimization was also not implemented in the Agda to Scheme compiler.
+Types require a bit more attention. Since our language has no way to match on types, types can actually be completely eliminated during compilation. The easiest way to do this is to compile all types to an arbitrary value (we chose the string "TYPE"), since the value is irrelevant anyways. A more efficient solution could be to implement type erasure~\cite[Section 23.6]{tapl}, where type-level functions are completely removed. We decided against this as the goal of this section is to show that we can compile the language with ease, not to write an efficient compiler. This optimization was also not implemented in the Agda to Scheme compiler.
 
 \subsection{Inductive Data Types}
 

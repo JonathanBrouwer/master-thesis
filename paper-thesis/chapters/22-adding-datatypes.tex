@@ -39,7 +39,7 @@ data Bad : -> Type where
 \end{lstlisting}
 \end{enumerate}
 
-A difference between Agda and our implementation is that Agda has case matching as a native construct, whereas we chose to use eliminators as described in Inductive families~\cite{eliminators}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
+A difference between Agda and our implementation is that Agda has pattern matching as a native construct, whereas we chose to use eliminators as described in Inductive families~\cite{eliminators}. An eliminator is a function that can be used to case match on a data type. For example, the eliminator of the \verb|Nat| type above is:
 \begin{lstlisting}
 elim Nat : P: (v: Nat -> Type) -> P Z 
 	-> (x: Nat -> P x -> P (S x)) -> n: Nat -> P n
@@ -49,7 +49,7 @@ The general type of an eliminator for a data type \verb|N| is:
 \begin{lstlisting}
 parameters 
 -> P: (indices -> v: N params indices -> Type) 
--> constructors
+-> methods
 -> indices
 -> v: N params indices
 -> P indices v
@@ -58,7 +58,7 @@ The meaning of all the arguments is:
 \begin{itemize}
 	\item \verb|parameters| are the parameters of the data type we want to eliminate, since these are constant among all constructors those should be specified at the start.
 	\item \verb|P| is the type that this eliminator will return. It may depend on the value \verb|v| that is eliminated.
-	\item \verb|constructors| is a function that eliminates each of the constructors of the datatype. To eliminate a constructor of the form \verb|C : args -> N params indices| it generates a function \verb|args -> P indices (C pars args)|. For recursive datatypes, a previous case is generated, such as the \verb|P x| in the eliminator of \verb|Nat| above.
+	\item \verb|methods| is for each of the constructors of the datatype, a function that eliminates it. To eliminate a constructor of the form \verb|C : args -> N params indices| it requires a function \verb|args -> P indices (C pars args)|. For recursive datatypes, a previous case is generated, such as the \verb|P x| in the eliminator of \verb|Nat| above.
 	\item \verb|indices| are the indices of the value that is to be eliminated.
 	\item \verb|v| is the value that is to be eliminated.
 	\item Finally, \verb|P indices v| is the result of the elimination.
@@ -77,7 +77,7 @@ The definition of \verb|type_check| for an inductive data type \verb|N| is, conc
 	
 	\item Create a chain of scopes starting in \verb|s2| that will contain a scope for each index. We will type-check each next index using the previous index' scope, so that one index can depend on parameters and previous indices. Call the end of this chain \verb|s3|. The scope \verb|s3| is not used in the rest of this process, but creating this chain is required to check the types of the indices.
 	
-	\item Create a new scope \verb|s4| with \verb|s1| as the parent. Then type-check each constructor with \verb|s2| as scope (so that the constructors can depend on parameters, but cannot depend on indices), and declare the type of that constructor in \verb|s4|. The parameters are automatically added to the type of the constructor.
+	\item Create a new scope \verb|s4| with \verb|s1| as the parent. Then type-check each constructor with \verb|s2| as scope (so that the constructors can depend on parameters, but cannot depend on indices), and declare the constructor in \verb|s4|. We must also ensure that each constructor returns the datatype it belongs to, with matching parameters, though the indices may of course vary.
 	
 	\item Type-check the rest of the program with scope \verb|s4|.
 \end{enumerate}
@@ -149,7 +149,7 @@ This is all that needs to happen to define inductive data types. Next, we will a
 \section{Positivity Checking}
 \label{ch:datatypes:positivity}
 	
-When defining a recursive data type, we would like our datatype to be \emph{strictly positive}, meaning that it can only be recursive on positive positions. If this check would not exist, we would be able to create non-terminating functions using the datatype. Since under the curry-howard correspondence this allows to prove false, this is undesirable.
+When defining a recursive data type, we would like our datatype to be \emph{strictly positive}, meaning that it can only be recursive on positive positions. If this check would not exist, we would be able to create non-terminating functions using the datatype. Since under the Curry Howard correspondence this allows to prove false, this is undesirable.
 
 To show how this is can go wrong, consider the following example:
 \begin{lstlisting}

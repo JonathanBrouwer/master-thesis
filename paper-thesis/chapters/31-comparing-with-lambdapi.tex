@@ -81,7 +81,7 @@ symbol Let :
 	TmType (B v);
 rule Let _ _ $v $b `$\hookrightarrow$` $b $v;
 	\end{lstlisting}
-	\caption{Definition of less powerful Let in lampdapi}
+	\caption{Definition of less powerful Let in LambdaPi}
 	\label{fig:lp-let}
 \end{figure}
 
@@ -93,5 +93,13 @@ let T = Bool;
 \end{lstlisting}
 
 We could solve this problem by not defining our program as an embedding, instead defining it using the reduction rules in figure \ref{fig:beta-head-reduce-rules}. This results in a definition very close to the one in Statix, except that instead of a beta reduction relation we use the reductions built-in to the language, which solves the problem. 
+
+\section{Comparison}
+
+In this chapter we've defined the calculus of constructions by embedding it into LambdaPi. This is a declarative definition, similarly to Statix and unlike Haskell. However, since we are embedding the language into LambdaPi, the dynamic semantics of the language are now defined in terms of the dynamic semantics of LambdaPi. This means that the features our language can have are limited by the features of LambdaPi, this means it was impossible to define \verb|Let| bindings the way we wanted to.
+
+The static semantics of the language are defined by the way we create our terms. This is quite flexible, though less flexible than Statix since for example we have no control over the scoping rules (such as shadowing) of the language, which would be controlled by scope graphs in Statix. 
+
+The conclusion is that embedding a language in LambdaPi is primarily useful if we want to verify the implementation of our language is correct, which is one of the primary use cases of LambdaPi. Using it as a compiler for the language is not the intention behind LambdaPi, which is clear from the limitations we've mentioned above. We believe this comparison was still insightful, as it shows how compact an implementation in Statix could be if Statix would have equational unification.
 
 We've now discussed equational unification using lambdapi, which is a feature that we suggest could improve Statix. Other possible improvements are discussed in chapter \ref{ch:ergonomics}.

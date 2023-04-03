@@ -1,19 +1,10 @@
-- value to dependent types community?
-- question in introduction, statement in conclusion
-- why is coc the right language?
-- CAN statix do this?
+Section 4.4 -> Alpha equality
+Section 4.7 -> Changed a lot
+Section 13.4 -> Added
 
-- why is system F harder?
-- future work: pattern matching in statix
+"Could you also mention the issues you had with generating readable error messages here? Do you have any suggestions for improvement on that front?"
+Generating error messages is possible as soon as the bug is fixed
 
-- wat is de betekenis van mijn thesis?
+""a proof search algorithm could be implemented in Stratego" => again, the problem with this is that the proof search would actually require type information from Statix"
+Since proof search runs strictly after type checking this is probably fine?
 
-Forms:
-- GLE: Submitted
-- Thesis Committee form -> Sent to jesper
-- 
-
-
-
-Defense:
-- 11/13 april na 13:30

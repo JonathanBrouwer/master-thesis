@@ -9,7 +9,7 @@ A dependent type system is a type system in which types may depend on values. Th
 
 The biggest advantage of dependent types is that they increase the expressiveness of a type system a lot, for example:
 \begin{lstlisting}
-append : (A: Set) -> (n : Nat) -> Vec A n -> Vec A n -> Vec A (n + n)
+append : (A : Type) -> (n : Nat) -> Vec A n -> Vec A n -> Vec A (n + n)
 \end{lstlisting}
 A \verb|Vec A n| is a list with elements of type \verb|A| that is exactly length \verb|n| (an integer, which is a value!). This append function appends two \verb|Vecs| of equal length, returning a \verb|Vec| of length \verb|n + n|. This is an example of a type-level expression.
 

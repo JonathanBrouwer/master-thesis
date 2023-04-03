@@ -1,6 +1,7 @@
 Section 4.4 -> Alpha equality
 Section 4.7 -> Changed a lot
 Section 13.4 -> Added
+Section 16.1 -> Improved a lot
 
 "Could you also mention the issues you had with generating readable error messages here? Do you have any suggestions for improvement on that front?"
 Generating error messages is possible as soon as the bug is fixed

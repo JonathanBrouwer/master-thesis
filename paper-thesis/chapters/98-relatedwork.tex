@@ -9,11 +9,11 @@ In this thesis, we implemented a dependently typed language in Statix. In the fo
 
 \paragraph{Scopes as Types}
 
-The implementation in this paper requires performing substitutions in types immediately, as types don't have a corresponding scope to store substitutions. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types}~\cite{nameres} present an implementation of System F in Statix that does lazy substitutions, by using scopes as types. Each scope represents a type, and scopes have edges to other scopes in case of quantifications and substitutions. Further research is needed to see if this approach could also apply to dependently typed languages, where types can contain arbitrary terms. 
+The implementation in this paper requires performing substitutions in types immediately, as types don't have a corresponding scope to store substitutions. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types}~\cite{nameres} present an implementation of System F in Statix that does lazy substitutions, by using scopes as types. Each type is represented by a scope, and these scopes have edges to other scopes in case of quantifications and substitutions. Our Statix implementation does lazy substitutions in the expressions of our language, but not in the types. This is a minor compromise since types tend to stay quite small, but it is still a compromise. Further research is needed to see if this approach could also apply to dependently typed languages, where types can contain arbitrary terms. 
 
 \paragraph{Correct by Construction Language Implementations}
 
-Construction Language Implementations~\cite{Rouvoet21} describes how to create a declarative specification of a language in Statix, and then to use a dependently typed language to integrate the specification of well-typing in the representation of the program that is being interpreted or transformed. The work from this thesis and ours could be combined, by using our dependently typed language implemented in Statix, to do this verification, as another Statix DSL. This could make the presented approach integrate better with the ecosystem of Spoofax.
+Arjen Rouvoet~\cite{Rouvoet21} describes how to create a declarative specification of a language in Statix, and then to use a dependently typed language to integrate the specification of well-typing in the representation of the program that is being interpreted or transformed. The work from this thesis and ours could be combined, by using our dependently typed language implemented in Statix, to do this verification, as another Statix DSL. This could make the presented approach integrate better with the ecosystem of Spoofax.
 
 \section{Other dependently typed languages}
 
@@ -23,7 +23,7 @@ Below are some more implementations dependently typed languages, we discuss what
 
 \paragraph{Bidirectional Typing}
 
-In chapter~\ref{ch:comp-haskell} we compared the implementation in Statix with an implementation in Haskell. The pi-forall language~\cite{pi_forall} is a language with a similar complexity to the language presented in this thesis. In principle, the implementations are very similar. For example, the type checking rules of pi-forall are similar to the type checking rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system~\cite{bidirectional} to do some inference, whereas this paper uses Statix' unification. 
+In chapter~\ref{ch:comp-haskell} we compared the implementation in Statix with an implementation in Haskell. The pi-forall language~\cite{pi_forall} is a language with a similar complexity to the language presented in this thesis. In principle, the implementations are very similar. For example, the type checking rules of pi-forall are similar to the type checking rules presented in figure \ref{fig:type-check-rules} from this paper. The primary difference is that they use a bidirectional type system~\cite{bidirectional} to do some inference, whereas this paper uses Statix' unification. Another difference is that pi-forall does not use de Bruijn indices but instead uses the Unbound library in Haskell.
 
 \paragraph{Agda}
 

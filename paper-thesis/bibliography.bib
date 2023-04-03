@@ -1,16 +1,28 @@
 @article{Coquand_Huet_1988, title={The calculus of constructions}, volume={76}, ISSN={08905401}, url={https://linkinghub.elsevier.com/retrieve/pii/0890540188900053}, DOI={10.1016/0890-5401(88)90005-3}, number={2–3}, journal={Information and Computation}, author={Coquand, Thierry and Huet, Gérard}, year={1988}, month={Feb}, pages={95–120}, language={en} }
 
-@article{patternmatching,
-	title = {Eliminating dependent pattern matching without K},
-	author = {Jesper Cockx and Dominique Devriese and Frank Piessens},
-	year = {2016},
-	doi = {10.1017/S0956796816000174},
-	url = {http://dx.doi.org/10.1017/S0956796816000174},
-	researchr = {https://researchr.org/publication/CockxDP16-0},
-	cites = {0},
-	citedby = {0},
-	journal = {Journal of Functional Programming},
-	volume = {26},
+@inproceedings{patternmatching,
+	title={Pattern Matching with Dependent Types},
+	author={Thierry Coquand},
+	year={1992}
+}
+
+@article{implicit_arguments,
+	author = {Kov\'{a}cs, Andr\'{a}s},
+	title = {Elaboration with First-Class Implicit Function Types},
+	year = {2020},
+	issue_date = {August 2020},
+	publisher = {Association for Computing Machinery},
+	address = {New York, NY, USA},
+	volume = {4},
+	number = {ICFP},
+	url = {https://doi.org/10.1145/3408983},
+	doi = {10.1145/3408983},
+	abstract = {Implicit functions are dependently typed functions, such that arguments are provided (by default) by inference machinery instead of programmers of the surface language. Implicit functions in Agda are an archetypal example. In the Haskell language as implemented by the Glasgow Haskell Compiler (GHC), polymorphic types are another example. Implicit function types are first-class if they are treated as any other type in the surface language. This holds in Agda and partially holds in GHC. Inference and elaboration in the presence of first-class implicit functions poses a challenge; in the context of Haskell and ML-like languages, this has been dubbed “impredicative instantiation” or “impredicative inference”. We propose a new solution for elaborating first-class implicit functions, which is applicable to full dependent type theories and compares favorably to prior solutions in terms of power, generality and simplicity. We build atop Norell’s bidirectional elaboration algorithm for Agda, and we note that the key issue is incomplete information about insertions of implicit abstractions and applications. We make it possible to track and refine information related to such insertions, by adding a function type to a core Martin-L'of type theory, which supports strict (definitional) currying. This allows us to represent undetermined domain arities of implicit function types, and we can decide at any point during elaboration whether implicit abstractions should be inserted.},
+	journal = {Proc. ACM Program. Lang.},
+	month = {aug},
+	articleno = {101},
+	numpages = {29},
+	keywords = {impredicative polymorphism, elaboration, type inference, type theory}
 }
 
 @inproceedings{idris2,

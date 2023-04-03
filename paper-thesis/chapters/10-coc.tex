@@ -49,7 +49,7 @@ The type that the function is generic over needs to be explicitly specified. In 
 
 To type check the base language, we need an environment to store information about the names that are in scope at each point in the program. There are two different types of names that we may want to store, names that do not have a known value (only a type), which are names created by function arguments and dependent function types, and names that do have a known value, which are names created by let bindings.\footnote{In non-dependent languages there is no such distinction, but because we may need \emph{the value} of a binding to compare types, this is needed in dependently typed languages.}
 
-In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}, as explained in chapter~\ref{chap:bg-spoofax}. We only use a single type of edge, called \verb|P| (parent) edges. We also only have a single relation, called \verb|name|. The relation associates a \verb|NameEntry| with each name in the scope graph. The \verb|NameEntry| can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value. The Statix definition of these concepts is given below:
+In Statix, all this information can be stored in a \emph{scope graph}~\cite{scope_graphs}, as explained in chapter~\ref{chap:bg-spoofax}. We only use a single type of edge, called \verb|P| (parent) edges. We also only have a single relation, called \verb|name|. The relation associates a \verb|NameEntry| with each name in the scope graph. The \verb|NameEntry| can be either a \verb|NType|, which stores the type of a name, or a \verb|NSubst|, which stores a name that has been substituted with a value.\footnote{As a performance optimization, we could store the type of the substitution on the NSubst as well, this avoids the need to possibly type check the value again in the future.} The Statix definition of these concepts is given below:
 \begin{lstlisting}
 constructors
     NType : Expr -> NameEntry
@@ -75,7 +75,7 @@ We define a \emph{scoped expression}, as a pair of a scope and an expression. Th
 
 A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare. Beta reduction is the process of reduction a term to its beta normal form, which is the state where no further beta reductions are possible~\cite{tapl}. It works by matching a term of the form \verb|(\x. b) e|. and substituting \verb|x| in \verb|b| with \verb|e|. Beta reduction applies this rule everywhere in the term, whereas beta head-reduction only applies this rule at the outermost expression of the term, and produces a term in beta-head normal form, which means the outermost constructor is the same as the outermost constructor of the normal form.
 
-We implemented beta-head reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. This is a strategy under which the leftmost, outermost beta-redex is always reduced first~\cite{tapl}. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation, which is an alternative we will discuss in section \ref{sec:coc-subst}.
+We implemented beta-head reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. This is a strategy under which the leftmost, outermost beta-redex is always reduced first~\cite{tapl}. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to recursive evaluation relation, which is an alternative we will discuss in section \ref{sec:coc-recursive}.
 
 In conventional dependently typed languages, variables are often represented using de Bruijn indices. De Bruijn representation~\cite[Section 6.1]{tapl} uses the distance from a binder to identify a variable. In this representation, alpha equivalence is the same as syntactic equivalence, which can simplify the manipulation of terms. However, we chose to use names rather than de Bruijn indices, because scope graphs work based on names. Using de Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition).
 
@@ -86,7 +86,7 @@ rebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
 
 Additionally, we define \verb|betaReduce| which fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the outermost constructor, calling \verb|betaReduce| on the sub-expressions of the outermost constructor recursively.
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$}]{Beta head-reduction rules}
 
 	\begin{mathpar}
@@ -189,52 +189,52 @@ Additionally, we define \verb|betaReduce| which fully beta reduces a term. It wo
 
 We need to define \verb|expectBetaEq|, which asserts that two scoped expressions are equal under beta reduction. This rule first beta reduces the heads of both sides, and then compares them. If the head is not the same, the rule fails. Otherwise, it recurses on the sub-expressions. One special case is when comparing two \verb|FnConstruct|s. Here we need to take into account alpha equality: two expressions which only differ in the names that they use should be considered equal. We implement this by substituting in the body of the functions, replacing their argument names with a unique placeholder.
 
-This substitution is called \verb|AlphaEqVars : ID * ID -> Expr|. The combination of the ID on the left and right hand side of the equality guarantees that the substitution is unique. In figure \ref{fig:beta-eq-rules} we show how \verb|AlphaEqVars| is used to determine equality of functions.
+This substitution is called \verb|AlphaEqVars : ID * ID -> Expr|. The combination of the ID on the left and right hand is used to identify the variables.\footnote{Technically we only need the left or the right hand side here, but we use both since we can use them to get better error messages.} Currently this approach has problems with variable capture here: multiple variables with the same name that are asserted to be alpha equal can introduce the same \verb|AlphaEqVars| into the scope. This is solved in chapter \ref{chap:namecolls}. In figure \ref{fig:alpha-eq-rules} we show how \verb|AlphaEqVars| is used to determine alpha-equality $\aeq{e1}{e2}$ of terms. We can then define beta-equality $\beq{e1}{e2}$ by first beta-reducing terms and then using the alpha-equality relation.
 
-\begin{figure}[h]
-	\figuresection[\fbox{$\beq{\scope{s_1}{e_1}}{\scope{s_2}{e_2}}$}]{Beta equality rules}
+\begin{figure}[ht]
+	\figuresection[\fbox{$\aeq{\scope{s_1}{e_1}}{\scope{s_2}{e_2}}$}]{Alpha equality rules}
 	
 	\begin{mathpar}
 		\inferrule{
 		} {
-			\beq
+			\aeq
 			{ \co{AlphaEqVars}(x_1, x_2) }
 			{ \co{AlphaEqVars}(x_1, x_2) }
 		}
 	
 		\inferrule{
-			\beq{\scope{s_1}{a_1}}{\scope{s_2}{a_2}}
+			\aeq{\scope{s_1}{a_1}}{\scope{s_2}{a_2}}
 			\\\\ s_1' = \co{sPutSubst}(s_1, x_1, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
 			\\\\ s_2' = \co{sPutSubst}(s_2, x_2, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
-			\\\\ \beq{
+			\\\\ \aeq{
 				\scope{s_1'}{b_1}
 				}{ 
 				\scope{s_2'}{b_2}
 			}
 		} {
-			\beq
+			\aeq
 			{ \scope{s_1}{\co{FnType}(x_1, a_1, b_1)} }
 			{ \scope{s_2}{\co{FnType}(x_1, a_2, b_2)} }
 		}
 	
 		\inferrule{
-			\beq{\scope{s_1}{a_1}}{\scope{s_2}{a_2}}
+			\aeq{\scope{s_1}{a_1}}{\scope{s_2}{a_2}}
 			\\\\ s_1' = \co{sPutSubst}(s_1, x_1, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
 			\\\\ s_2' = \co{sPutSubst}(s_2, x_2, (\co{sEmpty}(), \co{AlphaEqVars}(x_1, x_2)))
-			\\\\ \beq{
+			\\\\ \aeq{
 				\scope{s_1'}{b_1}
 			}{ 
 				\scope{s_2'}{b_2}
 			}
 		} {
-			\beq
+			\aeq
 			{ \scope{s_1}{\co{FnConstruct}(x_1, a_1, b_1)} }
 			{ \scope{s_2}{\co{FnConstruct}(x_1, a_2, b_2)} }
 		}
 	\end{mathpar}
 
-	\caption{Rules for beta equality in the Calculus of Constructions}
-	\label{fig:beta-eq-rules}
+	\caption{Rules for alpha equality in the Calculus of Constructions}
+	\label{fig:alpha-eq-rules}
 \end{figure}
 
 \section{Type Checking}
@@ -254,9 +254,9 @@ We can then start defining type checking rules for the language. We introduce a 
 	\item $\scope{\co{sEmpty}}{e}$ is the same as $e$ (empty scopes can be left out).
 \end{enumerate}
 
-One thing to note is that some rules use \verb|betaReduce|. The goal of this beta reduce is to make the term into a term that does not need an environment (by substituting all let bindings). A full beta reduce is not necessary, but this is merely a performance optimization.
+One thing to note is that some rules use \verb|betaReduce|. The goal of this beta reduce is to make the term into a term that does not need an environment (by substituting all let bindings). A full beta reduce is not necessary, merely substituting all the values in the environment would be enough, but this is merely a performance optimization.
 
-The inference rules in figures \ref{fig:beta-head-reduce-rules}, \ref{fig:beta-eq-rules}, and \ref{fig:type-check-rules} can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings in figure \ref{fig:type-check-rules} is expressed like this in Statix:
+The inference rules in figures \ref{fig:beta-head-reduce-rules}, \ref{fig:alpha-eq-rules}, and \ref{fig:type-check-rules} can be directly translated to Statix rules. For example, the rule for \verb|Let| bindings in figure \ref{fig:type-check-rules} is expressed like this in Statix:
 \begin{lstlisting}
 typeOfExpr (s, Let(x, e, b)) = bt :-
 	typeOfExpr (s, e) == et, 
@@ -265,7 +265,7 @@ typeOfExpr (s, Let(x, e, b)) = bt :-
 
 Each premise in the inference rule is a premise in the Statix code, and the conclusion of the inference rule is the declaration of the Statix rule. 
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\figuresection[\fbox{$\toe{s}{e}{t}$}]{Type checking rules}
 	\begin{mathpar}
 		\mprset{vskip=0.7ex}
@@ -360,7 +360,7 @@ The process that happens during type-checking is shown in figure \ref{fig:type-c
 	\item To type check the function, we type check the argument and assert that it is a type. Then we type check the body with the argument in scope, creating scope $s_3$, and finally we construct the type. 
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}[ht]
 	\figuresection[\fbox{$b_0 = \co{FnDestruct}(b_1, \co{Var}("T")))$}]{Type checking let}
 	\begin{mathpar}
 	\mprset{vskip=0.3ex}
@@ -428,16 +428,14 @@ The process that happens during type-checking is shown in figure \ref{fig:type-c
 	\label{fig:type-check-example}
 \end{figure}
 
-\section{Discussion of a Substitution-Based Approach}
-\label{sec:coc-subst}
+\section{Discussion of a Recursive Approach}
+\label{sec:coc-recursive}
 
-An alternative for a Krivine machine, which keeps a stack of arguments it has encountered, is a substitution-based relation. This beta-reduces a \verb|FnDestruct| by doing a nested beta-reduction of the function, and substituting into that, as is shown in figure \ref{fig:subst-approach}.
+An alternative for a Krivine machine, which keeps a stack of arguments it has encountered, is a recursive relation. This beta-reduces a \verb|FnDestruct| by doing a nested beta-reduction of the function first, and substituting the argument into the body afterwards, as is shown in figure \ref{fig:subst-approach}. These rules were successfully implemented in Statix.
 
-Although these rules look cleaner, they are more complicated to implement, requiring a separate relation to check if \verb|f| is a \verb|FnConstruct| or something else. For the pure calculus of constructions this still works quite well, but when adding inductive datatypes (chapter~\ref{ch:datatypes}) the rules required become a lot more complex than those for a Krivine machine.
+Although these rules look cleaner, they are more complicated to implement, requiring a separate relation to check if \verb|f| is a \verb|FnConstruct| or something else. For the calculus of constructions this still works quite well, but when adding inductive datatypes (chapter~\ref{ch:datatypes}) the rules required become a lot more complex than those for a Krivine machine. The primary problem is that eliminators can take an arbitrary of arguments depending on the datatype that all need to be available to choose the right eliminating function. Therefore we chose to use the Krivine machine instead.
 
-An additional benefit of Krivine machines is that the run-time performance of them tends to be a bit better, though this is only a constant factor and not a time-complexity improvement.
-
-\begin{figure}[h]
+\begin{figure}[ht]
 	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{}{\scope{s_2}{e_2}}$}]{A substitution-based approach for beta reduction}
 	\begin{mathpar}
 		\mprset{vskip=0.7ex}

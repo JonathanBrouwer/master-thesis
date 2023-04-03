@@ -4,7 +4,7 @@
 In this chapter, we implement the language defined in chapter~\ref{chap:baselang} in Haskell, and then compare the implementation with the implementation in Statix. We want the design of the implementation in Haskell to be representative of conventional implementations of dependently typed languages, so we can use it to compare the Statix implementation with them.
 
 \section{Defining the AST}
-To implement the calculus of constructions in Haskell, we first define the inductive datatype \verb|Expr|. We chose to define the language using De Bruijn indices, since this is the convention when implementing dependently typed languages, and the goal of this implementation in Haskell is to compare the Statix implementation with conventional ones. 
+To implement the calculus of constructions in Haskell, we first define the inductive datatype \verb|Expr|. We chose to define the language using de Bruijn indices, since this is the convention when implementing dependently typed languages, and the goal of this implementation in Haskell is to compare the Statix implementation with conventional ones. 
 \begin{lstlisting}
 data Expr =
 	Type
@@ -14,11 +14,11 @@ data Expr =
 	| FnConstruct Expr Expr
 	| FnDestruct Expr Expr
 \end{lstlisting}
-There is a constructor for each constructor in our language. The difference with the implementation in Spoofax is that the \verb|Let|, \verb|FnType|, and \verb|FnConstruct| no longer store an identifier, instead they introduce a new binding into their body, which are accessible by their De Bruijn indices. 
+There is a constructor for each constructor in our language. The difference with the implementation in Spoofax is that the \verb|Let|, \verb|FnType|, and \verb|FnConstruct| no longer store an identifier, instead they introduce a new binding into their body, which are accessible by their de Bruijn indices. 
 
 \section{Defining Environments}
 
-Next, we need to decide how we want to store the environment. We still need to store both function arguments and substitutions, which we called \verb|NType| and \verb|NSubst| in chapter~\ref{chap:baselang}. We will use the same names, and store the environment as a list, with the head of the list representing De Bruijn index 0. Finally, we define the type of a scoped expression \verb|SExpr|, as a tuple of an environment and an expression.
+Next, we need to decide how we want to store the environment. We still need to store both function arguments and substitutions, which we called \verb|NType| and \verb|NSubst| in chapter~\ref{chap:baselang}. We will use the same names, and store the environment as a list, with the head of the list representing de Bruijn index 0. Finally, we define the type of a scoped expression \verb|SExpr|, as a tuple of an environment and an expression.
 \begin{lstlisting}
 data EnvEntry = NType Expr | NSubst SExpr
 type Env = [EnvEntry]

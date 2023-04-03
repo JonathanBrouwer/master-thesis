@@ -73,18 +73,18 @@ We define a \emph{scoped expression}, as a pair of a scope and an expression. Th
 \section{Beta Reductions}
 \label{sec:coc-dynsyms}
 
-A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare. Beta reduction is the process of reduction a term to its beta normal form, which is the state where no further beta reductions are possible~\cite{tapl}. It works by matching a term of the form \verb|(\x. b) e|. and substituting \verb|x| in \verb|b| with \verb|e|. Beta reduction applies this rule anywhere in the term, whereas beta head-reduction only applies this rule at the head (outermost expression) of the term, and produces a term in beta-head normal form.
+A unique requirement for dependently typed languages is beta reduction during type checking, since types may require evaluation to compare. Beta reduction is the process of reduction a term to its beta normal form, which is the state where no further beta reductions are possible~\cite{tapl}. It works by matching a term of the form \verb|(\x. b) e|. and substituting \verb|x| in \verb|b| with \verb|e|. Beta reduction applies this rule everywhere in the term, whereas beta head-reduction only applies this rule at the outermost expression of the term, and produces a term in beta-head normal form, which means the outermost constructor is the same as the outermost constructor of the normal form.
 
-We implemented beta-head reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. This is a strategy under which the leftmost, outermost term is always reduced first~\cite{tapl}. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation, which is an alternative we will discuss in section \ref{sec:coc-subst}.
+We implemented beta-head reduction using a Krivine abstract machine~\cite{krivine}. The machine can head evaluate lambda expressions with a call-by-name semantics. This is a strategy under which the leftmost, outermost beta-redex is always reduced first~\cite{tapl}. It works by keeping a stack of all arguments that have not been applied yet. This turned out to be the more natural way of expressing this compared to substitution-based evaluation relation, which is an alternative we will discuss in section \ref{sec:coc-subst}.
 
-In conventional dependently typed languages, evaluation is often done using De Bruijn indices.  De Bruijn representation~\cite[Section 6.1]{tapl} uses the distance from a binder to identify a variable. In this representation, alpha equivalence is the same as syntactic equivalence, which can simplify the manipulation of terms. However, we chose to use names rather than De Bruijn indices, because scope graphs work based on names. Using De Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition).
+In conventional dependently typed languages, variables are often represented using de Bruijn indices. De Bruijn representation~\cite[Section 6.1]{tapl} uses the distance from a binder to identify a variable. In this representation, alpha equivalence is the same as syntactic equivalence, which can simplify the manipulation of terms. However, we chose to use names rather than de Bruijn indices, because scope graphs work based on names. Using de Bruijn indices would also prevent us from using editor services that rely on \verb|.ref| annotations (which are Spoofax annotations that declare one name as being a use of another name that is a definition).
 
 We need to define multiple predicates that will be used later for type checking. First, the primary predicate is \verb|betaReduceHead|, that takes a scoped expression and a stack of applications, and returns a head-normal expression. The scope acts as the environment from~\cite{krivine}, using \verb|NSubst| to store substitutions. All rules for \verb|betaReduceHead| are given in figure \ref{fig:beta-head-reduce-rules}. We use the syntax $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ to express \textit{betaReduceHead((s1, e1), ps) == (s2, e2)}. The $\overline{p}$ in this definition is the argument stack of the Krivine machine. The argument stack is a stack of scoped expressions, which are the arguments that are not yet paired with a matching function. Figure \ref{fig:beta-head-reduce-rules} contains the rules necessary for beta head reduction of the language. One predicate that is used for this is the \verb|rebuild| predicate, which takes a scoped expression and the stack of arguments (of the Krivine machine state) and converts it to an expression by adding \verb|FnDestruct|s. Its signature is:
 \begin{lstlisting}
 rebuild : (scope * Expr) * list((scope * Expr)) -> (scope * Expr)
 \end{lstlisting}
 
-Additionally, we define \verb|betaReduce| which fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the head, calling \verb|betaReduce| on the sub-expressions of the head recursively.
+Additionally, we define \verb|betaReduce| which fully beta reduces a term. It works by first calling \verb|betaReduceHead| and then matching on the outermost constructor, calling \verb|betaReduce| on the sub-expressions of the outermost constructor recursively.
 
 \begin{figure}[h]
 	\figuresection[\fbox{$\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$}]{Beta head-reduction rules}
@@ -247,11 +247,11 @@ typeOfExpr : scope * Expr -> Expr
 \end{lstlisting}
 We can then start defining type checking rules for the language. We introduce a number of judgements for typing and equality together with their counterparts in Statix.
 \begin{enumerate}
-	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|
-	\item $\beq{\scope{s_1}{e_1}}{\scope{s_2}{e_2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|
-	\item $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ is the same as \verb|betaReduceHead((s1, e1), ps) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms})
-	\item $\bred{s_1}{e_1}{e_2}$ is the same as \verb|betaReduce((s1, e1)) == e2|
-	\item $\scope{\co{sEmpty}}{e}$ is the same as $e$ (empty scopes can be left out)
+	\item $\toe{s}{e}{t}$ is the same as \verb|typeOfExpr(s, e) == t|.
+	\item $\beq{\scope{s_1}{e_1}}{\scope{s_2}{e_2}}$ is the same as \verb|expectBetaEq((s1, e1), (s2, e2))|.
+	\item $\bhr{\scope{s_1}{e_1}}{\overline{p}}{\scope{s_2}{e_2}}$ is the same as \verb|betaReduceHead((s1, e1), ps) == (s2, e2)| \\ (The same as in section \ref{sec:coc-dynsyms}).
+	\item $\bred{s_1}{e_1}{e_2}$ is the same as \verb|betaReduce((s1, e1)) == e2|.
+	\item $\scope{\co{sEmpty}}{e}$ is the same as $e$ (empty scopes can be left out).
 \end{enumerate}
 
 One thing to note is that some rules use \verb|betaReduce|. The goal of this beta reduce is to make the term into a term that does not need an environment (by substituting all let bindings). A full beta reduce is not necessary, but this is merely a performance optimization.

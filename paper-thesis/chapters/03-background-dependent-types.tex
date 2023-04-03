@@ -1,19 +1,19 @@
 % !TEX root = document.tex
 \chapter{\label{chap:bg-dp}Background: Dependent Types}
 
-This chapter will explain the concepts behind dependent types. Readers already familiar with Dependent Types are recommended to only skim through this chapter.
+This chapter will explain the concepts behind dependent types. Readers already familiar with dependent types are recommended to only skim through this chapter.
 
 \section{What are Dependent Types?}
 
-A dependent type system is a type system in which types may depend on values. This means it is possible to have a type such as \verb|Vec n|, which is a vector of exactly length \verb|n|. Note that the value of \verb|n| does not have to be known at compile time, it is more powerful than that. 
+A dependent type system is a type system in which types may depend on values. This means it is possible to have a type such as \verb|Vec n|, which is a vector of exactly length \verb|n|. Note that the value of \verb|n| does not have to be known at compile time, it is therefore more powerful than functions that can be polymorphic over a value.
 
 The biggest advantage of dependent types is that they increase the expressiveness of a type system a lot, for example:
 \begin{lstlisting}
 append : (A: Set) -> (n : Nat) -> Vec A n -> Vec A n -> Vec A (n + n)
 \end{lstlisting}
-A \verb|Vec A n| is a list with elements of type \verb|A| that is exactly length \verb|n| (an integer, which is a value!). This append function appends two \verb|Vecs| of equal length, returning a \verb|Vec| of length \verb|n + n|. This is an example of a type-level computation.
+A \verb|Vec A n| is a list with elements of type \verb|A| that is exactly length \verb|n| (an integer, which is a value!). This append function appends two \verb|Vecs| of equal length, returning a \verb|Vec| of length \verb|n + n|. This is an example of a type-level expression.
 
-Dependent types are useful because dependent type systems allow for the Curry-Howard Correspondence~\cite{chc}. Using this correspondence, types correspond to propositions and a term of a type correspond to a proof of a proposition. Thus if our type system is sound\footnote{The type system we will define in chapter~\ref{chap:baselang} is not sound, we will fix this in chapter~\ref{ch:universes}.}, that is, we cannot create a term of an empty type, then we can use our type systems to prove things.
+In dependent type systems we can use the Curry-Howard Correspondence to prove properties of our code~\cite{chc}. Under this correspondence, types correspond to propositions and a term of a type correspond to a proof of a proposition. Thus if our type system is type-sound\footnote{The type system we will define in chapter~\ref{chap:baselang} is not type-sound, we will fix this by introducing universes in chapter~\ref{ch:universes}.}, that is, we cannot create a term of an empty type, then we can use our type systems to prove things. The type checker will then verify that our proofs are correct.
 
 \section{The Calculus of Constructions}
 
@@ -29,4 +29,4 @@ id : (T : Type) -> T -> T
 	\item Types can depend on terms. This corresponds to dependent types.
 \end{enumerate}
 
-The \textit{Calculus of Constructions} is the language that has all three of these features. Now that we have explained the concepts behind Spoofax and Dependent Types, we will further explain the Calculus of Constructions and implement it in Spoofax in chapter~\ref{chap:baselang}. Then in the chapters after that, we will extend the language with more features.
+The \textit{Calculus of Constructions} is the language that has all three of these features. Now that we have explained the concepts behind Spoofax and dependent types, we will further explain the Calculus of Constructions and implement it in Spoofax in chapter~\ref{chap:baselang}. Then in the chapters after that, we will extend the language with more features.

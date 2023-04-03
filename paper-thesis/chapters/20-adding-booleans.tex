@@ -225,7 +225,7 @@ Implementing this feature is also straight-forward, we add the following two rul
 Now that a few features have been implemented, we can discuss how easy the language is to extend. From the three examples above and the following chapters we can conclude that extending the language in a clean way is possible. To extend the language, we used the following approach:
 
 \begin{enumerate}
-	\item Define the parsing rules for the new feature
+	\item Define the parsing rules for the new feature.
 	\item Create a new file, \verb|tp_[feature].stx| and import this file in the main \verb|type_check.stx| file.
 	\item In the new file, define a case for the \verb|betaReduceHead| rule for the constructors that were added. Also define cases for \verb|expectBetaEq| and \verb|betaReduce| if necessary. This is only necessary iff the new constructors are not always eliminated by \verb|betaReduceHead|.
 	\item In the new file, define a case for the \verb|typeOfExpr| rule for the constructors that were added.
@@ -235,8 +235,8 @@ This allows each feature to be isolated to its own file. If we decide that we do
 
 In the following chapters, we're going to be extending the language further with these more interesting features using the approach defined above:
 \begin{itemize}
-	\item Inference (chapter~\ref{ch:inference})
-	\item Inductive Datatypes (chapter~\ref{ch:datatypes})
-	\item Universes (chapter~\ref{ch:universes})
+	\item Inference (chapter~\ref{ch:inference}).
+	\item Inductive Datatypes (chapter~\ref{ch:datatypes}).
+	\item Universes (chapter~\ref{ch:universes}).
 \end{itemize}
 

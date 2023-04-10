@@ -47,7 +47,7 @@ elim Nat : P: (v: Nat -> Type) -> P Z
 
 The general type of an eliminator for a data type \verb|N| is:
 \begin{lstlisting}
-parameters 
+params 
 -> P: (indices -> v: N params indices -> Type) 
 -> methods
 -> indices
@@ -56,9 +56,9 @@ parameters
 \end{lstlisting}
 The meaning of all the arguments is:
 \begin{itemize}
-	\item \verb|parameters| are the parameters of the data type we want to eliminate, since these are constant among all constructors those should be specified at the start.
+	\item \verb|params| are the parameters of the data type we want to eliminate, since these are constant among all constructors those should be specified at the start.
 	\item \verb|P| is the type that this eliminator will return. It may depend on the value \verb|v| that is eliminated.
-	\item \verb|methods| is for each of the constructors of the datatype, a function that eliminates it. To eliminate a constructor of the form \verb|C : args -> N params indices| it requires a function \verb|args -> P indices (C pars args)|. For recursive datatypes, a previous case is generated, such as the \verb|P x| in the eliminator of \verb|Nat| above.
+	\item \verb|methods| is for each of the constructors of the datatype, a function that eliminates it. To eliminate a constructor of the form \verb|C : args -> N params indices| it requires a function \verb|args -> P indices (C params args)|. For recursive datatypes, a previous case is generated, such as the \verb|P x| in the eliminator of \verb|Nat| above.
 	\item \verb|indices| are the indices of the value that is to be eliminated.
 	\item \verb|v| is the value that is to be eliminated.
 	\item Finally, \verb|P indices v| is the result of the elimination.
@@ -75,7 +75,7 @@ The definition of \verb|type_check| for an inductive data type \verb|N| is, conc
 	
 	\item Create a chain of scopes starting in \verb|s1| that will contain a scope for each parameter. We will type-check each next parameter using the previous parameters scope, so that parameters can depend on previous parameters. Call the end of this chain \verb|s2|.
 	
-	\item Create a chain of scopes starting in \verb|s2| that will contain a scope for each index. We will type-check each next index using the previous index' scope, so that one index can depend on parameters and previous indices. Call the end of this chain \verb|s3|. The scope \verb|s3| is not used in the rest of this process, but creating this chain is required to check the types of the indices.
+	\item Create a chain of scopes starting in \verb|s2| that will contain a scope for each index. We will type-check each next index using the previous index' scope, so that one index can depend on parameters and previous indices. Call the end of this chain \verb|s3|. The scope \verb|s3| is not used in the rest of this process (since constructors cannot refer to indices), but creating this chain is required to check the types of the indices.
 	
 	\item Create a new scope \verb|s4| with \verb|s1| as the parent. Then type-check each constructor with \verb|s2| as scope (so that the constructors can depend on parameters, but cannot depend on indices), and declare the constructor in \verb|s4|. We must also ensure that each constructor returns the datatype it belongs to, with matching parameters, though the indices may of course vary.
 	

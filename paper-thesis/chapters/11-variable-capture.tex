@@ -33,7 +33,7 @@ typeOfExpr(s1, FnConstruct("T", Var("T"), Var("T")))
 \end{tikzpicture}
 
 \noindent
-The same thing happens, the body of the \verb|FnConstruct| is typechecked with a new scope. Note that \verb|Var("T")| in the type of the second \verb|T| is ambiguous, does it refer to the first or second node?
+The same thing happens, the body of the \verb|FnConstruct| is type-checked with a new scope. Note that \verb|Var("T")| in the type of the second \verb|T| is ambiguous, does it refer to the first or second node?
 
 \begin{lstlisting}
 typeOfExpr(s2, Var("T"))
@@ -62,7 +62,7 @@ Almost all compilers that typecheck dependently typed languages use de Bruijn re
 
 \subsection{Uniquifying names}
 
-Another solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. First of all, it doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, this changes the names in the AST, so it breaks editor services in the same was as De Bruijn Indices did.
+Another solution that was attempted was having a pre-analysis transformation that gives each variable a unique name. This doesn't work for a variety of reasons. This doesn't actually solve the problem. Names can be duplicated during beta reduction of terms, so we still don't have the guarantee that each variable has a unique name. Furthermore, unless we keep track of error messages 
 
 \subsection{Capture-avoiding substitution}
 
@@ -78,6 +78,8 @@ context-free sorts ID
 lexical sorts RID
 context-free syntax
    ID.Syn = RID
+\end{lstlisting}
+\begin{lstlisting}
 signature constructors
   ScopedName : scope * RID -> ID
 \end{lstlisting}

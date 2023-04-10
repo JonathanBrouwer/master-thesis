@@ -8,7 +8,7 @@ Now that we've implemented a feature-rich dependently typed language in Statix, 
 Statix is a simple language, not supporting too many complex features. This works well in some ways, but having some more features available could improve the experience drastically. Some features that would've helped this project create better code are:
 
 \begin{enumerate}
-	\item Allow specifying reduction rules, and then implement equality under reduction in Statix. This feature was discussed extensively in chapter \ref{ch:comp-lambdapi}.
+	\item Allow specifying reduction rules, and then implement equality under reduction in Statix. This feature was discussed extensively in chapter \ref{ch:comp-lambdapi}. This would require extensive changes to the core language of Statix, so this is challenging to implement.
 	
 	\item Nested constraints: Defining a constraint that can use the metavariables of a parent constraint. This works similar to nested function definitions. For example, for type checking datatypes:
 	\begin{lstlisting}
@@ -17,9 +17,9 @@ typeOfExpr_(s, DataTypeDecl(n, ps, is, ue, cs, b)) = ... :-
 	isStrictlyPositive : (scope * Expr)
 	isStrictlyPositive(s, FnType(...)) = ...
 	\end{lstlisting}
-	The definition of \texttt{isStrictlyPositive} can then use all the metavariables of \\ \texttt{DataTypeDecl} without having to explicitly pass them.
+	The definition of \texttt{isStrictlyPositive} can then use all the metavariables of \\ \texttt{DataTypeDecl} without having to explicitly pass them. This feature could be desugared by moving the relation to the global scope and explicitly passing the metavariables of the parent constraint when it is used.
 	
-	\item Generic constraints. For example, we created two separate relations for reversing lists of different types, making these one generic function would've been better. This was the only case where this feature would've been useful for this thesis, but it may be more useful for other work.
+	\item Generic constraints. For example, we created two separate relations for reversing lists of different types, making these one generic function would have been better. This was the only case where this feature would have been useful for this thesis, but it may be more useful for other work. This could be implemented by monomorphization or by changing the core language. 
 \end{enumerate}
 
 \section{Spoofax}
@@ -38,4 +38,6 @@ Next we will describe our experience with Spoofax as a whole.
 	\item The SPT testing DSL works very well, it makes writing integration tests very easy. However, support for unit tests is still lacking. The way to create unit tests for the type checker is using Statix tests, allowing assertions on specific relations. But these tests are not integrated with SPT tests (they don't even reside in the test folder) and there is no way to run all Statix tests, to ensure no regressions happened. Ideally there would be one button that runs all SPT and Statix tests.
 	
 	\item Debugging Statix is still quite tedious. When we have a constraint that does not do what we expect it to do (ie. we have a failing Statix test), one either has to stare at its definition until they figure out the problem, or start unfolding the definitions of the constraints into the Statix test, finding out which part of the definition is misbehaving and repeating the unfolding. Having support for a debugger would help tremendously with this.
+	
+	The way that this debugger could work is that you could start by entering a certain constraint \verb|typeCheck(...)|, the debugger would then show the current value of each metavariable in scope, and each constraint that is yet to be expanded. Since there is no fixed evaluation order in Statix, we could even allow the programmer to choose which constraint is evaluated next, which then generates more constraints.
 \end{enumerate}

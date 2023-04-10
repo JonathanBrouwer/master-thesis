@@ -10,7 +10,7 @@ However, this big advantage is also a disadvantage: Dynamic semantics would usua
 
 \subsection{Implementation}
 
-Luckily, Stratego has a strategy built in that runs a Statix predicate on a term: \verb|stx-evaluate|. Using this strategy, the actual implementation of our interpreter in Stratego is just one line: Match an expression \verb|e| and run the functional predicate \verb|interpret| from the \verb|main.stx| file on it.
+Luckily, Statix exposes an API to Stratego that can run a Statix predicate on a term: \verb|stx-evaluate|. Using this strategy, the actual implementation of our interpreter in Stratego is just one line: Match an expression \verb|e| and run the functional predicate \verb|interpret| from the \verb|main.stx| file on it.
 
 \begin{lstlisting}
 interpret : e -> <stx-evaluate(|"main", "main!interpret")> [e]
@@ -32,7 +32,7 @@ An advantage of implementing the dynamic semantics in Statix instead of Stratego
 
 A disadvantage is that Stratego is a domain specific language for transformations, and it has some features that would make the definitions of beta reductions shorter. For example, to define \verb|betaReduce| in terms of \verb|betaReduceHead| we need to match the constructor and apply \verb|betaReduceHead| recursively. Stratego has the \verb|topdown| traversal strategy that does the same thing without needing to be explicitly defined on all constructors.
 
-Another disadvantage is that Stratego is specifically optimized for these transformations, for example as discussed in "Optimising First-Class Pattern Match Compilation"~\cite{fcpmc}. Therefore, the resulting interpreter will be slower when implemented in Statix. This is however just a constant factor overhead, it does not affect the time complexity of the algorithm.
+Another disadvantage is that Stratego is specifically optimized for these transformations, for example as discussed in "Optimising First-Class Pattern Match Compilation"~\cite{fcpmc}. Therefore, the resulting interpreter will be slower when implemented in Statix.
 
 \section{Compiler}
 An alternative to writing an interpreter is writing a compiler to another language. In order to explore this avenue, we wrote a compiler to Clojure, a dynamically typed dialect of Lisp that runs on the JVM~\cite{clojure}. The advantage of a compiling to such a high-level language is that the actual compilation steps are relatively straight-forward, but it still shows that we can write a compiler for a dependently typed language in Spoofax.

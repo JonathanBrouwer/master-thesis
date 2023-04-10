@@ -7,7 +7,7 @@ This chapter will explain the concepts behind dependent types. Readers already f
 
 A dependent type system is a type system in which types may depend on values. This means it is possible to have a type such as \verb|Vec n|, which is a vector of exactly length \verb|n|. Note that the value of \verb|n| does not have to be known at compile time, it is therefore more powerful than functions that can be polymorphic over a value.
 
-The biggest advantage of dependent types is that they increase the expressiveness of a type system a lot, for example:
+The biggest advantage of dependent types is that they increase the expressiveness of a type system, for example:
 \begin{lstlisting}
 append : (A : Type) -> (n : Nat) -> Vec A n -> Vec A n -> Vec A (n + n)
 \end{lstlisting}

@@ -9,3 +9,7 @@ Generating error messages is possible as soon as the bug is fixed
 ""a proof search algorithm could be implemented in Stratego" => again, the problem with this is that the proof search would actually require type information from Statix"
 Since proof search runs strictly after type checking this is probably fine?
 
+
+
+- girard example
+- explore editor services more

@@ -9,7 +9,7 @@ In this thesis, we implemented a dependently typed language in Statix. In the fo
 
 \paragraph{Scopes as Types}
 
-The implementation in this paper requires performing substitutions in types immediately, as types don't have a corresponding scope to store substitutions. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types}~\cite{nameres} present an implementation of System F in Statix that does lazy substitutions, by using scopes as types. Each type is represented by a scope, and these scopes have edges to other scopes in case of quantifications and substitutions. Our Statix implementation does lazy substitutions in the expressions of our language, but not in the types. This is a minor compromise since types tend to stay quite small, but it is still a compromise. Further research is needed to see if this approach could also apply to dependently typed languages, where types can contain arbitrary terms. 
+The implementation in this paper requires performing substitutions in types immediately, as types don't have a corresponding scope to store substitutions. Van Antwerpen et al.~\cite[sect 2.5]{scopes_as_types, nameres} present an implementation of System F in Statix that does lazy substitutions, by using scopes as types. Each type is represented by a scope, and these scopes have edges to other scopes in case of quantifications and substitutions. Our Statix implementation does lazy substitutions in the expressions of our language, but not in the types. This is a minor compromise since types tend to stay quite small, but it is still a compromise. Further research is needed to see if this approach could also apply to dependently typed languages, where types can contain arbitrary terms. 
 
 \paragraph{Correct by Construction Language Implementations}
 

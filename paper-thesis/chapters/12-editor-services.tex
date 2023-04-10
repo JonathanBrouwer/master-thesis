@@ -1,7 +1,7 @@
 % !TEX root = document.tex
 \chapter{\label{chap:editor-services}Semantic Code Completion}
 
-When a language is implemented in Spoofax, we give a declarative definition of the language. Spoofax then generates the parser, type checker and compiler for us. An additional benefit of these declarative definitions is that Spoofax can use them to generate editor services, such as \verb|go to definition|, \verb|renaming| and \verb|semantic code completion|. 
+When a language is implemented in Spoofax, we give a declarative definition of the language. Spoofax then generates the parser, type checker and compiler for us. An additional benefit of these declarative definitions is that Spoofax can use them to generate editor services, such as \emph{go to definition}, \emph{renaming} and \emph{semantic code completion}. 
 
 We explored how semantic code completion presented by Pelsmaeker et al.~\cite{codecompletion} applies to dependently typed languages. Code completion is an editor service in IDEs that proposes code fragments for the user to insert at the caret position in their code. We chose to explore code completion specifically because deciding if a fragment is relevant to propose requires reasoning about the types of the fragments, which may be more difficult in the case of dependent types. We will show that Spoofax can use the declarative definition correctly and that it has no problem with semantic code completion for dependently typed languages.
 

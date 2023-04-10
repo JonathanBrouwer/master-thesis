@@ -7,7 +7,7 @@ let id = (\T : Type. \x: T. x);
 id _ true
 \end{lstlisting}
 
-The syntax we chose is that if we want a value to be inferred, we replace it with an underscore. Other languages such as Agda allow for \emph{implicit arguments}, which are arguments that can be left out, which will then be inferred~\cite{agda}~\cite{coq}. This is just syntactic sugar over the \emph{placeholders} we implement.
+The syntax we chose is that if we want a value to be inferred, we replace it with an underscore. Other languages such as Agda allow for \emph{implicit arguments}, which are arguments that can be left out, which will then be inferred~\cite{agda, coq}. This is just syntactic sugar over the \emph{placeholders} we implement.
 
 Furthermore, we call the inference algorithm \emph{term inference} rather than \emph{type inference}, because it can infer values other than types. For example, it can infer that the placeholder in this example must be \verb|true|:
 \begin{lstlisting}
@@ -19,7 +19,7 @@ postulate g: f true -> Type;
 \section{Different Algorithms for Inference}
 \label{strength-inference}
 
-There are a lot of different algorithms for inference\cite{typeinference}, some algorithms can solve more inference problems than others. One algorithm for unification is \emph{first-order unification} (FOU), where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free metavariable, we set the the value free metavariable to be equal to the value of the non-free metavariable. There are some situations in which this approach fails to infer a term, but in most real-world scenarios it works very well. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
+There are a lot of different algorithms for inference~\cite{typeinference}, some algorithms can solve more inference problems than others. One algorithm for unification is \emph{first-order unification} (FOU), where if at any point during type checking we assert that $\beq{e_1}{e_2}$ and either $e_1$ or $e_2$ is a free metavariable, we set the the value free metavariable to be equal to the value of the non-free metavariable. There are some situations in which this approach fails to infer a term, but in most real-world scenarios it works very well. For example, it can infer both programs in the introduction of this chapter, but it fails to infer the following program:
 
 \begin{lstlisting}
 let f = _;
@@ -37,7 +37,7 @@ A more powerful algorithm that could solve this is \emph{higher-order pattern un
 
 We would like to avoid implementing an algorithm at all, instead using Statix' built-in first-order unification to do the type inference for us. Implementing an inference algorithm in Statix is theoretically possible but this would not be a clean implementation (since Statix is a domain specific language that is not meant to implement these algorithms), and the goal is to use Statix in a way that is clean and declarative, not to do optimal inference.
 
-However, we cannot immediately use Statix' built-in first-order unification (which acts in the meta language, Statix) to implement first-order unification in the object language. Ideally when implementing beta equality when we encounter $\beq{e_1}{e_2}$ we would check if $e_1$ is a free variable, but Statix does not allow for querying whether variables are free. 
+However, we cannot immediately use Statix' built-in first-order unification (which acts in the meta language, Statix) to implement first-order unification in the object language. Ideally when implementing beta equality when we encounter $\beq{e_1}{e_2}$ we would check if $e_1$ is a free variable, but Statix does not allow for querying whether variables are free. The reason that Statix does not allow this is that it is non-trivial to guarantee confluence if this feature is added to the language.
 
 Instead, we will be implementing a novel, less powerful form of first-order unification. This will work by explicitly denoting which variables \emph{could be} free, and explicitly handling these cases in a way that approximates first-order unification. We will name this algorithm \emph{approximated first-order unification (AFOU)}.
 
@@ -91,7 +91,7 @@ expectBetaEq((s1, e1@FnConstruct(arg_name1, arg_type1, body1)),
 	expectBetaEq_((s1, e1), (sEmpty(), e2)).
 	\end{lstlisting}
 	\label{inf-case2}
-	Ideally, we would generate a new name iff \verb|e2| is a unresolved metavariable, otherwise using the already generated name. We can't query whether \verb|e2| is free, so as a best-attempt we always assume that \verb|e2| is free and generate a new name, this will fail in some cases. We will discuss this in the next section.
+	Ideally, we would generate a new name if \verb|e2| is a unresolved metavariable, otherwise using the already generated name. We can't query whether \verb|e2| is free, so as a best-attempt we always assume that \verb|e2| is free and generate a new name, this will fail in some cases. We will discuss this in the next section.
 	
 	\item An infer expression on the left, any expression on the right. We should not duplicate the previous two rules, instead, we can just swap the two expressions and re-use the rules above.
 \begin{lstlisting}
@@ -116,7 +116,7 @@ In case \ref{inf-case2}, we force the name of the function constructors to be eq
 
 In case \ref{inf-case4}, instead of asserting that both sides are equal under beta equality, we assert that both sides are identical. Both sides being identical implies that they are beta-equal, so this approximation is sound, meaning there is no program that AFOU can infer but FOU cannot. 
 
-The approximations are not complete: There are situations where AFOU fails to infer a program that FOU can infer. However, these programs are surprisingly uncommon considering how rough the approximations are. They mostly fail when we attempt to infer function values, and two functions are inferred that are beta-equal, and they are beta-equal but not identical. An example of a program where these approximation fails is:
+The approximations are not complete: There are situations where AFOU fails to infer a program that FOU can infer. However, these programs are surprisingly uncommon considering how rough the approximations are. Inference may fail when we attempt to infer function values, and two functions are inferred that are beta-equal, and they are beta-equal but not identical. An example of a program where these approximation fails is:
 
 \begin{lstlisting}
 postulate f : (A : Type -> _: A -> _: A -> A);

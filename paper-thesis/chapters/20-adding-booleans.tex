@@ -103,7 +103,7 @@ betaReduceHeadIf(s, _, c, b1, b2, ps) =
 	\bhr
 	{ \scope{s}{\co{BoolIf}(c, b1, b2)} }
 	{ \overline{p} }
-	{ \co{rebuild}((s, \co{BoolIf}(c, b1, b2)), \overline{p}) }
+	{ \co{rebuild}((s, \co{BoolIf}(c', b1, b2)), \overline{p}) }
 }
 \end{mathpar}
 \caption{Rules for beta head reducing booleans}
@@ -231,7 +231,7 @@ Now that a few features have been implemented, we can discuss how easy the langu
 	\item In the new file, define a case for the \verb|typeOfExpr| rule for the constructors that were added.
 \end{enumerate}
 
-This allows each feature to be isolated to its own file. If we decide that we don't like a feature after all, we can remove it simply by unimporting the file. This problem is similar to the expression problem\cite{expression_problem}, where we want to extend datatypes and their associated behaviour, which Statix solves very well.
+This allows each feature to be isolated to its own file. If we decide that we don't like a feature after all, we can remove it simply by unimporting the file. This problem is similar to the expression problem\cite{expression_problem, extensability}, where we want to extend datatypes and their associated behaviour, which Statix solves partially. Statix does not fulfill the requirement that files can be individually recompiled.
 
 In the following chapters, we're going to be extending the language further with these more interesting features using the approach defined above:
 \begin{itemize}

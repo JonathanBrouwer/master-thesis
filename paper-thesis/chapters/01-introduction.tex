@@ -8,14 +8,14 @@ We will write the declarative specification in the Spoofax language workbench, w
  
 
 \section*{Contributions}
-The primary contribution of this thesis is to investigate how well Statix is fit for the task of defining a dependently-typed language. The goal is not only to show that Statix can implement it, but also that the implementation is more concise than in a general purpose language. We will start by implementing the Calculus of Constructions~\cite{Coquand_Huet_1988}, a lambda calculus with dependent types, as this is one of the most simple dependently typed languages (chapter~\ref{chap:baselang}). 
+The primary contribution of this thesis is to investigate how well Statix is fit for the task of defining a dependently-typed language. The goal is not only to show that Statix can implement it, but also that the implementation is more concise than in a general purpose language (\textbf{Research Question 1}). We will start by implementing the Calculus of Constructions~\cite{Coquand_Huet_1988}, a lambda calculus with dependent types, as this is one of the most simple dependently typed languages (chapter~\ref{chap:baselang}). 
 
 However, this language is not very practical to write actual complex programs in, so to improve this situation we will extend the language with typical features of dependently typed languages. We will provide the following additional contributions:
 \begin{itemize}
-	\item We show the language is easily extendable, by extending it with booleans among other features (chapter~\ref{chap:bools}).
-	\item We show how to add inference of implicit arguments to the implementation (chapter~\ref{ch:inference}).
-	\item We show how to add support for inductive datatypes to the implementation (chapter~\ref{ch:datatypes}).
-	\item We show how to add support for universes to the implementation (chapter~\ref{ch:universes}).
+	\item \textbf{RQ2:} We show the language is easily extendable, by extending it with booleans among other features (chapter~\ref{chap:bools}).
+	\item \textbf{RQ3:} We show how to add inference of implicit arguments to the implementation (chapter~\ref{ch:inference}).
+	\item \textbf{RQ4:} We show how to add support for inductive datatypes to the implementation (chapter~\ref{ch:datatypes}).
+	\item \textbf{RQ5:} We show how to add support for universes to the implementation (chapter~\ref{ch:universes}).
 \end{itemize}
 
 These contributions are important for two reasons. Firstly from the perspective of a Spoofax researcher, developing a language with a complex type system in Statix tests the boundaries of what Statix can do, and how Statix could be further improved to support these use-cases better. On the other hand, from the perspective of a researcher in dependent type systems, if we can show that Statix provides a good way to quickly implement a dependently typed language, then Spoofax could help with rapid prototyping of dependently typed languages.

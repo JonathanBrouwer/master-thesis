@@ -1,0 +1,11 @@
+\frametitle{Conclusions}
+Spoofax is a great tool for developing dependently typed languages!
+^^I\begin{itemize}
+^^I^^I\item We can use scopes to represent environments and contexts
+^^I^^I\item Statix can still use improvements
+^^I^^I% - Higher order
+^^I\end{itemize}
+^^I
+^^I%- using scopes as env+context
+^^I%- statix enforces syntactic uniqueness of metavariable solutions but dependently typed languages use a weaker notion of equality
+^^I%- full thesis coming soonTM

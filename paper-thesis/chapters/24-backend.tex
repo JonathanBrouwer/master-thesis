@@ -50,10 +50,8 @@ Types require a bit more attention. Since our language has no way to match on ty
 
 \subsection{Inductive Data Types}
 
-Finally, inductive data types are a bit harder to compile, as Clojure does not have an equivalent to sum types on which we can match. Instead, we compile inductive datatypes to a pair (constructor, list of constructor arguments). 
+Finally, inductive data types are a bit more challenging, as Clojure does not have an equivalent to sum types on which we can match. Instead, we compile inductive datatypes to a pair (constructor, list of constructor arguments). An eliminator can then be compiled to a function from this pair, that matches on which constructor the datatype has, and calls the corresponding argument of the eliminator function. This is the same approach that the Agda to Scheme compiler takes. 
 
-
-\todo{finish this after implementing}
-- atoms voor constructors
+We did not end up implementing this, data types are not supported by the current implementation of the compiler. However, we see no reason why this couldn't be implemented identically to the Agda to Scheme compiler.
 
 The implementation of the language is now complete, both the type checker and the back-end. We will now discuss editor services (chapter \ref{chap:editor-services}) and compare the implementation with implementations in Haskell (chapter \ref{ch:comp-haskell}) and LambdaPi (chapter \ref{ch:comp-lambdapi}).

@@ -16,6 +16,7 @@
 \usepackage{MnSymbol,wasysym}
 \usepackage{array}
 \usepackage{qrcode}
+\usepackage{listings}
 
 \setbeamertemplate{navigation symbols}{} % remove navigation symbols
 \mode<presentation>{\usetheme[verticalbar=false]{tud}}
@@ -43,8 +44,39 @@
 }
 
 \begin{frame}[fragile]{Background: What is Spoofax?}
-	- why is spoofax important (declarative)
-	- lol
+	A language designer's workbench with everything you need to design a programming language.
+	\begin{itemize}
+		\item Declarative, using meta-languages
+	\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Background: What is Spoofax?}
+SDF3, Statix and Stratego (and more)
+	
+\begin{figure}
+	\includegraphics[width=0.32\linewidth]{img/semantics}
+	\includegraphics[width=0.32\linewidth]{img/syntax}
+	\includegraphics[width=0.32\linewidth]{img/transformation}
+\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Background: What is Spoofax?}
+
+\begin{exampleblock}{Example}
+\begin{lstlisting}
+int x = 5;
+int y = x + 3;
+return x + y;
+\end{lstlisting}
+\end{exampleblock}
+
+\begin{figure}
+	\includegraphics[width=0.7\linewidth]{img/screenshot005}
+\end{figure}
+
+% The logic I just explained would be written down in Statix
+% Like: When you encounter a let, create a new scope...
+
 \end{frame}
 
 \begin{frame}[fragile]{Background: What are Dependent Types?}
@@ -57,12 +89,26 @@
 % - n occurs insie a type `Vec`!
 % - The type system enforces these lengths are always correct
 % - Challenge: Type checking may require evaluating arbitrary terms to decide equality
-	\item Proof assistants
-	\item For example: Agda, Coq, Lean, ...
-% Can be used to write proofs about code
 \end{itemize}
+\end{frame}
 
+\begin{frame}[fragile]{Background: What are Dependent Types?}
+	Type checking requires evaluation
+	\begin{exampleblock}{Example 1}
+		\texttt{let T = if false then Int else Bool end;\\let b: T = true;}
+	\end{exampleblock}
+\end{frame}
 
+\begin{frame}[fragile]{Background: What are Dependent Types?}
+	Why are dependent types useful?
+	\begin{itemize}
+		\item Proof Assistants: Agda, Lean, Coq, etc
+	\end{itemize}
+	
+	% We're looking only at signatures
+	\begin{exampleblock}{Sorted lists}
+\texttt{sort : List t -> List t\\sort\_sorted : (v : List t) -> IsSorted (sort v)}
+	\end{exampleblock}
 \end{frame}
 
 \begin{frame}[fragile]{Research Question}
@@ -93,11 +139,13 @@
 \begin{frame}[fragile]{Primary Contribution: Calculus of Constructions in Statix}
 	A lambda calculus with dependent types.
 	
-	\begin{exampleblock}{Example 1}
-		\texttt{($\backslash$v: Type. v) Type}
-	\end{exampleblock}
+	\begin{block}{Syntax Definition}
+		\begin{figure}
+			\includegraphics[width=0.7\linewidth]{img/screenshot006}
+		\end{figure}
+	\end{block}
 
-	\begin{exampleblock}{Example 2}
+	\begin{exampleblock}{Example}
 		\texttt{let f = $\backslash$T: Type. $\backslash$x: T. x; \\
 f (T: Type -> Type) ($\backslash$y: Type. y)
 		}
@@ -108,11 +156,31 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking}
-	\begin{block}{Type checking relation}
-		\texttt{typeOfExpr : scope * Expr -> Expr}
-	\end{block}
-	% Returns an Expr, not a Type
-	% Scope -> Two different types of nodes
+	\begin{figure}
+		\includegraphics[width=0.9\linewidth]{img/screenshot007}
+	\end{figure}
+	% We define the language using inference rules
+	% How can we express those rules in Statix?
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking: From inference rules to Statix code}
+	\begin{figure}
+		\centering
+		\includegraphics[width=0.8\linewidth]{img/screenshot004}
+	\end{figure}
+	
+	\begin{figure}
+		\centering
+		\begin{exampleblock}{Equivalent Statix code} 
+			\texttt{typeOfExpr (s, Let(x, e, b)) = bt :-\\
+				\,\, typeOfExpr (s, e) == et, \\
+				\,\, typeOfExpr (sPutSubst (s, x, (s, e)), b) == bt}
+		\end{exampleblock}
+	\end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking}
 	\begin{block}{How do we use scopes?}
 		A scope is used as a replacement for an environment and a context.\\
 		One edge \verb|p|. One relation \texttt{name $\rightarrow$ NameEntry}, NameEntry is either:
@@ -132,23 +200,6 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 		\texttt{betaReduce : scope * Expr -> Expr} \\
 		\texttt{exectBetaEq : (scope * Expr) * (scope * Expr)}
 	\end{block}
-\end{frame}
-
-\begin{frame}[fragile]{Type Checking: From inference rules to Statix code}
-\begin{figure}
-	\centering
-	\includegraphics[width=0.8\linewidth]{img/screenshot004}
-\end{figure}
-
-\begin{figure}
-	\centering
-	\begin{exampleblock}{Equivalent Statix code} 
-		\texttt{typeOfExpr (s, Let(x, e, b)) = bt :-\\
-			\,\, typeOfExpr (s, e) == et, \\
-			\,\, typeOfExpr (sPutSubst (s, x, (s, e)), b) == bt}
-	\end{exampleblock}
-\end{figure}
-
 \end{frame}
 
 \begin{frame}[fragile]{Extra contributions}

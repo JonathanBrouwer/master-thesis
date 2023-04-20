@@ -232,8 +232,13 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	\begin{figure}
 		\includegraphics[width=0.9\linewidth]{screenshot001}
 	\end{figure}
-	
 \end{frame}
+
+\begin{frame}[fragile]{Type Checking: Variable Capturing}
+	todo
+\end{frame}
+
+
 
 \begin{frame}[fragile]{Extra contributions}
 	% Refer to thesis for this
@@ -252,6 +257,67 @@ Evaluation
 	\item Evaluation of Spoofax
 \end{enumerate}
 \end{frame}
+
+\begin{frame}{Comparison with Haskell}
+	\begin{block}{Type checking}
+		\texttt{data EnvEntry = NType Expr | NSubst SExpr
+			\\type Env = [EnvEntry]
+			\\type SExpr = (Env , Expr)
+			\\tc :: SExpr -> Either String Expr}
+	\end{block}
+
+	\begin{block}{Differences}
+		\begin{itemize}
+			\item Distribution of definitions over files
+			\item De Bruijn Indices vs Names
+			\item Inference built-in to Statix
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Term Inference}
+	\begin{example}\texttt{let id = ($\backslash$T : Type. $\backslash$x: T. x);
+	\\id \_ true}
+	\end{example}
+	\begin{block}{How it works}
+		\begin{itemize}
+			\item When we encounter \texttt{expectBetaEq(e1, e2)} and \texttt{e1} or \texttt{e2} is free, we can infer it!
+			\item But in Statix we can't query whether variables are free.
+			\item Solution: Wrap each free constructor in \texttt{Infer}.
+		\end{itemize}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Term Inference: Equational Unification}
+	\begin{itemize}
+		\item We can declare two terms to be equal if they satisfy a certain relation (such as beta equality)
+		\item We do this using \emph{reduction rules}, such as:
+		\begin{exampleblock}{Example of a rewrite rule}
+			($\backslash$ x : T. b) a => b[x := a]
+		\end{exampleblock}
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Comparison with LambdaPi}
+	\begin{itemize}
+		\item A \emph{logical framework} in which you can embed other programming languages
+		\item Supports rewrite rules
+		\item Cannot define \emph{Let} because of limitations of LambdaP
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Comparison with LambdaPi: Example}
+	
+\end{frame}
+
+\begin{frame}{Inductive Data Types}
+	todo
+\end{frame}
+
+\begin{frame}{Interpreter \& Compiler}
+	todo
+\end{frame}
+
 
 \begin{frame}[fragile]{Conclusions}
 	Spoofax is a great tool for developing dependently typed languages!

@@ -51,13 +51,21 @@
 \end{frame}
 
 \begin{frame}[fragile]{Background: What is Spoofax?}
-SDF3, Statix and Stratego (and more)
-	
 \begin{figure}
-	\includegraphics[width=0.32\linewidth]{img/semantics}
-	\includegraphics[width=0.32\linewidth]{img/syntax}
-	\includegraphics[width=0.32\linewidth]{img/transformation}
+	\includegraphics[width=0.8\linewidth]{img/syntax}
 \end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Background: What is Spoofax?}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{img/semantics}
+	\end{figure}
+\end{frame}
+
+\begin{frame}[fragile]{Background: What is Spoofax?}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{img/transformation}
+	\end{figure}
 \end{frame}
 
 \begin{frame}[fragile]{Background: What is Spoofax?}
@@ -95,7 +103,7 @@ return x + y;
 \begin{frame}[fragile]{Background: What are Dependent Types?}
 	Type checking requires evaluation
 	\begin{exampleblock}{Example 1}
-		\texttt{let T = if false then Int else Bool end;\\let b: T = true;}
+		\texttt{let T: Type = if false then Int else Bool end;\\let b: T = true;}
 	\end{exampleblock}
 \end{frame}
 
@@ -177,22 +185,40 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 				\,\, typeOfExpr (sPutSubst (s, x, (s, e)), b) == bt}
 		\end{exampleblock}
 	\end{figure}
-
 \end{frame}
 
-\begin{frame}[fragile]{Type Checking}
+\begin{frame}[fragile]{Type Checking: Environments \& Context}
+	\begin{exampleblock}{Example}
+		\texttt{let T: Type = Bool;\\
+			$\backslash$b: T. ???
+		}
+	\end{exampleblock}
+	
+	\begin{block}{What information is needed?}
+		\begin{enumerate}
+			\item T = Bool (Stored in Environment)
+			\item x : T (Stored in Context)
+		\end{enumerate}
+	\end{block}
+\end{frame}
+
+
+\begin{frame}[fragile]{Type Checking: Environments \& Context}
 	\begin{block}{How do we use scopes?}
 		A scope is used as a replacement for an environment and a context.\\
-		One edge \verb|p|. One relation \texttt{name $\rightarrow$ NameEntry}, NameEntry is either:
 		\begin{itemize}
-			\item NType: Stores a type (Corresponds to a context)
-			\item NSubst: Stores a substitution (Corresponds to an environment)
+			\item One type of edge: \verb|p|.
+			\item One type of relation: \verb|NameEntry|, which can be:
+				\begin{itemize}
+					\item NType: Stores a type (Corresponds to a context)
+					\item NSubst: Stores a substitution (Corresponds to an environment)
+				\end{itemize}
 		\end{itemize}
 	\end{block}
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking: Requires Evaluation}
-	\begin{exampleblock}{Example 1}
+	\begin{exampleblock}{Example from earlier}
 		\texttt{let T = if false then Int else Bool end;\\let b: T = true;}
 	\end{exampleblock}
 	\begin{block}{Evaluation relation} 
@@ -200,6 +226,13 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 		\texttt{betaReduce : scope * Expr -> Expr} \\
 		\texttt{exectBetaEq : (scope * Expr) * (scope * Expr)}
 	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking: Requires Evaluation}
+	\begin{figure}
+		\includegraphics[width=0.9\linewidth]{screenshot001}
+	\end{figure}
+	
 \end{frame}
 
 \begin{frame}[fragile]{Extra contributions}

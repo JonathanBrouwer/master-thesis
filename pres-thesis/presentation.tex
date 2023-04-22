@@ -34,7 +34,7 @@
 
 \title[]{Dependently Typed Languages in Statix}
 \institute[]{Delft University of Technology, The Netherlands}
-\author{Jonathan Brouwer \and Jesper Cockx \and Aron Zwaan}
+\author{Jonathan Brouwer}
 
 \begin{document}
 \section{Introduction}
@@ -235,7 +235,34 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking: Variable Capturing}
-	todo
+	\begin{exampleblock}{What is the type of this expression?}
+		\texttt{$\backslash$T : Type. $\backslash$T : T. T}
+	\end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking: Variable Capturing}
+	\begin{exampleblock}{What is the type of this expression?}
+		\texttt{$\backslash$T : Type. $\backslash$T : T. T}
+	\end{exampleblock}
+	
+	\begin{block}{The type}
+		\texttt{T : Type -> T : T -> T}
+	\end{block}
+	
+	\begin{block}{Equivalent type under renaming: Not correct!}
+		\texttt{T : Type -> x : T -> x}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Type Checking: Variable Capturing}
+	\begin{block}{Solutions}
+		\begin{enumerate}
+			\item De Bruijn indices
+			\item Uniquifying names
+			\item Capture-avoiding substitution
+			\item \textbf{Using scopes to distinguish names}
+		\end{enumerate}
+	\end{block}
 \end{frame}
 
 
@@ -275,6 +302,16 @@ Evaluation
 	\end{block}
 \end{frame}
 
+\begin{frame}{On Extensibility}
+	\begin{block}{How to extend the language}
+		\begin{enumerate}
+			\item Define the parsing rules for the new feature
+			\item Create a new .stx file for the type-checking rules (and import it)
+			\item Define the relations (typeOfExpr, betaReduceHead, expectBetaEq and betaReduce) in this file using the defining inference rules
+		\end{enumerate}
+	\end{block}
+\end{frame}
+
 \begin{frame}{Term Inference}
 	\begin{example}\texttt{let id = ($\backslash$T : Type. $\backslash$x: T. x);
 	\\id \_ true}
@@ -302,20 +339,24 @@ Evaluation
 	\begin{itemize}
 		\item A \emph{logical framework} in which you can embed other programming languages
 		\item Supports rewrite rules
-		\item Cannot define \emph{Let} because of limitations of LambdaP
+		\item Cannot define \emph{Let} because of limitations of LambdaPi
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Comparison with LambdaPi: Example}
+	\begin{exampleblock}{Defining FnConstruct}
+		\texttt{symbol FnConstruct :
+		\\\hspace{1em}Π (A : TmSort ),
+		\\\hspace{1em}Π (B : TmType A → TmSort ),
+		\\\hspace{1em}Π (f : Π (x : TmType A), TmType (B x)),
+		\\\hspace{1em}TmType ( FnType A B);
+		}
+		
+	\end{exampleblock}
 	
-\end{frame}
-
-\begin{frame}{Inductive Data Types}
-	todo
-\end{frame}
-
-\begin{frame}{Interpreter \& Compiler}
-	todo
+	\begin{exampleblock}{Reduction rule for FnConstruct}
+		\texttt{rule FnConstruct \_ \_ \$f → \$f;}
+	\end{exampleblock}
 \end{frame}
 
 

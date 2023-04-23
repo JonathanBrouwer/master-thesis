@@ -63,12 +63,6 @@
 \end{frame}
 
 \begin{frame}[fragile]{Background: What is Spoofax?}
-	\begin{figure}
-		\includegraphics[width=0.8\linewidth]{img/transformation}
-	\end{figure}
-\end{frame}
-
-\begin{frame}[fragile]{Background: What is Spoofax?}
 
 \begin{exampleblock}{Example}
 \begin{lstlisting}
@@ -87,11 +81,19 @@ return x + y;
 
 \end{frame}
 
+\begin{frame}[fragile]{Background: What is Spoofax?}
+	\begin{figure}
+		\includegraphics[width=0.8\linewidth]{img/transformation}
+	\end{figure}
+	% - used for interpreters (3+5=8) or compiler (a+b compiles to add instruction in x86)
+	% - = DYNAMIC SEMANTICS
+\end{frame}
+
 \begin{frame}[fragile]{Background: What are Dependent Types?}
 \begin{itemize}
 	\item Types may depend on values!
 	\begin{exampleblock}{Example}
-		\texttt{concat : (A: Set) -> (n m : Nat) -> Vec A n -> Vec A m
+		\texttt{concat : (A: Type) -> (n m : Nat) -> Vec A n -> Vec A m
 			\\ \hspace*{48pt} -> Vec A (n + m)}
 	\end{exampleblock}
 % - n occurs insie a type `Vec`!
@@ -177,14 +179,15 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 		\includegraphics[width=0.8\linewidth]{img/screenshot004}
 	\end{figure}
 	
-	\begin{figure}
-		\centering
-		\begin{exampleblock}{Equivalent Statix code} 
-			\texttt{typeOfExpr (s, Let(x, e, b)) = bt :-\\
-				\,\, typeOfExpr (s, e) == et, \\
-				\,\, typeOfExpr (sPutSubst (s, x, (s, e)), b) == bt}
-		\end{exampleblock}
-	\end{figure}
+	\begin{block}{Signature of \emph{typeOfExpr}}
+		\texttt{typeOfExpr : scope * Expr -> Expr}
+	\end{block}
+	
+	\begin{exampleblock}{Equivalent Statix code} 
+		\texttt{typeOfExpr (s, Let(x, e, b)) = bt :-\\
+			\,\, typeOfExpr (s, e) == et, \\
+			\,\, typeOfExpr (sPutSubst (s, x, (s, e)), b) == bt}
+	\end{exampleblock}
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking: Environments \& Context}
@@ -197,7 +200,7 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	\begin{block}{What information is needed?}
 		\begin{enumerate}
 			\item T = Bool (Stored in Environment)
-			\item x : T (Stored in Context)
+			\item b : T (Stored in Context)
 		\end{enumerate}
 	\end{block}
 \end{frame}
@@ -205,16 +208,13 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 
 \begin{frame}[fragile]{Type Checking: Environments \& Context}
 	\begin{block}{How do we use scopes?}
-		A scope is used as a replacement for an environment and a context.\\
-		\begin{itemize}
-			\item One type of edge: \verb|p|.
-			\item One type of relation: \verb|NameEntry|, which can be:
-				\begin{itemize}
-					\item NType: Stores a type (Corresponds to a context)
-					\item NSubst: Stores a substitution (Corresponds to an environment)
-				\end{itemize}
-		\end{itemize}
+		Scope graphs are used as a replacement for an environment and a context.
 	\end{block}
+	
+	\begin{figure}
+		\includegraphics[width=0.7\linewidth]{screenshot004}
+	\end{figure}
+	
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking: Requires Evaluation}
@@ -232,6 +232,8 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	\begin{figure}
 		\includegraphics[width=0.9\linewidth]{screenshot001}
 	\end{figure}
+	
+	% Talk about the fact that we're now defining evaluation in Statix
 \end{frame}
 
 \begin{frame}[fragile]{Type Checking: Variable Capturing}
@@ -262,6 +264,14 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 			\item Capture-avoiding substitution
 			\item \textbf{Using scopes to distinguish names}
 		\end{enumerate}
+	\end{block}
+	
+	\begin{block}{The type}
+		\texttt{T : Type -> T : T -> T}
+	\end{block}
+	
+	\begin{block}{The type (fixed)}
+		\texttt{T : Type -> T : (T, s0) -> (T, s0)}
 	\end{block}
 \end{frame}
 
@@ -305,9 +315,9 @@ Evaluation
 \begin{frame}{On Extensibility}
 	\begin{block}{How to extend the language}
 		\begin{enumerate}
-			\item Define the parsing rules for the new feature
-			\item Create a new .stx file for the type-checking rules (and import it)
-			\item Define the relations (typeOfExpr, betaReduceHead, expectBetaEq and betaReduce) in this file using the defining inference rules
+			\item Define parsing rules
+			\item Create a new .stx file
+			\item Define the relations: \texttt{typeOfExpr, betaReduceHead, expectBetaEq and betaReduce}
 		\end{enumerate}
 	\end{block}
 \end{frame}
@@ -318,7 +328,7 @@ Evaluation
 	\end{example}
 	\begin{block}{How it works}
 		\begin{itemize}
-			\item When we encounter \texttt{expectBetaEq(e1, e2)} and \texttt{e1} or \texttt{e2} is free, we can infer it!
+			\item When \texttt{expectBetaEq(e1, e2)} and \texttt{e1} or \texttt{e2} is free, infer!
 			\item But in Statix we can't query whether variables are free.
 			\item Solution: Wrap each free constructor in \texttt{Infer}.
 		\end{itemize}
@@ -332,31 +342,8 @@ Evaluation
 		\begin{exampleblock}{Example of a rewrite rule}
 			($\backslash$ x : T. b) a => b[x := a]
 		\end{exampleblock}
+		\item Comparison with LambdaPi
 	\end{itemize}
-\end{frame}
-
-\begin{frame}{Comparison with LambdaPi}
-	\begin{itemize}
-		\item A \emph{logical framework} in which you can embed other programming languages
-		\item Supports rewrite rules
-		\item Cannot define \emph{Let} because of limitations of LambdaPi
-	\end{itemize}
-\end{frame}
-
-\begin{frame}{Comparison with LambdaPi: Example}
-	\begin{exampleblock}{Defining FnConstruct}
-		\texttt{symbol FnConstruct :
-		\\\hspace{1em}Π (A : TmSort ),
-		\\\hspace{1em}Π (B : TmType A → TmSort ),
-		\\\hspace{1em}Π (f : Π (x : TmType A), TmType (B x)),
-		\\\hspace{1em}TmType ( FnType A B);
-		}
-		
-	\end{exampleblock}
-	
-	\begin{exampleblock}{Reduction rule for FnConstruct}
-		\texttt{rule FnConstruct \_ \_ \$f → \$f;}
-	\end{exampleblock}
 \end{frame}
 
 \begin{frame}[fragile]{Conclusions}

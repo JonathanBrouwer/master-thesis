@@ -1,6 +1,5 @@
 \frametitle{Conclusions}
 \begin{itemize}
-^^I^^I\item \textbf{Spoofax perspective:} Support for complex inference could be improved, for example using equational unification.
-^^I^^I\item \textbf{Dependent types perspective:} This already functions as a great tool for prototyping dependently typed languages!
-^^I^^I% - Higher order
+^^I^^I\item Statix is already as a great tool for prototyping dependently typed languages!
+^^I^^I\item Support for complex inference could be improved, for example using equational unification.
 ^^I\end{itemize}

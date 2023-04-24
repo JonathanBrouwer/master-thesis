@@ -165,14 +165,6 @@ f (Type -> Type) ($\backslash$y: Type. y)
 	% what other languages use as a core
 \end{frame}
 
-\begin{frame}[fragile]{Type Checking}
-	\begin{figure}
-		\includegraphics[width=0.9\linewidth]{img/screenshot007}
-	\end{figure}
-	% We define the language using inference rules
-	% How can we express those rules in Statix?
-\end{frame}
-
 \begin{frame}[fragile]{Type Checking: From inference rules to Statix code}
 	\begin{figure}
 		\centering
@@ -221,18 +213,12 @@ f (Type -> Type) ($\backslash$y: Type. y)
 	\begin{exampleblock}{Example from earlier}
 		\texttt{let T = if false then Int else Bool end;\\let b: T = true;}
 	\end{exampleblock}
-	\begin{block}{Evaluation relation} 
+	\begin{block}{Evaluation relations} 
 		\texttt{betaHeadReduce : scope * Expr -> scope * Expr} \\
 		\texttt{betaReduce : scope * Expr -> Expr} \\
 		\texttt{expectBetaEq : (scope * Expr) * (scope * Expr)}
 	\end{block}
-\end{frame}
 
-\begin{frame}[fragile]{Type Checking: Requires Evaluation}
-	\begin{figure}
-		\includegraphics[width=0.9\linewidth]{screenshot001}
-	\end{figure}
-	
 	% Talk about the fact that we're now defining evaluation in Statix
 \end{frame}
 
@@ -316,6 +302,7 @@ Evaluation
 		\begin{itemize}
 			\item Distribution of definitions over files
 			\item De Bruijn Indices vs Names
+			\item Definition in Statix is approximately 20\% longer
 			\item Inference built-in to Statix
 		\end{itemize}
 	\end{block}
@@ -346,21 +333,12 @@ Evaluation
 \end{frame}
 
 \begin{frame}[fragile]{Conclusions}
-	Spoofax is a great tool for developing dependently typed languages!
 	\begin{itemize}
-		\item We can use scopes to represent environments and contexts
-		\item Statix can still use improvements
+		\item \textbf{Spoofax perspective:} Support for complex inference could be improved, for example using equational unification.
+		\item \textbf{Dependent types perspective:} This already functions as a great tool for prototyping dependently typed languages!
 		% - Higher order 
 	\end{itemize}
-	
-	%- using scopes as env+context  
-	%- statix enforces syntactic uniqueness of metavariable solutions but dependently typed languages use a weaker notion of equality 
-	%- full thesis coming soonTM
 \end{frame}
-
-% block
-% exampleblock
-% alertblock
 
 \end{document}
 

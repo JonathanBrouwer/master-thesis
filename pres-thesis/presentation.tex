@@ -66,8 +66,8 @@
 
 \begin{exampleblock}{Example}
 \begin{lstlisting}
-int x = 5;
-int y = x + 3;
+let x = 5;
+let y = x + 3;
 return x + y;
 \end{lstlisting}
 \end{exampleblock}
@@ -103,13 +103,6 @@ return x + y;
 \end{frame}
 
 \begin{frame}[fragile]{Background: What are Dependent Types?}
-	Type checking requires evaluation
-	\begin{exampleblock}{Example 1}
-		\texttt{let T: Type = if false then Int else Bool end;\\let b: T = true;}
-	\end{exampleblock}
-\end{frame}
-
-\begin{frame}[fragile]{Background: What are Dependent Types?}
 	Why are dependent types useful?
 	\begin{itemize}
 		\item Proof Assistants: Agda, Lean, Coq, etc
@@ -121,11 +114,18 @@ return x + y;
 	\end{exampleblock}
 \end{frame}
 
+\begin{frame}[fragile]{Background: What are Dependent Types?}
+	Type checking requires evaluation
+	\begin{exampleblock}{Example 1}
+		\texttt{let T: Type = if false then Int else Bool end;\\let b: T = true;}
+	\end{exampleblock}
+\end{frame}
+
 \begin{frame}[fragile]{Research Question}
 \large{How suitable is Statix for defining a dependently-typed language?}
 \begin{itemize}
 	\item Will it be easier than doing it in Haskell?
-	\item Defining system F was a challenge\footnote{Hendrik van Antwerpen et al. Scopes as types.}, will it even be possible?
+	\item Prior work: Defining System F\footnote{Hendrik van Antwerpen et al. Scopes as types.}
 \end{itemize}
 
 % Mention system f (polymorphic lambda calculus) being hard (scopes as types)
@@ -157,7 +157,7 @@ return x + y;
 
 	\begin{exampleblock}{Example}
 		\texttt{let f = $\backslash$T: Type. $\backslash$x: T. x; \\
-f (T: Type -> Type) ($\backslash$y: Type. y)
+f (Type -> Type) ($\backslash$y: Type. y)
 		}
 	\end{exampleblock}
 
@@ -212,7 +212,7 @@ f (T: Type -> Type) ($\backslash$y: Type. y)
 	\end{block}
 	
 	\begin{figure}
-		\includegraphics[width=0.7\linewidth]{screenshot004}
+		\includegraphics[width=0.7\linewidth]{screenshot005}
 	\end{figure}
 	
 \end{frame}
@@ -295,12 +295,21 @@ Evaluation
 \end{enumerate}
 \end{frame}
 
+\begin{frame}{On Extensibility}
+	\begin{block}{How to extend the language}
+		\begin{enumerate}
+			\item Define parsing rules
+			\item Create a new .stx file
+			\item Define the relations: \texttt{typeOfExpr, betaReduceHead, expectBetaEq and betaReduce}
+		\end{enumerate}
+	\end{block}
+\end{frame}
+
 \begin{frame}{Comparison with Haskell}
 	\begin{block}{Type checking}
-		\texttt{data EnvEntry = NType Expr | NSubst SExpr
+		\texttt{data EnvEntry = NType Expr | NSubst (Env, Expr)
 			\\type Env = [EnvEntry]
-			\\type SExpr = (Env , Expr)
-			\\tc :: SExpr -> Either String Expr}
+			\\tc :: Env -> Expr -> Either String Expr}
 	\end{block}
 
 	\begin{block}{Differences}
@@ -309,16 +318,6 @@ Evaluation
 			\item De Bruijn Indices vs Names
 			\item Inference built-in to Statix
 		\end{itemize}
-	\end{block}
-\end{frame}
-
-\begin{frame}{On Extensibility}
-	\begin{block}{How to extend the language}
-		\begin{enumerate}
-			\item Define parsing rules
-			\item Create a new .stx file
-			\item Define the relations: \texttt{typeOfExpr, betaReduceHead, expectBetaEq and betaReduce}
-		\end{enumerate}
 	\end{block}
 \end{frame}
 
